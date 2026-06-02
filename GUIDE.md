@@ -2,6 +2,8 @@
 
 Everything you need to install the **Kraken AD&D 2E Character Wizard**, know what each file is, where it goes, and how to use the wizard.
 
+> 🎥 **Prefer to watch?** See the [video walkthrough on YouTube](https://youtu.be/DUrpYcwq9xY).
+
 ---
 
 ## 1. What's in the download

@@ -6,6 +6,28 @@ Tabbed flow: **Abilities → Race → Class → Kit → Alignment → Equipment 
 
 > 📖 **New here? Read the [Install & User Guide](GUIDE.md)** — what each file is, exactly where it goes, the DM options, and a screenshot walkthrough of every tab.
 
+## 🎥 Demo
+
+[![Watch the demo on YouTube](https://img.youtube.com/vi/DUrpYcwq9xY/hqdefault.jpg)](https://youtu.be/DUrpYcwq9xY)
+
+*A walkthrough of building a character with the wizard — [watch on YouTube](https://youtu.be/DUrpYcwq9xY).*
+
+## Screenshots
+
+**Pick a method and roll your abilities** (any of the six PHB methods your DM allows)
+
+![Abilities tab](docs/images/02-abilities.png)
+
+**Roll your starting gold, grab a free kit, buy gear, and inherit a family heirloom**
+
+![Equipment tab](docs/images/06-equipment.png)
+
+**…and the wizard builds a complete 2E sheet — abilities, saves, AC, THAC0, HP, gear**
+
+![Finished character sheet](docs/images/09-character-sheet.png)
+
+> The full tab-by-tab walkthrough (with every screen) is in the **[Install & User Guide](GUIDE.md)**.
+
 ## Install (players / testers)
 
 Grab the latest [**Release**](../../releases/latest) and:
