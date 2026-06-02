@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<icon name="charwizard2e_icon" file="graphics/icon_charwizard2e.png" />
+	<icon name="charwizard2e_dice" file="graphics/icon_dice.png" />
+	<icon name="charwizard2e_abilities_art" file="graphics/abilities_art.png" />
+	<icon name="charwizard2e_race_art" file="graphics/race_art.png" />
+	<icon name="charwizard2e_race_human" file="graphics/race_human.png" />
+	<icon name="charwizard2e_race_elf" file="graphics/race_elf.png" />
+	<icon name="charwizard2e_race_dwarf" file="graphics/race_dwarf.png" />
+	<icon name="charwizard2e_race_gnome" file="graphics/race_gnome.png" />
+	<icon name="charwizard2e_race_halfling" file="graphics/race_halfling.png" />
+	<icon name="charwizard2e_race_halfelf" file="graphics/race_halfelf.png" />
+	<icon name="charwizard2e_class_art" file="graphics/class_art.png" />
+	<!-- Class portraits (480x600 aspect-fit; shown when a class is confirmed) -->
+	<icon name="charwizard2e_class_abjurer" file="graphics/classes/abjurer.png" />
+	<icon name="charwizard2e_class_bard" file="graphics/classes/bard.png" />
+	<icon name="charwizard2e_class_cleric" file="graphics/classes/cleric.png" />
+	<icon name="charwizard2e_class_conjurer" file="graphics/classes/conjurer.png" />
+	<icon name="charwizard2e_class_diviner" file="graphics/classes/diviner.png" />
+	<icon name="charwizard2e_class_druid" file="graphics/classes/druid.png" />
+	<icon name="charwizard2e_class_enchanter" file="graphics/classes/enchanter.png" />
+	<icon name="charwizard2e_class_fighter" file="graphics/classes/fighter.png" />
+	<icon name="charwizard2e_class_illusionist" file="graphics/classes/illusionist.png" />
+	<icon name="charwizard2e_class_invoker" file="graphics/classes/invoker.png" />
+	<icon name="charwizard2e_class_mage" file="graphics/classes/mage.png" />
+	<icon name="charwizard2e_class_necromancer" file="graphics/classes/necromancer.png" />
+	<icon name="charwizard2e_class_paladin" file="graphics/classes/paladin.png" />
+	<icon name="charwizard2e_class_ranger" file="graphics/classes/ranger.png" />
+	<icon name="charwizard2e_class_thief" file="graphics/classes/thief.png" />
+	<icon name="charwizard2e_class_transmuter" file="graphics/classes/transmuter.png" />
+	<icon name="charwizard2e_kit_art" file="graphics/kit_art.png" />
+	<icon name="charwizard2e_alignment_art" file="graphics/alignment_art.png" />
+	<icon name="charwizard2e_equipment_art" file="graphics/equipment_art.png" />
+	<icon name="charwizard2e_proficiencies_art" file="graphics/proficiencies_art.png" />
+	<icon name="charwizard2e_commit_art" file="graphics/commit_art.png" />
+</root>

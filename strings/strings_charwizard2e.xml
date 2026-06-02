@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<string name="charwizard2e_button">Character Wizard</string>
+	<string name="charwizard2e_tooltip">Open the AD&amp;D 2E Character Creation Wizard</string>
+	<string name="charwizard2e_title">AD&amp;D 2E Character Wizard</string>
+
+	<string name="charwizard2e_tab_abilities">Abilities</string>
+	<string name="charwizard2e_tab_race">Race</string>
+	<string name="charwizard2e_tab_class">Class</string>
+	<string name="charwizard2e_tab_alignment">Alignment</string>
+	<string name="charwizard2e_tab_equipment">Equipment</string>
+	<string name="charwizard2e_tab_proficiencies">Profs</string>
+	<string name="charwizard2e_tab_commit">Commit</string>
+	<string name="charwizard2e_title_proficiencies">Proficiencies &amp; Languages</string>
+	<string name="charwizard2e_msg_needclass_for_profs">Choose a class first - your weapon and nonweapon proficiency slots depend on it.</string>
+	<string name="charwizard2e_prof_intro">Spend your starting proficiency slots and pick languages here. Weapon proficiencies are filtered to those your class may use; languages start from your racial tongues. (Pickers are being added section by section.)</string>
+	<string name="charwizard2e_weapon_header">Weapon Proficiencies</string>
+	<string name="charwizard2e_weapon_slots">Weapon slots used: %d / %d  -  only weapons your class may use are listed</string>
+	<string name="charwizard2e_weapon_empty">No usable weapons found in the loaded item libraries.</string>
+	<string name="charwizard2e_label_level">Starting Level:</string>
+	<string name="charwizard2e_button_plus">+</string>
+	<string name="charwizard2e_level_max">(max %d for this race/class)</string>
+	<string name="charwizard2e_label_proficient">Proficient</string>
+	<string name="charwizard2e_label_specialized">Specialized</string>
+	<string name="charwizard2e_button_spec">Spec</string>
+	<string name="charwizard2e_button_spec_tooltip">Fighter weapon specialization (+1 hit, +2 damage; uses 1 extra weapon slot)</string>
+	<string name="charwizard2e_language_header">Languages</string>
+	<string name="charwizard2e_lang_known">Known (racial): %s</string>
+	<string name="charwizard2e_lang_slots">Extra languages (Intelligence): %d / %d</string>
+	<string name="charwizard2e_lang_empty">No additional languages available.</string>
+	<string name="charwizard2e_label_known">Known</string>
+	<string name="charwizard2e_nwp_header">Nonweapon Proficiencies</string>
+	<string name="charwizard2e_nwp_slots">Nonweapon slots used: %d / %d  -  pick any (group/cost is applied at the table)</string>
+	<string name="charwizard2e_nwp_empty">No nonweapon proficiencies found in the loaded libraries.</string>
+	<string name="charwizard2e_label_chosen">Chosen</string>
+	<string name="charwizard2e_spell_header">Spells</string>
+	<string name="charwizard2e_spell_info">Spells per level (used / available):</string>
+	<string name="charwizard2e_spell_empty">No spells of your class/level found in the loaded libraries.</string>
+	<string name="charwizard2e_spell_lvl_prev">&lt; Lower</string>
+	<string name="charwizard2e_spell_lvl_next">Higher &gt;</string>
+	<string name="charwizard2e_spell_lvl_all">All</string>
+
+	<string name="charwizard2e_title_abilities">Ability Scores - Method V (4d6, drop the lowest die)</string>
+	<string name="charwizard2e_title_races">Races</string>
+	<string name="charwizard2e_title_subraces">Subraces</string>
+	<string name="charwizard2e_empty_subrace_list">No subraces found for this race in the loaded modules.</string>
+	<string name="charwizard2e_filter_source">Source</string>
+	<string name="charwizard2e_filter_name">Name</string>
+	<string name="charwizard2e_empty_list">No matching records found. Load AD&amp;D 2E race modules (e.g. Player&#39;s Handbook) and try again.</string>
+	<string name="charwizard2e_button_changerace">Change Race...</string>
+	<string name="charwizard2e_title_classes">Classes</string>
+	<string name="charwizard2e_title_kits">Class Kits</string>
+	<string name="charwizard2e_button_changeclass">Change Class...</string>
+	<string name="charwizard2e_button_changekit">Change Kit...</string>
+	<string name="charwizard2e_button_nokit">No Kit</string>
+	<string name="charwizard2e_empty_kit_list">No kits match your race and class in the loaded modules. Use No Kit, or load a class handbook (e.g. Complete Fighter&#39;s Handbook).</string>
+	<string name="charwizard2e_msg_racepicked">Character Wizard: race set to '%s'.</string>
+	<string name="charwizard2e_msg_classpicked">Character Wizard: class set to '%s'.</string>
+	<string name="charwizard2e_msg_kitpicked">Character Wizard: kit set to '%s'.</string>
+	<string name="charwizard2e_tab_kit">Kit</string>
+	<string name="charwizard2e_title_kit">Class Kit</string>
+	<string name="charwizard2e_msg_needclass_for_kit">Choose a class first - kits available depend on your class (and race).</string>
+	<string name="charwizard2e_kit_none">No kit selected for this character.</string>
+	<string name="charwizard2e_msg_needrace_for_class">Choose and confirm a race on the Race tab before selecting a class. Class choices follow PHB Table 7 for your race.</string>
+	<string name="charwizard2e_empty_class_list">No classes match your race and filters. Pick a race first, or clear the Source filter (blank = all books).</string>
+
+	<string name="charwizard2e_title_alignments">Alignment</string>
+	<string name="charwizard2e_button_changealignment">Change Alignment...</string>
+	<string name="charwizard2e_msg_alignmentpicked">Character Wizard: alignment set to '%s'.</string>
+	<string name="charwizard2e_msg_needclass_for_alignment">Choose and confirm a class on the Class tab before selecting an alignment. Some classes restrict alignment (Paladin, Druid, Monk).</string>
+	<string name="charwizard2e_empty_alignment_list">No alignments are legal for this class.</string>
+	<string name="charwizard2e_hint_paladin_alignment">Paladins must be Lawful Good.</string>
+	<string name="charwizard2e_hint_druid_alignment">Druids must be True Neutral.</string>
+	<string name="charwizard2e_hint_monk_alignment">Monks must be lawful (Lawful Good, Lawful Neutral, or Lawful Evil).</string>
+
+	<string name="charwizard2e_title_equipment">Starting Equipment</string>
+	<string name="charwizard2e_msg_needalignment_for_equipment">Choose and confirm an alignment before rolling starting funds.</string>
+	<string name="charwizard2e_label_wealth_formula">Starting funds (PHB):</string>
+	<string name="charwizard2e_wealth_warrior">Warrior group - roll 5d4, multiply by 10 gp (Fighter, Ranger, Paladin)</string>
+	<string name="charwizard2e_wealth_priest">Priest group - roll 3d6, multiply by 10 gp (Cleric, Druid)</string>
+	<string name="charwizard2e_wealth_rogue">Rogue group - roll 2d6, multiply by 10 gp (Thief, Bard)</string>
+	<string name="charwizard2e_wealth_wizard">Wizard group - roll (1d4+1), multiply by 10 gp (Mage and specialists)</string>
+	<string name="charwizard2e_wealth_roll_tooltip">Roll starting gold for your class (animated dice)</string>
+	<string name="charwizard2e_label_wealth_result">Rolled starting gold:</string>
+	<string name="charwizard2e_wealth_result_value">%d gp</string>
+	<string name="charwizard2e_wealth_result_none">(not rolled yet)</string>
+	<string name="charwizard2e_button_clear_roll">Clear Roll</string>
+	<!-- Options menu: DM toggle for free starter items -->
+	<string name="option_header_charwizard2e">Kraken Character Wizard</string>
+	<string name="option_label_free_items">Grant free starter items</string>
+	<string name="option_label_roll_lock">Lock ability rolls (one roll only)</string>
+	<string name="option_label_heirloom">Allow family heirloom items</string>
+	<string name="option_label_method1">Allow ability Method I (3d6, in order)</string>
+	<string name="option_label_method2">Allow ability Method II (3d6 twice each, keep higher)</string>
+	<string name="option_label_method3">Allow ability Method III (3d6 x6, arrange)</string>
+	<string name="option_label_method4">Allow ability Method IV (3d6 x12, keep best 6)</string>
+	<string name="option_label_method5">Allow ability Method V (4d6, drop lowest)</string>
+	<string name="option_label_method6">Allow ability Method VI (all 8s, then place 7d6)</string>
+	<string name="charwizard2e_method_prev">&lt;</string>
+	<string name="charwizard2e_method_next">&gt;</string>
+	<string name="charwizard2e_msg_rolllocked">Character Wizard: the DM has locked ability rolls - you may only roll once. (Options &#187; Kraken Character Wizard)</string>
+	<string name="charwizard2e_label_hint_locked">Abilities rolled. The DM has locked re-rolls. Drag one score onto another to swap them.</string>
+	<!-- Equipment-tab status line reflecting the Options toggle -->
+	<string name="charwizard2e_freebies_status_on">Free starter items: ON. This character will be granted a basic adventuring pack and the cheap item their class needs to function (instrument, holy symbol, thieves&#39; picks, spellbook, etc.). The DM controls this in Options &#187; Kraken Character Wizard.</string>
+	<string name="charwizard2e_freebies_status_off">Free starter items: OFF. The DM can enable free class essentials in Options &#187; Kraken Character Wizard &#187; "Grant free starter items".</string>
+	<string name="charwizard2e_msg_freebies_added">Character Wizard: granted %d free starter item(s) (pack + class essentials).</string>
+	<string name="charwizard2e_msg_freebies_none">Character Wizard: free starter items are enabled, but no matching items were found in the loaded item libraries. Add gear manually or load the relevant equipment module.</string>
+	<!-- Curated starter-gear picker -->
+	<string name="charwizard2e_items_catalog_title">Buy Starter Gear (optional) - cost is deducted from your rolled gold</string>
+	<string name="charwizard2e_button_clear_items">Clear Items</string>
+	<string name="charwizard2e_items_empty">No matching gear found in the loaded item libraries.</string>
+	<string name="charwizard2e_button_minus">-</string>
+	<string name="charwizard2e_button_remove_tooltip">Remove one</string>
+	<string name="charwizard2e_msg_items_added">Character Wizard: added %d chosen starter item(s).</string>
+
+	<!-- Commit / Save tab -->
+	<string name="charwizard2e_title_commit">Save &amp; Commit Character</string>
+	<string name="charwizard2e_sum_header">Summary of Choices</string>
+	<string name="charwizard2e_sum_abilities">Abilities</string>
+	<string name="charwizard2e_sum_race">Race</string>
+	<string name="charwizard2e_sum_class">Class</string>
+	<string name="charwizard2e_sum_alignment">Alignment</string>
+	<string name="charwizard2e_sum_gold">Starting gold</string>
+	<string name="charwizard2e_sum_freebies">Free starter items</string>
+	<string name="charwizard2e_sum_items">Chosen gear</string>
+	<string name="charwizard2e_val_on">On</string>
+	<string name="charwizard2e_val_off">Off</string>
+	<string name="charwizard2e_warn_abilities">Roll and assign all six ability scores (Abilities tab).</string>
+	<string name="charwizard2e_warn_race">Choose a race (Race tab).</string>
+	<string name="charwizard2e_warn_class">Choose a class (Class tab).</string>
+	<string name="charwizard2e_warn_alignment">Choose an alignment (Alignment tab).</string>
+	<string name="charwizard2e_warn_wealth">Starting gold not rolled yet (optional - Equipment tab).</string>
+	<string name="charwizard2e_commit_ready">All required choices are made. Click Create Character to build the sheet - Fantasy Grounds will apply race, class, kit, HP, THAC0, saves and proficiencies automatically.</string>
+	<string name="charwizard2e_commit_missing">Finish these required choices before creating the character:</string>
+	<string name="charwizard2e_details_header">Character Details (type your own, or roll the dice)</string>
+	<string name="charwizard2e_button_rollall">Roll All Details</string>
+	<string name="charwizard2e_page_soon">This page is coming soon - the wizard is being built one page at a time.</string>
+
+	<string name="charwizard2e_label_name">Character Name</string>
+	<string name="charwizard2e_label_abilities">Ability Scores - Method V (4d6, drop lowest)</string>
+	<string name="charwizard2e_label_hint">Click the dice to roll. Drag one score onto another to swap them.</string>
+
+	<string name="charwizard2e_lore_title">The Six Abilities</string>
+	<string name="charwizard2e_lore_abilities">Before you choose a people or a profession, the dice reveal the raw material of the hero you will become. In AD&amp;D 2nd Edition, six ability scores govern almost every challenge: opening doors, dodging dragon breath, resisting poison, learning spells, sensing lies, and leading companions.\r\rThis wizard uses Method V from the Player&#39;s Handbook: roll 4d6 for each ability, drop the lowest die, then assign the six results where you will. Drag one score onto another to swap them until the array suits your vision.\r\rStrength measures muscle and brawn. It sets melee damage, the weight you can carry, and chances to bend bars or force doors. Fighters, paladins, and rangers with 18 Strength may roll percentile dice (01-00) for exceptional Strength (18/xx); use the second dice icon beside Strength when it appears.\r\rDexterity is quickness and aim: Armor Class, missile attacks, and reactions in surprise. Constitution is hardiness: hit points per level, system shock, resurrection survival, and poison saves. Intelligence governs languages, arcane spellcraft, and how readily you learn. Wisdom supports priestly magic, magical defense, and insight. Charisma shapes loyalty, henchmen, and reaction rolls.\r\rWrite no score in stone too soon. Race and class choices on the following tabs may raise or lower these numbers, and some kits demand minimum scores. Roll honestly, arrange with care, then step forward into the Realms.</string>
+	<string name="charwizard2e_label_race">Race</string>
+	<string name="charwizard2e_race_about">About this Race</string>
+	<string name="charwizard2e_class_about">About this Class</string>
+	<string name="charwizard2e_label_class">Class</string>
+	<string name="charwizard2e_label_alignment">Alignment</string>
+
+	<string name="charwizard2e_roll_tooltip">Roll all six ability scores (4d6, drop the lowest die)</string>
+	<string name="charwizard2e_strpct_tooltip">Roll exceptional Strength percentile (d100)</string>
+	<string name="charwizard2e_strpct_prompt">Roll % &#187;</string>
+
+	<string name="charwizard2e_button_choose_race">Choose Race...</string>
+	<string name="charwizard2e_button_choose_class">Choose Class...</string>
+	<string name="charwizard2e_button_choose_alignment">Choose Alignment...</string>
+	<string name="charwizard2e_button_create">Create Character</string>
+
+	<string name="charwizard2e_prompt_none">(none)</string>
+	<string name="charwizard2e_select_race_title">Choose a Race</string>
+	<string name="charwizard2e_select_race_msg">Select the character's race.</string>
+	<string name="charwizard2e_select_class_title">Choose a Class</string>
+	<string name="charwizard2e_select_class_msg">Select the character's class.</string>
+	<string name="charwizard2e_select_alignment_title">Choose an Alignment</string>
+	<string name="charwizard2e_select_alignment_msg">Select the character's alignment.</string>
+
+	<string name="charwizard2e_book_label">Book:</string>
+	<string name="charwizard2e_book_all">All Books</string>
+	<string name="charwizard2e_book_campaign">Campaign</string>
+	<string name="charwizard2e_select_cancel">Cancel</string>
+	<string name="charwizard2e_select_hint">Click a row to select it.</string>
+
+	<string name="charwizard2e_msg_hostonly">Character Wizard: only the GM (host) can create characters with this tool in this version.</string>
+	<string name="charwizard2e_msg_noraces">Character Wizard: no race records found. Load an AD&amp;D 2E race library/module first.</string>
+	<string name="charwizard2e_msg_noclasses">Character Wizard: no class records found. Load an AD&amp;D 2E class library/module first.</string>
+	<string name="charwizard2e_msg_created">Character Wizard: created '%s'.</string>
+	<string name="charwizard2e_msg_needname">Character Wizard: please enter a character name.</string>
+	<string name="charwizard2e_msg_needroll">Character Wizard: roll your ability scores before creating the character.</string>
+</root>

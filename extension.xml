@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root release="1.0-beta1" version="1.0-beta1">
+  <properties>
+    <name>Kraken AD&amp;D 2E Character Wizard</name>
+    <version>1.0-beta1</version>
+    <author>The Kraken</author>
+    <description>A guided character creation wizard for the AD&amp;D 2E ruleset, inspired by the 5E character wizard. Tabbed flow: Abilities (Method V) - Race - Class (+kits) - Alignment - Equipment (starting gold + gear) - Proficiencies (weapon/specialization, languages, nonweapon) - Commit (character details + create). Single-class, level 1.</description>
+    <loadorder>200</loadorder>
+    <ruleset>2E</ruleset>
+  </properties>
+
+  <announcement>
+    <text>Kraken AD&amp;D 2E Character Wizard v1.0-beta1 loaded. Open the Characters list and click the wizard icon to build a character.</text>
+    <font>systemfont</font>
+  </announcement>
+
+  <base>
+    <includefile source="graphics/graphics_charwizard2e.xml" />
+    <includefile source="strings/strings_charwizard2e.xml" />
+    <script name="CharWizard2E" file="charwizard/scripts/manager_charwizard2e.lua" />
+    <script name="CharWizard2EBio" file="charwizard/scripts/bio_charwizard2e.lua" />
+    <includefile source="charwizard/template_charwizard2e.xml" />
+    <includefile source="charwizard/record_charwizard2e.xml" />
+    <includefile source="charwizard/pages_charwizard2e.xml" />
+    <includefile source="charwizard/record_charwizard2e_race.xml" />
+    <includefile source="charwizard/record_charwizard2e_class.xml" />
+    <includefile source="charwizard/record_charwizard2e_kit.xml" />
+    <includefile source="charwizard/record_charwizard2e_alignment.xml" />
+    <includefile source="charwizard/record_charwizard2e_equipment.xml" />
+    <includefile source="charwizard/record_charwizard2e_proficiencies.xml" />
+  </base>
+</root>

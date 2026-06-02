@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Race tab -->
+	<windowclass name="charwizard2e_sub_race">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_race.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="race_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate_icon name="race_header">
+				<icon>char_race</icon>
+				<static textres="charwizard2e_title_races" />
+			</header_content_framed_metalplate_icon>
+			<button_text name="button_changerace">
+				<anchored to="race_header" position="insidetopright" offset="25,0" width="120" height="20" />
+				<state textres="charwizard2e_button_changerace" />
+				<invisible />
+				<script>
+					function onInit()
+						setColor("FFCC33");
+					end
+					function onButtonPress()
+						window.resetRace();
+					end
+				</script>
+			</button_text>
+			<button_text name="button_changesubrace">
+				<anchored to="race_header" position="insidetopright" offset="25,0" width="120" height="20" />
+				<state textres="charwizard2e_button_changerace" />
+				<invisible />
+				<script>
+					function onInit()
+						setColor("FFCC33");
+					end
+					function onButtonPress()
+						window.resetSubrace();
+					end
+				</script>
+			</button_text>
+
+			<header_content_framed_metalplate_icon name="subrace_selection_header">
+				<icon>char_race</icon>
+				<static textres="charwizard2e_title_subraces" />
+				<invisible />
+			</header_content_framed_metalplate_icon>
+
+			<list_content_top name="subrace_selection_list">
+				<class>list_entry_charwiz2e_subraceselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_empty_subrace_list" />
+				<invisible />
+			</list_content_top>
+
+			<sub_content name="sub_raceselection">
+				<class>sub_charwizard2e_race_raceselection</class>
+			</sub_content>
+
+			<!-- Race portrait + description (shown once a race is confirmed) -->
+			<header_content_framed_metalplate name="race_about_header">
+				<anchored to="race_header" height="20">
+					<top anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_race_about" />
+				<invisible />
+			</header_content_framed_metalplate>
+			<genericcontrol name="race_image">
+				<anchored to="race_about_header" width="240" height="300">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+				</anchored>
+				<disabled />
+				<invisible />
+			</genericcontrol>
+			<!-- Top block: beside the portrait, in an image-height frame. A stringcontrol
+			     top-aligns its text ONLY when the frame is bounded by BOTH top and bottom
+			     anchors (see race_desc_below / lore_text). With top-only (or a height attr)
+			     it stretches to the parent bottom and vertically centers the text, dropping
+			     it down onto the block below. So bound the bottom to race_image.bottom; if a
+			     race's top text is longer than the portrait it simply clips here. -->
+			<simplestringc name="race_desc_top">
+				<anchored>
+					<top parent="race_about_header" anchor="bottom" relation="relative" offset="10" />
+					<bottom parent="race_image" anchor="bottom" relation="relative" offset="0" />
+					<left parent="race_image" anchor="right" relation="relative" offset="16" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<!-- Below block: full width, starts under the portrait, scrollable. -->
+			<simplestringc name="race_desc_below">
+				<anchored>
+					<top parent="race_image" anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="race_desc_below" />
+				<target>race_desc_below</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Source / name filters + scrollable race list -->
+	<windowclass name="sub_charwizard2e_race_raceselection">
+		<script file="charwizard/scripts/race_sub_raceselections.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<filter_label_content_top name="label_source">
+				<static textres="charwizard2e_filter_source" />
+			</filter_label_content_top>
+			<filter_comboboxc_content_top name="filter_source">
+				<listdirection>down</listdirection>
+				<listmaxsize>8</listmaxsize>
+			</filter_comboboxc_content_top>
+			<filter_label_content_top name="label_name">
+				<static textres="charwizard2e_filter_name" />
+			</filter_label_content_top>
+			<filter_stringc_content_top name="filter_name" />
+			<spacer_content_top name="spacer">
+				<anchored height="5" />
+			</spacer_content_top>
+
+			<list_content_top name="list">
+				<class>list_entry_charwiz2e_raceselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_empty_list" />
+			</list_content_top>
+			<scrollbar_content_list />
+		</sheetdata>
+	</windowclass>
+
+	<!-- One row: + button, record link (shield), name, source book -->
+	<windowclass name="list_entry_charwiz2e_raceselection">
+		<margins control="0,0,10,10" />
+		<frame>rowshade</frame>
+		<script file="charwizard/scripts/selection_charwiz2e.lua" />
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_right>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onSelectButtonPressed();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+			<link_listitem_left name="shortcut" />
+
+			<comboboxc_charwiz2e_source name="module">
+				<script>
+					function onValueChanged()
+						window.onModuleValueChanged();
+					end
+				</script>
+			</comboboxc_charwiz2e_source>
+
+			<string_listitem_center_noframe_static_linked name="name">
+				<linktarget>shortcut</linktarget>
+			</string_listitem_center_noframe_static_linked>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Subrace row (shown only after picking a race that has subraces, e.g. Halfling) -->
+	<windowclass name="list_entry_charwiz2e_subraceselection" copy="list_entry_charwiz2e_raceselection" />
+</root>

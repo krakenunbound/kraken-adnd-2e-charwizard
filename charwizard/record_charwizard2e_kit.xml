@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Kit tab (after Class). 2E "background" records, filtered by class + race. -->
+	<windowclass name="charwizard2e_sub_kit">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_kit.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (reuses the class art). -->
+			<genericcontrol name="kit_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate_icon name="kit_header">
+				<icon>char_background</icon>
+				<static textres="charwizard2e_title_kit" />
+			</header_content_framed_metalplate_icon>
+			<button_text name="button_changekit">
+				<anchored to="kit_header" position="insidetopright" offset="25,0" width="120" height="20" />
+				<state textres="charwizard2e_button_changekit" />
+				<invisible />
+				<script>
+					function onInit()
+						setColor("FFCC33");
+					end
+					function onButtonPress()
+						window.changeKit();
+					end
+				</script>
+			</button_text>
+			<button_text name="button_nokit">
+				<anchored to="kit_header" position="insidetopright" offset="25,0" width="90" height="20" />
+				<state textres="charwizard2e_button_nokit" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.confirmNoKit();
+					end
+				</script>
+			</button_text>
+
+			<label name="label_needclass">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+					<right offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_msg_needclass_for_kit" />
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<!-- Confirmation line (e.g. "No kit selected") -->
+			<label name="kit_status">
+				<anchored to="kit_header">
+					<top anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<invisible />
+			</label>
+
+			<list_content_base name="kit_selection_list">
+				<anchored>
+					<top parent="kit_header" anchor="bottom" relation="relative" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-6" />
+				</anchored>
+				<class>list_entry_charwiz2e_kitselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_empty_kit_list" />
+				<invisible />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="kit_selection_list" />
+				<target>kit_selection_list</target>
+			</scrollbar_content_base>
+
+			<!-- Kit write-up (shown once a kit is confirmed; mirrors the Race/Class panels).
+			     Populated live from the chosen background record's text field. -->
+			<header_content_framed_metalplate name="kit_about_header">
+				<anchored to="kit_header" height="20">
+					<top anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static>About This Kit</static>
+				<invisible />
+			</header_content_framed_metalplate>
+			<simplestringc name="kit_desc">
+				<anchored>
+					<top parent="kit_about_header" anchor="bottom" relation="relative" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="kit_desc" />
+				<target>kit_desc</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Kit row: + button, record link (shield), name, source book -->
+	<windowclass name="list_entry_charwiz2e_kitselection" copy="list_entry_charwiz2e_raceselection" />
+</root>

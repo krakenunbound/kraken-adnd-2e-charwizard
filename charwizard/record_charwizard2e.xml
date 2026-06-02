@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Inject a launch button into the character selection screen (host + client) -->
+	<windowclass name="charselect_host" merge="join">
+		<sheetdata>
+			<button_icon name="charwizard2e_launch" insertbefore="filter">
+				<anchored to="contentanchor" position="aboveleft" offset="5,0" width="32" height="32" />
+				<icon normal="charwizard2e_icon" />
+				<tooltip textres="charwizard2e_tooltip" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("charwizard2e", "");
+					end
+				</script>
+			</button_icon>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charselect_client" merge="join">
+		<sheetdata>
+			<button_icon name="charwizard2e_launch" insertbefore="filter">
+				<anchored to="contentanchor" position="aboveleft" offset="5,0" width="32" height="32" />
+				<icon normal="charwizard2e_icon" />
+				<tooltip textres="charwizard2e_tooltip" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("charwizard2e", "");
+					end
+				</script>
+			</button_icon>
+		</sheetdata>
+	</windowclass>
+
+	<!-- The tabbed wizard shell -->
+	<windowclass name="charwizard2e">
+		<frame>utilitybox</frame>
+		<placement>
+			<size width="900" height="640" />
+		</placement>
+		<sizelimits>
+			<minimum width="860" height="600" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			function onInit()
+				CharWizard2E.registerWindow(self);
+			end
+			function onClose()
+				CharWizard2E.unregisterWindow(self);
+			end
+		</script>
+		<sheetdata>
+			<windowtitlebar_utilitybox name="title">
+				<resource>charwizard2e_title</resource>
+			</windowtitlebar_utilitybox>
+			<windowmenubar_utilitybox name="menubar" />
+
+			<anchor_content_utilitybox_top />
+			<anchor_content_utilitybox_bottom />
+
+			<sub_content_top name="sub_tabs">
+				<anchored height="50" />
+				<class>charwizard2e_tabs</class>
+			</sub_content_top>
+
+			<sub_content_framed_groupbox_hidden name="sub_abilities">
+				<class>charwizard2e_sub_abilities</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_race">
+				<class>charwizard2e_sub_race</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_class">
+				<class>charwizard2e_sub_class</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_kit">
+				<class>charwizard2e_sub_kit</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_alignment">
+				<class>charwizard2e_sub_alignment</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_equipment">
+				<class>charwizard2e_sub_equipment</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_proficiencies">
+				<class>charwizard2e_sub_proficiencies</class>
+			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_commit">
+				<class>charwizard2e_sub_commit</class>
+			</sub_content_framed_groupbox_hidden>
+
+			<scrollbar_content_base>
+				<anchored to="sub_abilities" />
+				<target>sub_abilities</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_race" />
+				<target>sub_race</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_class" />
+				<target>sub_class</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_kit" />
+				<target>sub_kit</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_alignment" />
+				<target>sub_alignment</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_equipment" />
+				<target>sub_equipment</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_proficiencies" />
+				<target>sub_proficiencies</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
+				<anchored to="sub_commit" />
+				<target>sub_commit</target>
+			</scrollbar_content_base>
+
+			<resize_utilitybox />
+		</sheetdata>
+	</windowclass>
+
+	<!-- Tab strip -->
+	<windowclass name="charwizard2e_tabs">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<charwiz2e_tab_anchor />
+			<charwiz2e_tab name="button_abilities">
+				<state textres="charwizard2e_tab_abilities" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_race">
+				<state textres="charwizard2e_tab_race" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_class">
+				<state textres="charwizard2e_tab_class" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_kit">
+				<state textres="charwizard2e_tab_kit" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_alignment">
+				<state textres="charwizard2e_tab_alignment" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_equipment">
+				<state textres="charwizard2e_tab_equipment" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_proficiencies">
+				<state textres="charwizard2e_tab_proficiencies" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_commit">
+				<state textres="charwizard2e_tab_commit" />
+			</charwiz2e_tab>
+		</sheetdata>
+	</windowclass>
+</root>

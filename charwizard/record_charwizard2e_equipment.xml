@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<windowclass name="charwizard2e_sub_equipment">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_equipment.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="equipment_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="equipment_header">
+				<static textres="charwizard2e_title_equipment" />
+			</header_content_framed_metalplate>
+
+			<label name="label_needalignment">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+					<right offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_msg_needalignment_for_equipment" />
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<label name="wealth_formula_label">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<font>sheetlabel</font>
+				<static textres="charwizard2e_label_wealth_formula" />
+			</label>
+			<simplestringc name="wealth_formula">
+				<anchored to="wealth_formula_label">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left />
+					<right offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+			</simplestringc>
+
+			<buttoncontrol name="wealth_roll_button">
+				<anchored width="36" height="36">
+					<top parent="wealth_formula" anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_wealth_roll_tooltip" />
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollStartingWealth(window);
+					end
+				</script>
+			</buttoncontrol>
+
+			<label name="wealth_result_label">
+				<anchored to="wealth_roll_button" position="righthigh" offset="14,6" width="160" height="20" />
+				<font>sheetlabel</font>
+				<static textres="charwizard2e_label_wealth_result" />
+			</label>
+			<label name="wealth_result">
+				<anchored to="wealth_result_label" width="280" height="24">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+
+			<button_text name="wealth_clear_button">
+				<anchored to="wealth_roll_button" width="80" height="20">
+					<top anchor="bottom" relation="relative" offset="48" />
+					<left anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<state textres="charwizard2e_button_clear_roll" />
+				<script>
+					function onButtonPress()
+						window.clearWealthRoll();
+					end
+				</script>
+			</button_text>
+
+			<!-- ===== Free Starter Kit: player-selectable, no gold cost (DM-gated) ===== -->
+			<header_content_framed_metalplate name="free_header">
+				<anchored to="wealth_clear_button">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<static>Free Starter Kit</static>
+			</header_content_framed_metalplate>
+			<list_content_base name="free_list">
+				<anchored height="96">
+					<top parent="free_header" anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+				</anchored>
+				<class>list_entry_charwiz2e_itemselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_items_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="free_list" />
+				<target>free_list</target>
+			</scrollbar_content_base>
+
+			<!-- Reminder line for the buy section. -->
+			<simplestringc name="items_hint">
+				<anchored to="free_list">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheetlabel</font>
+				<multilinespacing>14</multilinespacing>
+				<readonly />
+				<nodrag />
+				<static>Buy gear below - your rolled gold drops as you add it. For anything more, open the FG "Items" list in the sidebar and drag it onto your sheet.</static>
+			</simplestringc>
+
+			<!-- Curated starter gear: pick items; their cost is deducted from rolled gold. -->
+			<header_content_framed_metalplate name="items_header">
+				<anchored>
+					<top parent="items_hint" anchor="bottom" relation="relative" offset="12" />
+					<left />
+					<right />
+				</anchored>
+				<static textres="charwizard2e_items_catalog_title" />
+			</header_content_framed_metalplate>
+			<button_text name="button_clear_items">
+				<anchored to="items_header" position="insidetopright" offset="22,0" width="90" height="18" />
+				<state textres="charwizard2e_button_clear_items" />
+				<script>
+					function onButtonPress()
+						CharWizard2E.clearChosenItems();
+					end
+				</script>
+			</button_text>
+
+			<list_content_base name="item_list">
+				<anchored height="210">
+					<top parent="items_header" anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+				</anchored>
+				<class>list_entry_charwiz2e_itemselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_items_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="item_list" />
+				<target>item_list</target>
+			</scrollbar_content_base>
+
+			<!-- Family heirloom roll (only when the DM allows it: Options > Allow family heirloom items) -->
+			<header_content_framed_metalplate name="heirloom_header">
+				<anchored to="item_list">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<static>Family Heirloom (a keepsake from home)</static>
+				<invisible />
+			</header_content_framed_metalplate>
+			<buttoncontrol name="heirloom_roll_button">
+				<anchored to="heirloom_header" width="36" height="36">
+					<top anchor="bottom" relation="relative" offset="30" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll a random family heirloom</text></tooltip>
+				<invisible />
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollHeirloom(window);
+					end
+				</script>
+			</buttoncontrol>
+			<simplestringc name="heirloom_result">
+				<anchored to="heirloom_roll_button" height="40">
+					<top anchor="top" relation="relative" offset="0" />
+					<left anchor="right" relation="relative" offset="12" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>15</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+
+			<!-- Once rolled: a clickable link that opens the heirloom's own record
+			     (its picture + full text), with the plain description shown below. -->
+			<link_listitem_left name="heirloom_link">
+				<anchored width="24" height="24">
+					<top parent="heirloom_roll_button" anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<invisible />
+			</link_listitem_left>
+			<simplestringc name="heirloom_linklabel">
+				<anchored height="22">
+					<top parent="heirloom_link" anchor="top" relation="relative" offset="3" />
+					<left parent="heirloom_link" anchor="right" relation="relative" offset="8" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheetlabel</font>
+				<static>Click the icon to open this heirloom and see its picture and full details.</static>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<simplestringc name="heirloom_desc">
+				<anchored>
+					<top parent="heirloom_link" anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="14" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-16" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="heirloom_desc" />
+				<target>heirloom_desc</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- One catalog row: [+] add, [-] remove, qty, shield (open item), name, cost -->
+	<windowclass name="list_entry_charwiz2e_itemselection">
+		<margins control="0,0,10,10" />
+		<frame>rowshade</frame>
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,8" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,8" />
+			</anchor_listitem_right>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onAdd();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<button_charwiz2e_iremove name="button_remove">
+				<script>
+					function onButtonPress()
+						window.onRemove();
+					end
+				</script>
+			</button_charwiz2e_iremove>
+
+			<label name="qty">
+				<anchored to="leftanchor" width="34" height="20">
+					<top />
+					<left parent="button_remove" anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<font>sheetlabel</font>
+				<center />
+			</label>
+
+			<link_listitem_left name="shortcut">
+				<anchored to="leftanchor">
+					<top />
+					<left parent="qty" anchor="right" relation="relative" offset="6" />
+				</anchored>
+			</link_listitem_left>
+
+			<label name="cost">
+				<anchored to="rightanchor" width="120" height="20">
+					<top />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<string_listitem_center_noframe_static_linked name="name">
+				<anchored height="20">
+					<top parent="leftanchor" anchor="top" />
+					<left parent="shortcut" anchor="right" relation="relative" offset="8" />
+					<right parent="cost" anchor="left" relation="relative" offset="-8" />
+				</anchored>
+				<linktarget>shortcut</linktarget>
+			</string_listitem_center_noframe_static_linked>
+		</sheetdata>
+		<script>
+			function onAdd()
+				local _, sPath = shortcut.getValue();
+				if cost.getValue() == "free" then CharWizard2E.addFreeItem(sPath, name.getValue()); else CharWizard2E.addChosenItem(sPath, name.getValue(), cost.getValue()); end
+				updateQty();
+			end
+			function onRemove()
+				local _, sPath = shortcut.getValue();
+				CharWizard2E.removeChosenItem(sPath);
+				updateQty();
+			end
+			function updateQty()
+				local _, sPath = shortcut.getValue();
+				local nQty = CharWizard2E.getChosenQty(sPath);
+				qty.setValue((nQty > 0) and ("x" .. nQty) or "");
+			end
+		</script>
+	</windowclass>
+</root>

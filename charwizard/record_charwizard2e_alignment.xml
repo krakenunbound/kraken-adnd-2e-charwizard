@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Alignment tab -->
+	<windowclass name="charwizard2e_sub_alignment">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_alignment.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="alignment_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="alignment_header">
+				<static textres="charwizard2e_title_alignments" />
+			</header_content_framed_metalplate>
+			<button_text name="button_changealignment">
+				<anchored to="alignment_header" position="insidetopright" offset="25,0" width="140" height="20" />
+				<state textres="charwizard2e_button_changealignment" />
+				<invisible />
+				<script>
+					function onInit()
+						setColor("FFCC33");
+					end
+					function onButtonPress()
+						window.resetAlignment();
+					end
+				</script>
+			</button_text>
+
+			<label name="label_needclass">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static textres="charwizard2e_msg_needclass_for_alignment" />
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<label name="label_restrictions">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<font>sheetlabel</font>
+				<multilinespacing>14</multilinespacing>
+				<invisible />
+			</label>
+
+			<!-- Alignment write-up (shown once an alignment is confirmed; mirrors Race/Class/Kit). -->
+			<header_content_framed_metalplate name="alignment_about_header">
+				<anchored to="alignment_header" height="20">
+					<top anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static>About This Alignment</static>
+				<invisible />
+			</header_content_framed_metalplate>
+			<simplestringc name="alignment_desc">
+				<anchored>
+					<top parent="alignment_about_header" anchor="bottom" relation="relative" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="alignment_desc" />
+				<target>alignment_desc</target>
+			</scrollbar_content_base>
+
+			<sub_content name="sub_alignmentselection">
+				<class>sub_charwizard2e_alignment_alignmentselection</class>
+			</sub_content>
+
+			<!-- Primer shown while choosing: fills the empty right-hand space and
+			     explains what the alignments mean before one is picked. -->
+			<simplestringc name="alignment_help">
+				<anchored>
+					<top parent="alignment_header" anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="300" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-16" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="alignment_help" />
+				<target>alignment_help</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Scrollable alignment list (filtered by class) -->
+	<windowclass name="sub_charwizard2e_alignment_alignmentselection">
+		<script file="charwizard/scripts/alignment_sub_alignments.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<list_content_top name="list">
+				<class>list_entry_charwiz2e_alignmentselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_empty_alignment_list" />
+			</list_content_top>
+			<scrollbar_content_list />
+		</sheetdata>
+	</windowclass>
+
+	<!-- One row: + button and alignment name -->
+	<windowclass name="list_entry_charwiz2e_alignmentselection">
+		<margins control="0,0,10,10" />
+		<frame>rowshade</frame>
+		<script file="charwizard/scripts/selection_charwiz2e.lua" />
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_right>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onSelectButtonPressed();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<string_listitem_center_noframe_static name="name" />
+		</sheetdata>
+	</windowclass>
+</root>

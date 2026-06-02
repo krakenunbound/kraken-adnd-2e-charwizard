@@ -1,0 +1,18 @@
+# Build artifacts (published as GitHub Release assets, not committed)
+/build/
+*.ext
+*.zip
+*.mod
+
+# Backups / scratch
+*.bak
+*.bak.*
+**/race_backup_*/
+
+# Internal dev notes (kept local; not in the public repo)
+SESSION_HANDOFF.md
+
+# OS cruft
+Thumbs.db
+.DS_Store
+desktop.ini

@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Proficiencies & Languages tab -->
+	<windowclass name="charwizard2e_sub_proficiencies">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_proficiencies.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="proficiencies_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="prof_header">
+				<static textres="charwizard2e_title_proficiencies" />
+			</header_content_framed_metalplate>
+
+			<!-- Shown until a class is chosen (slots depend on class) -->
+			<label name="label_needclass">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+					<right offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_msg_needclass_for_profs" />
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<!-- ===== Weapon proficiencies ===== -->
+			<header_content_framed_metalplate name="weapon_header">
+				<anchored to="prof_header">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left />
+					<right />
+				</anchored>
+				<static textres="charwizard2e_weapon_header" />
+			</header_content_framed_metalplate>
+			<label name="weapon_slots">
+				<anchored to="weapon_header">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<list_content_base name="weapon_list">
+				<anchored height="220">
+					<top parent="weapon_slots" anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+				</anchored>
+				<class>list_entry_charwiz2e_weaponprof</class>
+				<empty textres="charwizard2e_weapon_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="weapon_list" />
+				<target>weapon_list</target>
+			</scrollbar_content_base>
+
+			<!-- ===== Languages ===== -->
+			<header_content_framed_metalplate name="language_header">
+				<anchored to="weapon_list">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<static textres="charwizard2e_language_header" />
+			</header_content_framed_metalplate>
+			<label name="known_label">
+				<anchored to="language_header">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+			<label name="language_slots">
+				<anchored to="known_label">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<list_content_base name="language_list">
+				<anchored height="170">
+					<top parent="language_slots" anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+				</anchored>
+				<class>list_entry_charwiz2e_langpick</class>
+				<sortby><control>langname</control></sortby>
+				<empty textres="charwizard2e_lang_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="language_list" />
+				<target>language_list</target>
+			</scrollbar_content_base>
+
+			<!-- ===== Nonweapon proficiencies ===== -->
+			<header_content_framed_metalplate name="nwp_header">
+				<anchored to="language_list">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<static textres="charwizard2e_nwp_header" />
+			</header_content_framed_metalplate>
+			<label name="nwp_slots">
+				<anchored to="nwp_header">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<list_content_base name="nwp_list">
+				<anchored height="190">
+					<top parent="nwp_slots" anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+				</anchored>
+				<class>list_entry_charwiz2e_nwppick</class>
+				<sortby><control>nwpname</control></sortby>
+				<empty textres="charwizard2e_nwp_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="nwp_list" />
+				<target>nwp_list</target>
+			</scrollbar_content_base>
+
+			<!-- ===== Spells (casters only) ===== -->
+			<header_content_framed_metalplate name="spell_header">
+				<anchored to="nwp_list">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<static textres="charwizard2e_spell_header" />
+			</header_content_framed_metalplate>
+			<label name="spell_info">
+				<anchored to="spell_header">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<!-- Spell-level filter: show one level at a time so high-level casters
+			     aren't faced with hundreds of undifferentiated spells. -->
+			<button_text name="spell_lvl_prev">
+				<anchored to="spell_info" width="66" height="20">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<state textres="charwizard2e_spell_lvl_prev" />
+				<script>
+					function onButtonPress()
+						window.onSpellLevelStep(-1);
+					end
+				</script>
+			</button_text>
+			<button_text name="spell_lvl_all">
+				<anchored to="spell_lvl_prev" width="40" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<state textres="charwizard2e_spell_lvl_all" />
+				<script>
+					function onButtonPress()
+						window.onSpellLevelSet(0);
+					end
+				</script>
+			</button_text>
+			<button_text name="spell_lvl_next">
+				<anchored to="spell_lvl_all" width="66" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<state textres="charwizard2e_spell_lvl_next" />
+				<script>
+					function onButtonPress()
+						window.onSpellLevelStep(1);
+					end
+				</script>
+			</button_text>
+
+			<list_content_base name="spell_list">
+				<anchored>
+					<top parent="spell_lvl_prev" anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<class>list_entry_charwiz2e_spellpick</class>
+				<sortby><control>spellname</control></sortby>
+				<empty textres="charwizard2e_spell_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="spell_list" />
+				<target>spell_list</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- One weapon row: [+] add, [-] remove, name, "Proficient" marker -->
+	<windowclass name="list_entry_charwiz2e_weaponprof">
+		<margins control="0,0,8,8" />
+		<frame>rowshade</frame>
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_right>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onAdd();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<button_charwiz2e_iremove name="button_remove">
+				<script>
+					function onButtonPress()
+						window.onRemove();
+					end
+				</script>
+			</button_charwiz2e_iremove>
+
+			<!-- Fighter weapon specialization toggle (shown only for fighters) -->
+			<button_text name="button_spec">
+				<anchored to="leftanchor" width="48" height="20">
+					<top />
+					<left parent="button_remove" anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<state textres="charwizard2e_button_spec" />
+				<tooltip textres="charwizard2e_button_spec_tooltip" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.onSpec();
+					end
+				</script>
+			</button_text>
+
+			<label name="mark">
+				<anchored to="rightanchor" width="96" height="20">
+					<top />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<label name="wpnname">
+				<anchored height="20">
+					<top parent="leftanchor" anchor="top" />
+					<left parent="button_spec" anchor="right" relation="relative" offset="10" />
+					<right parent="mark" anchor="left" relation="relative" offset="-8" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+		</sheetdata>
+		<script>
+			function onAdd()
+				CharWizard2E.addWeaponProf(wpnname.getValue());
+				updateMark();
+			end
+			function onRemove()
+				CharWizard2E.removeWeaponProf(wpnname.getValue());
+				updateMark();
+			end
+			function onSpec()
+				CharWizard2E.setSpecialization(wpnname.getValue());
+				updateMark();
+			end
+			function updateMark()
+				local sName = wpnname.getValue();
+				if CharWizard2E.isSpecialized(sName) then
+					mark.setValue(Interface.getString("charwizard2e_label_specialized"));
+					mark.setColor("FFCC33");
+				elseif CharWizard2E.isWeaponChosen(sName) then
+					mark.setValue(Interface.getString("charwizard2e_label_proficient"));
+					mark.setColor("44DD44");
+				else
+					mark.setValue("");
+				end
+			end
+		</script>
+	</windowclass>
+
+	<!-- One language row: [+] add, [-] remove, name, "Known" marker -->
+	<windowclass name="list_entry_charwiz2e_langpick">
+		<margins control="0,0,8,8" />
+		<frame>rowshade</frame>
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_right>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onAdd();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<button_charwiz2e_iremove name="button_remove">
+				<script>
+					function onButtonPress()
+						window.onRemove();
+					end
+				</script>
+			</button_charwiz2e_iremove>
+
+			<label name="mark">
+				<anchored to="rightanchor" width="80" height="20">
+					<top />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<label name="langname">
+				<anchored height="20">
+					<top parent="leftanchor" anchor="top" />
+					<left parent="button_remove" anchor="right" relation="relative" offset="10" />
+					<right parent="mark" anchor="left" relation="relative" offset="-8" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+		</sheetdata>
+		<script>
+			function onAdd()
+				CharWizard2E.addLanguage(langname.getValue());
+				updateMark();
+			end
+			function onRemove()
+				CharWizard2E.removeLanguage(langname.getValue());
+				updateMark();
+			end
+			function updateMark()
+				if CharWizard2E.isLanguageChosen(langname.getValue()) then
+					mark.setValue(Interface.getString("charwizard2e_label_known"));
+					mark.setColor("44DD44");
+				else
+					mark.setValue("");
+				end
+			end
+		</script>
+	</windowclass>
+
+	<!-- One nonweapon-proficiency row: [+] add, [-] remove, name, "Chosen" marker.
+	     The hidden nwppath holds the skill record path used on commit. -->
+	<windowclass name="list_entry_charwiz2e_nwppick">
+		<margins control="0,0,8,8" />
+		<frame>rowshade</frame>
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_right>
+
+			<label name="nwppath">
+				<anchored position="insidetopleft" width="0" height="0" />
+				<invisible />
+			</label>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onAdd();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<button_charwiz2e_iremove name="button_remove">
+				<script>
+					function onButtonPress()
+						window.onRemove();
+					end
+				</script>
+			</button_charwiz2e_iremove>
+
+			<label name="mark">
+				<anchored to="rightanchor" width="80" height="20">
+					<top />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<link_charwiz2e_info name="shortcut" />
+			<label name="nwpname">
+				<anchored height="20">
+					<top parent="leftanchor" anchor="top" />
+					<left parent="shortcut" anchor="right" relation="relative" offset="8" />
+					<right parent="mark" anchor="left" relation="relative" offset="-8" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+		</sheetdata>
+		<script>
+			function onAdd()
+				CharWizard2E.addNWP(nwppath.getValue(), nwpname.getValue());
+				updateMark();
+			end
+			function onRemove()
+				CharWizard2E.removeNWP(nwppath.getValue());
+				updateMark();
+			end
+			function updateMark()
+				if CharWizard2E.isNWPChosen(nwppath.getValue()) then
+					mark.setValue(Interface.getString("charwizard2e_label_chosen"));
+					mark.setColor("44DD44");
+				else
+					mark.setValue("");
+				end
+			end
+		</script>
+	</windowclass>
+
+	<!-- One spell row: [+] add, [-] remove, "(lvl) Name", "Known" marker.
+	     Hidden spellpath/spelllevel carry the spell record path + level. -->
+	<windowclass name="list_entry_charwiz2e_spellpick">
+		<margins control="0,0,8,8" />
+		<frame>rowshade</frame>
+		<sheetdata>
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="8,6" />
+			</anchor_listitem_right>
+
+			<label name="spellpath">
+				<anchored position="insidetopleft" width="0" height="0" />
+				<invisible />
+			</label>
+			<label name="spelllevel">
+				<anchored position="insidetopleft" width="0" height="0" />
+				<invisible />
+			</label>
+
+			<button_charwiz2e_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onAdd();
+					end
+				</script>
+			</button_charwiz2e_iadd>
+
+			<button_charwiz2e_iremove name="button_remove">
+				<script>
+					function onButtonPress()
+						window.onRemove();
+					end
+				</script>
+			</button_charwiz2e_iremove>
+
+			<label name="mark">
+				<anchored to="rightanchor" width="80" height="20">
+					<top />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<link_charwiz2e_info name="shortcut" />
+			<label name="spellname">
+				<anchored height="20">
+					<top parent="leftanchor" anchor="top" />
+					<left parent="shortcut" anchor="right" relation="relative" offset="8" />
+					<right parent="mark" anchor="left" relation="relative" offset="-8" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+		</sheetdata>
+		<script>
+			function onAdd()
+				CharWizard2E.addSpell(spellpath.getValue(), spellname.getValue(), tonumber(spelllevel.getValue()));
+				updateMark();
+			end
+			function onRemove()
+				CharWizard2E.removeSpell(spellpath.getValue());
+				updateMark();
+			end
+			function updateMark()
+				if CharWizard2E.isSpellChosen(spellpath.getValue()) then
+					mark.setValue(Interface.getString("charwizard2e_label_known"));
+					mark.setColor("44DD44");
+				else
+					mark.setValue("");
+				end
+			end
+		</script>
+	</windowclass>
+</root>

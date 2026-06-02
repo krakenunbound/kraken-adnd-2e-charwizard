@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Class tab -->
+	<windowclass name="charwizard2e_sub_class">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_class.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="class_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate_icon name="class_header">
+				<icon>char_class</icon>
+				<static textres="charwizard2e_title_classes" />
+			</header_content_framed_metalplate_icon>
+			<button_text name="button_changeclass">
+				<anchored to="class_header" position="insidetopright" offset="25,0" width="120" height="20" />
+				<state textres="charwizard2e_button_changeclass" />
+				<invisible />
+				<script>
+					function onInit()
+						setColor("FFCC33");
+					end
+					function onButtonPress()
+						window.resetClass();
+					end
+				</script>
+			</button_text>
+			<!-- Starting level selector (shown once a class is confirmed) -->
+			<label name="lbl_level">
+				<anchored to="class_header">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<static textres="charwizard2e_label_level" />
+				<font>sheetlabel</font>
+				<invisible />
+			</label>
+			<button_text name="level_dec">
+				<anchored to="lbl_level" width="24" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<state textres="charwizard2e_button_minus" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.onLevelDec();
+					end
+				</script>
+			</button_text>
+			<label name="level_value">
+				<anchored to="level_dec" width="34" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+				<font>sheetlabel</font>
+				<center />
+				<invisible />
+			</label>
+			<button_text name="level_inc">
+				<anchored to="level_value" width="24" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+				<state textres="charwizard2e_button_plus" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.onLevelInc();
+					end
+				</script>
+			</button_text>
+			<label name="level_max">
+				<anchored to="level_inc" width="220" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<font>sheettext</font>
+				<invisible />
+			</label>
+
+			<!-- Class portrait + description (shown once a class is confirmed; mirrors the Race tab,
+			     but the portrait frame is taller to suit the portrait-orientation class art). -->
+			<header_content_framed_metalplate name="class_about_header">
+				<anchored to="class_header" height="20">
+					<top anchor="bottom" relation="relative" offset="40" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_class_about" />
+				<invisible />
+			</header_content_framed_metalplate>
+			<genericcontrol name="class_image">
+				<anchored to="class_about_header" width="240" height="300">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+				</anchored>
+				<disabled />
+				<invisible />
+			</genericcontrol>
+			<!-- Lead paragraph beside the portrait. Frame bounded top AND bottom (= image height)
+			     so the text top-aligns; a top-only frame would vertically center it. -->
+			<simplestringc name="class_desc_top">
+				<anchored>
+					<top parent="class_about_header" anchor="bottom" relation="relative" offset="10" />
+					<bottom parent="class_image" anchor="bottom" relation="relative" offset="0" />
+					<left parent="class_image" anchor="right" relation="relative" offset="16" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<!-- Second paragraph: full width, starts under the portrait, scrollable. -->
+			<simplestringc name="class_desc_below">
+				<anchored>
+					<top parent="class_image" anchor="bottom" relation="relative" offset="12" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="10" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="class_desc_below" />
+				<target>class_desc_below</target>
+			</scrollbar_content_base>
+
+			<label name="label_needrace">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+					<right offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_msg_needrace_for_class" />
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<!-- Class list (shown only until a class is confirmed; then it is hidden and the
+			     portrait + write-up panel above takes its place). Anchored below the header's
+			     reserved level-selector row. -->
+			<sub_content name="sub_classselection">
+				<anchored>
+					<top parent="class_header" anchor="bottom" relation="relative" offset="40" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+				</anchored>
+				<class>sub_charwizard2e_class_classselection</class>
+			</sub_content>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Source / name filters + scrollable class list (filtered by race, PHB Table 7) -->
+	<windowclass name="sub_charwizard2e_class_classselection">
+		<script file="charwizard/scripts/class_sub_classselections.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<filter_label_content_top name="label_source">
+				<static textres="charwizard2e_filter_source" />
+			</filter_label_content_top>
+			<filter_comboboxc_content_top name="filter_source">
+				<listdirection>down</listdirection>
+				<listmaxsize>8</listmaxsize>
+			</filter_comboboxc_content_top>
+			<filter_label_content_top name="label_name">
+				<static textres="charwizard2e_filter_name" />
+			</filter_label_content_top>
+			<filter_stringc_content_top name="filter_name" />
+			<spacer_content_top name="spacer">
+				<anchored height="5" />
+			</spacer_content_top>
+
+			<list_content_top name="list">
+				<class>list_entry_charwiz2e_classselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard2e_empty_class_list" />
+			</list_content_top>
+			<scrollbar_content_list />
+		</sheetdata>
+	</windowclass>
+
+	<!-- One row: + button, record link, name, source book -->
+	<windowclass name="list_entry_charwiz2e_classselection" copy="list_entry_charwiz2e_raceselection" />
+</root>

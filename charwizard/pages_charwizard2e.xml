@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- ================= ABILITIES ================= -->
+	<windowclass name="charwizard2e_sub_abilities">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_abilities.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper. Defined FIRST so every other control
+			     draws on top of it; disabled so it never eats input. Bitmap is
+			     sized to cover the frame and faded in ensureAbilitiesArt(). -->
+			<genericcontrol name="abilities_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="abilities_header">
+				<static textres="charwizard2e_title_abilities" />
+			</header_content_framed_metalplate>
+
+			<buttoncontrol name="roll_button">
+				<anchored width="36" height="36">
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="14" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollAllAbilities(window);
+					end
+				</script>
+			</buttoncontrol>
+
+			<!-- Generation-method selector (dropdown; only DM-allowed methods) -->
+			<comboboxc name="method_combo">
+				<anchored to="roll_button" width="380" height="22">
+					<top anchor="top" relation="relative" offset="6" />
+					<left anchor="right" relation="relative" offset="12" />
+				</anchored>
+				<frame>
+					<name>fieldlight</name>
+					<offset>10,5,10,5</offset>
+				</frame>
+				<font>sheetlabel</font>
+				<listdirection>down</listdirection>
+				<listmaxsize>6</listmaxsize>
+				<tooltip><text>Choose an ability-score generation method</text></tooltip>
+				<script>
+					function onValueChanged()
+						window.onMethodComboChanged();
+					end
+				</script>
+			</comboboxc>
+
+			<simplestringc name="hint_label">
+				<anchored>
+					<top parent="roll_button" anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_label_hint" />
+				<font>sheettext</font>
+				<multilinespacing>14</multilinespacing>
+				<readonly />
+				<nodrag />
+			</simplestringc>
+
+			<!-- Ability scores (left column; labels tight to score boxes) -->
+			<label name="lbl_str">
+				<anchored to="hint_label" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="28" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Strength</static>
+			</label>
+			<charwiz_abilityslot name="str_score">
+				<anchored to="lbl_str" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_str">
+				<anchored to="str_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "strength");
+					end
+				</script>
+			</buttoncontrol>
+			<buttoncontrol name="strpct_button">
+				<anchored to="roll_str" width="24" height="24">
+					<top anchor="top" relation="relative" offset="-2" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_strpct_tooltip" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollStrPercent(window);
+					end
+				</script>
+			</buttoncontrol>
+			<label name="strpct_label">
+				<anchored to="strpct_button" width="72" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+
+			<label name="lbl_dex">
+				<anchored to="lbl_str" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Dexterity</static>
+			</label>
+			<charwiz_abilityslot name="dex_score">
+				<anchored to="lbl_dex" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_dex">
+				<anchored to="dex_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "dexterity");
+					end
+				</script>
+			</buttoncontrol>
+
+			<label name="lbl_con">
+				<anchored to="lbl_dex" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Constitution</static>
+			</label>
+			<charwiz_abilityslot name="con_score">
+				<anchored to="lbl_con" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_con">
+				<anchored to="con_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "constitution");
+					end
+				</script>
+			</buttoncontrol>
+
+			<label name="lbl_int">
+				<anchored to="lbl_con" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Intelligence</static>
+			</label>
+			<charwiz_abilityslot name="int_score">
+				<anchored to="lbl_int" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_int">
+				<anchored to="int_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "intelligence");
+					end
+				</script>
+			</buttoncontrol>
+
+			<label name="lbl_wis">
+				<anchored to="lbl_int" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Wisdom</static>
+			</label>
+			<charwiz_abilityslot name="wis_score">
+				<anchored to="lbl_wis" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_wis">
+				<anchored to="wis_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "wisdom");
+					end
+				</script>
+			</buttoncontrol>
+
+			<label name="lbl_cha">
+				<anchored to="lbl_wis" width="80" height="24">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="roll_button" anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static>Charisma</static>
+			</label>
+			<charwiz_abilityslot name="cha_score">
+				<anchored to="lbl_cha" width="44" height="24">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+			</charwiz_abilityslot>
+			<buttoncontrol name="roll_cha">
+				<anchored to="cha_score" width="22" height="22">
+					<top anchor="top" relation="relative" offset="1" />
+					<left anchor="right" relation="relative" offset="6" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip><text>Roll just this ability (per the selected method)</text></tooltip>
+				<script>
+					function onButtonPress()
+						CharWizard2E.rollOneAbility(window, "charisma");
+					end
+				</script>
+			</buttoncontrol>
+
+			<!-- Lore panel: full width across the bottom, below the ability rows.
+			     Defined AFTER cha_score so its anchor target is already calculated. -->
+			<header_content_framed_metalplate name="lore_header">
+				<anchored height="20">
+					<top parent="cha_score" anchor="bottom" relation="relative" offset="16" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_lore_title" />
+			</header_content_framed_metalplate>
+			<simplestringc name="lore_text">
+				<anchored to="lore_header">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>16</multilinespacing>
+				<readonly />
+				<nodrag />
+			</simplestringc>
+			<scrollbar_content_base>
+				<anchored to="lore_text" />
+				<target>lore_text</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- ================= COMMIT / SAVE ================= -->
+	<windowclass name="charwizard2e_sub_commit">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_commit.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Faded full-frame wallpaper (drawn first / behind everything; disabled). -->
+			<genericcontrol name="commit_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="hdr">
+				<static textres="charwizard2e_title_commit" />
+			</header_content_framed_metalplate>
+
+			<!-- Character name -->
+			<label name="name_label">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="14" />
+					<left anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<static textres="charwizard2e_label_name" />
+				<font>sheetlabel</font>
+			</label>
+			<basicstringc name="name_entry">
+				<anchored to="name_label" width="320" height="22">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						CharWizard2E.setBuildName(getValue());
+					end
+				</script>
+			</basicstringc>
+
+			<!-- Create button (bottom); hidden until all required choices are made -->
+			<button_text name="create_button">
+				<anchored to="contentanchor" width="220" height="28">
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-12" />
+					<left anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<state textres="charwizard2e_button_create" />
+				<script>
+					function onButtonPress()
+						window.onCreate();
+					end
+				</script>
+			</button_text>
+
+			<!-- Warnings / readiness, just above the button -->
+			<simplestringc name="warn_text">
+				<anchored height="84">
+					<bottom parent="create_button" anchor="top" relation="relative" offset="-8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>15</multilinespacing>
+				<readonly />
+				<nodrag />
+			</simplestringc>
+
+			<!-- Character details (scrollable bio form); fills the middle -->
+			<header_content_framed_metalplate name="details_header">
+				<anchored>
+					<top parent="name_entry" anchor="bottom" relation="relative" offset="12" />
+					<left />
+					<right />
+				</anchored>
+				<static textres="charwizard2e_details_header" />
+			</header_content_framed_metalplate>
+			<button_text name="button_rollall">
+				<anchored to="details_header" position="insidetopright" offset="22,0" width="120" height="18" />
+				<state textres="charwizard2e_button_rollall" />
+				<script>
+					function onButtonPress()
+						if window.sub_details.subwindow then
+							window.sub_details.subwindow.rollAll();
+						end
+					end
+				</script>
+			</button_text>
+			<sub_content name="sub_details">
+				<anchored>
+					<top parent="details_header" anchor="bottom" relation="relative" offset="4" />
+					<bottom parent="warn_text" anchor="top" relation="relative" offset="-8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-6" />
+				</anchored>
+				<class>sub_charwizard2e_commit_details</class>
+			</sub_content>
+			<scrollbar_content_base>
+				<anchored to="sub_details" />
+				<target>sub_details</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Commit: scrollable character-details form (bio fields + dice rolls) -->
+	<windowclass name="sub_charwizard2e_commit_details">
+		<script file="charwizard/scripts/page_commit_details.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<!-- Read-only confirmation of the prior choices -->
+			<label name="lbl_race">
+				<anchored to="contentanchor" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Race</static>
+				<font>sheetlabel</font>
+			</label>
+			<label name="val_race">
+				<anchored to="lbl_race" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+
+			<label name="lbl_class">
+				<anchored to="lbl_race" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Class</static>
+				<font>sheetlabel</font>
+			</label>
+			<label name="val_class">
+				<anchored to="lbl_class" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+
+			<label name="lbl_alignment">
+				<anchored to="lbl_class" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Alignment</static>
+				<font>sheetlabel</font>
+			</label>
+			<label name="val_alignment">
+				<anchored to="lbl_alignment" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheettext</font>
+			</label>
+
+			<!-- Gender (roll) -->
+			<label name="lbl_gender">
+				<anchored to="lbl_alignment" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Gender</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_gender">
+				<anchored to="lbl_gender" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("gender"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_gender">
+				<anchored to="lbl_gender" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_gender" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("gender", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Age (roll) -->
+			<label name="lbl_age">
+				<anchored to="lbl_gender" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Age</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_age">
+				<anchored to="lbl_age" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("age"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_age">
+				<anchored to="lbl_age" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_age" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("age", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Max age (derived; editable, no dice) -->
+			<label name="lbl_agemax">
+				<anchored to="lbl_age" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Max Age</static>
+				<font>sheetlabel</font>
+			</label>
+			<basicstringc name="fld_agemax">
+				<anchored to="lbl_agemax" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("agemax", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Height (roll) -->
+			<label name="lbl_height">
+				<anchored to="lbl_agemax" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Height</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_height">
+				<anchored to="lbl_height" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("height"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_height">
+				<anchored to="lbl_height" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_height" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("height", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Weight (roll) -->
+			<label name="lbl_weight">
+				<anchored to="lbl_height" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Weight</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_weight">
+				<anchored to="lbl_weight" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("weight"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_weight">
+				<anchored to="lbl_weight" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_weight" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("weight", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Size (derived; editable, no dice) -->
+			<label name="lbl_size">
+				<anchored to="lbl_weight" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Size</static>
+				<font>sheetlabel</font>
+			</label>
+			<basicstringc name="fld_size">
+				<anchored to="lbl_size" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("size", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Deity (roll) -->
+			<label name="lbl_deity">
+				<anchored to="lbl_size" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Deity</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_deity">
+				<anchored to="lbl_deity" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("deity"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_deity">
+				<anchored to="lbl_deity" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_deity" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("deity", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Personality traits (roll) -->
+			<label name="lbl_personalitytraits">
+				<anchored to="lbl_deity" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Personality</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_personalitytraits">
+				<anchored to="lbl_personalitytraits" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("personalitytraits"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_personalitytraits">
+				<anchored to="lbl_personalitytraits" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_personalitytraits" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("personalitytraits", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Philosophy / ideals (roll) -->
+			<label name="lbl_ideals">
+				<anchored to="lbl_personalitytraits" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Philosophy</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_ideals">
+				<anchored to="lbl_ideals" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("ideals"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_ideals">
+				<anchored to="lbl_ideals" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_ideals" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("ideals", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Relationships / bonds (roll) -->
+			<label name="lbl_bonds">
+				<anchored to="lbl_ideals" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Relationships</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_bonds">
+				<anchored to="lbl_bonds" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("bonds"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_bonds">
+				<anchored to="lbl_bonds" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_bonds" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("bonds", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Faults / flaws (roll) -->
+			<label name="lbl_flaws">
+				<anchored to="lbl_bonds" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Faults</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_flaws">
+				<anchored to="lbl_flaws" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("flaws"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_flaws">
+				<anchored to="lbl_flaws" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_flaws" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("flaws", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Appearance (roll) -->
+			<label name="lbl_appearance">
+				<anchored to="lbl_flaws" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Appearance</static>
+				<font>sheetlabel</font>
+			</label>
+			<buttoncontrol name="roll_appearance">
+				<anchored to="lbl_appearance" width="22" height="20">
+					<top />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<icon normal="charwizard2e_dice" />
+				<tooltip textres="charwizard2e_roll_tooltip" />
+				<script>function onButtonPress() window.rollField("appearance"); end</script>
+			</buttoncontrol>
+			<basicstringc name="fld_appearance">
+				<anchored to="lbl_appearance" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="roll_appearance" anchor="left" relation="relative" offset="-6" />
+				</anchored>
+				<script>function onValueChanged() window.onFieldChanged("appearance", getValue()); end</script>
+			</basicstringc>
+
+			<!-- Notes (freeform, no dice) -->
+			<label name="lbl_notes">
+				<anchored to="lbl_appearance" height="20" width="110">
+					<top anchor="bottom" relation="relative" offset="6" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
+				</anchored>
+				<static>Notes</static>
+				<font>sheetlabel</font>
+			</label>
+			<basicstringc name="fld_notes">
+				<anchored to="lbl_notes" height="44">
+					<top />
+					<left anchor="right" relation="relative" offset="6" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-10" />
+				</anchored>
+				<multilinespacing>15</multilinespacing>
+				<script>function onValueChanged() window.onFieldChanged("notes", getValue()); end</script>
+			</basicstringc>
+		</sheetdata>
+	</windowclass>
+</root>

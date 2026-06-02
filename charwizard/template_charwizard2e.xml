@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Left anchor for the horizontal tab strip -->
+	<template name="charwiz2e_tab_anchor">
+		<genericcontrol name="leftanchor">
+			<anchored position="insidetopleft" offset="10,10" width="0" height="20" />
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- One tab across the top of the wizard -->
+	<template name="charwiz2e_tab">
+		<button_text>
+			<anchored to="leftanchor" width="96" height="30">
+				<top />
+				<left relation="relative" offset="5" postoffset="5" />
+			</anchored>
+			<script>
+				function onButtonPress()
+					CharWizard2E.onTabButtonPressed(WindowManager.getTopWindow(window), getName():gsub("button_", ""));
+				end
+			</script>
+		</button_text>
+	</template>
+
+	<!-- Draggable, read-only ability score slot used by the Abilities page -->
+	<template name="charwiz_abilityslot">
+		<basicnumber>
+			<center />
+			<script>
+				function onDragStart(button, x, y, draginfo)
+					return window.onSlotDragStart(getName(), getValue(), draginfo);
+				end
+				function onDrop(x, y, draginfo)
+					return window.onSlotDrop(getName(), draginfo);
+				end
+			</script>
+		</basicnumber>
+	</template>
+
+	<!-- Green + pick button (matches 5E charwizard) -->
+	<template name="button_charwiz2e_iadd">
+		<button_iadd_base name="button_select">
+			<anchored to="leftanchor">
+				<top />
+				<left relation="relative" offset="2" postoffset="2" />
+			</anchored>
+			<invisible />
+		</button_iadd_base>
+	</template>
+
+	<!-- Matching red "remove" icon (mirrors the green +). Plain buttoncontrol so
+	     we fully control its action (no confirm-delete machinery); anchored just
+	     right of the add button. The row supplies onButtonPress -> onRemove(). -->
+	<template name="button_charwiz2e_iremove">
+		<buttoncontrol name="button_remove">
+			<anchored to="leftanchor" width="20" height="20">
+				<top />
+				<left parent="button_select" anchor="right" relation="relative" offset="6" />
+			</anchored>
+			<icon normal="button_delete" pressed="button_delete" />
+			<tooltip textres="charwizard2e_button_remove_tooltip" />
+		</buttoncontrol>
+	</template>
+
+	<!-- Clickable "open the record" link (book/details icon). The row/page sets it
+	     via shortcut.setValue(<class>, <recordpath>). -->
+	<template name="link_charwiz2e_info">
+		<link_listitem_left name="shortcut">
+			<anchored to="leftanchor" width="20" height="20">
+				<top />
+				<left parent="button_remove" anchor="right" relation="relative" offset="8" />
+			</anchored>
+			<tooltip><text>Open details to read about this option</text></tooltip>
+		</link_listitem_left>
+	</template>
+
+	<!-- Per-row source book dropdown -->
+	<template name="comboboxc_charwiz2e_source">
+		<comboboxc name="module">
+			<anchored to="rightanchor" width="320" height="20">
+				<top />
+				<right relation="relative" offset="-10" postoffset="-10" />
+			</anchored>
+			<frame>
+				<name>fieldlight</name>
+				<offset>10,5,10,5</offset>
+			</frame>
+			<font>sheetlabel</font>
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<center />
+			<invisible />
+		</comboboxc>
+	</template>
+</root>
