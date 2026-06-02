@@ -4,6 +4,8 @@ A guided character-creation wizard for **AD&D 2nd Edition** in **Fantasy Grounds
 
 Tabbed flow: **Abilities → Race → Class → Kit → Alignment → Equipment → Proficiencies → Commit.**
 
+> 📖 **New here? Read the [Install & User Guide](GUIDE.md)** — what each file is, exactly where it goes, the DM options, and a screenshot walkthrough of every tab.
+
 ## Install (players / testers)
 
 Grab the latest [**Release**](../../releases/latest) and:
