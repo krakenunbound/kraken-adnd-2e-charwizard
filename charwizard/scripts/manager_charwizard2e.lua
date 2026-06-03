@@ -1175,8 +1175,9 @@ local function _abCopyDice(t)
 	for k, v in pairs(t) do out[k] = v; end
 	return out;
 end
--- kind: "each" (roll the dice once per ability), "array" (one roll fills many),
--- "vipool" (Method VI). agg: single | bestgroup | array6 | keepbest6 | vipool.
+-- kind: "each" (roll the dice once per ability), "collect" (roll a 3d6 group N
+-- times and gather the totals), "vipool" (Method VI 7d6 pool).
+-- agg: single | bestgroup | collect mode (array6 | keepbest6) | vipool.
 local _tAbilityMethods = {
 	-- arrange  = drag-to-rearrange the rolled scores is allowed (the "arrange to
 	--            taste" array methods). In-order / placement methods set false.
@@ -1189,10 +1190,10 @@ local _tAbilityMethods = {
 		all = { kind = "each",  aDice = _abMakeDice("d6", 6), agg = "bestgroup" },
 		one = { aDice = _abMakeDice("d6", 6), agg = "bestgroup" } },
 	[3] = { name = "Method III", short = "3d6 six times, arrange to taste", arrange = true, perAbility = false,
-		all = { kind = "array", aDice = _abMakeDice("d6", 18), agg = "array6" },
+		all = { kind = "collect", aDice = { "d6", "d6", "d6" }, count = 6, agg = "array6" },
 		one = { aDice = { "d6", "d6", "d6" }, agg = "single" } },
 	[4] = { name = "Method IV",  short = "3d6 twelve times, keep best 6, arrange", arrange = true, perAbility = false,
-		all = { kind = "array", aDice = _abMakeDice("d6", 36), agg = "keepbest6" },
+		all = { kind = "collect", aDice = { "d6", "d6", "d6" }, count = 12, agg = "keepbest6" },
 		one = { aDice = { "d6", "d6", "d6" }, agg = "single" } },
 	[5] = { name = "Method V",   short = "4d6 drop lowest, arrange", arrange = true, perAbility = false,
 		all = { kind = "each",  aDice = { expr = "4d6d1" }, agg = "single" },
@@ -1304,8 +1305,19 @@ function rollAllAbilities(w)
 				sAbility = sAbility, sAgg = meta.all.agg,
 			} }, { {} });
 		end
+	elseif meta.all.kind == "collect" then
+		-- III/IV: roll a 3d6 group `count` times and gather the totals (each is a clean
+		-- 3d6 score). onAbilityResult buffers them and assigns once they have all landed.
+		_tCharData.abCollect = { buf = {}, target = meta.all.count, mode = meta.all.agg, name = meta.name };
+		for _ = 1, meta.all.count do
+			ActionsManager.actionDirect(nil, "charwiz_ability", { {
+				sType = "charwiz_ability",
+				sDesc = "[CHARGEN] 3d6 (" .. meta.name .. ")",
+				aDice = _abCopyDice(meta.all.aDice), nMod = 0, sAgg = "collect",
+			} }, { {} });
+		end
 	else
-		-- "array" (assign many from one roll) and "vipool" (Method VI 7d6).
+		-- "vipool" (Method VI): one 7d6 roll feeds the placement pool.
 		ActionsManager.actionDirect(nil, "charwiz_ability", { {
 			sType = "charwiz_ability",
 			sDesc = "[CHARGEN] Abilities (" .. meta.name .. ")",
@@ -1363,19 +1375,34 @@ function rollOneAbility(w, sAbility)
 end
 
 function onAbilityResult(rSource, _, rRoll)
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	Comm.deliverChatMessage(rMessage);
+	local sAgg = rRoll.sAgg or "single";
+	-- "collect" rolls (III/IV fire many 3d6 groups) post a single summary when the
+	-- last one lands, rather than spamming one chat line per group.
+	if sAgg ~= "collect" then
+		Comm.deliverChatMessage(ActionsManager.createActionMessage(rSource, rRoll));
+	end
 	if not (_wActive and _wActive.setSlotValue) then return; end
 
-	local sAgg = rRoll.sAgg or "single";
 	if sAgg == "bestgroup" then            -- II: best of the two 3d6 totals
 		_wActive.setSlotValue(rRoll.sAbility, _abBestGroup(_abDiceResults(rRoll), 3));
-	elseif sAgg == "array6" then           -- III: six 3d6 totals, assigned in order
-		_abAssignArray(_wActive, _abGroupSums(_abDiceResults(rRoll), 3));
-	elseif sAgg == "keepbest6" then        -- IV: best six of twelve 3d6 totals
-		local sums = _abGroupSums(_abDiceResults(rRoll), 3);
-		table.sort(sums, function(a, b) return a > b; end);
-		_abAssignArray(_wActive, sums);
+	elseif sAgg == "collect" then          -- III/IV: gather each 3d6-group total, then assign
+		local c = _tCharData.abCollect;
+		if c then
+			c.buf[#c.buf + 1] = ActionsManager.total(rRoll);
+			if #c.buf >= c.target then
+				local rolled = {};
+				for _, v in ipairs(c.buf) do rolled[#rolled + 1] = v; end
+				if c.mode == "keepbest6" then
+					table.sort(c.buf, function(a, b) return a > b; end); -- best six land first
+				end
+				_abAssignArray(_wActive, c.buf); -- fills the six ability slots (player arranges)
+				table.sort(rolled, function(a, b) return a > b; end);
+				ChatManager.SystemMessage(string.format("%s: rolled %d sets of 3d6 -> %s%s",
+					c.name, c.target, table.concat(rolled, ", "),
+					(c.mode == "keepbest6") and "  (keeping the best six)" or "  (arrange to taste)"));
+				_tCharData.abCollect = nil;
+			end
+		end
 	elseif sAgg == "vipool" then           -- VI: 7d6 rolled; start all at 8, then place
 		_tCharData.viPool = _abDiceResults(rRoll);
 		for _, sAbility in ipairs(DataCommon.abilities) do

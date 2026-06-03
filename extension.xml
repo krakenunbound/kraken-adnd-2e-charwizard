@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root release="1.0-beta1" version="1.0-beta1">
+<root release="1.0-beta2" version="1.0-beta2">
   <properties>
     <name>Kraken AD&amp;D 2E Character Wizard</name>
-    <version>1.0-beta1</version>
+    <version>1.0-beta2</version>
     <author>The Kraken</author>
     <description>A guided character creation wizard for the AD&amp;D 2E ruleset, inspired by the 5E character wizard. Tabbed flow: Abilities (Method V) - Race - Class (+kits) - Alignment - Equipment (starting gold + gear) - Proficiencies (weapon/specialization, languages, nonweapon) - Commit (character details + create). Single-class, level 1.</description>
     <loadorder>200</loadorder>
@@ -10,7 +10,7 @@
   </properties>
 
   <announcement>
-    <text>Kraken AD&amp;D 2E Character Wizard v1.0-beta1 loaded. Open the Characters list and click the wizard icon to build a character.</text>
+    <text>Kraken AD&amp;D 2E Character Wizard v1.0-beta2 loaded. Open the Characters list and click the wizard icon to build a character.</text>
     <font>systemfont</font>
   </announcement>
 
