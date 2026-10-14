@@ -125,7 +125,7 @@ Spend your slots:
 ![Proficiencies tab](docs/images/07-proficiencies.png)
 
 ### Commit
-Name the character and fill in the details — type your own or click a dice icon to roll one (or **Roll All Details**). When every required choice is made, click **Create Character**.
+Name the character and fill in the details — type your own or click a dice icon to roll one (or **Roll All Details**). Then click **Create Character**. You can create at any point: if choices are still open (say you are making the character before game night without your DM), the character is saved anyway and the open choices are listed at the top of its notes, to finish with your DM.
 
 ![Commit tab](docs/images/08-commit.png)
 
