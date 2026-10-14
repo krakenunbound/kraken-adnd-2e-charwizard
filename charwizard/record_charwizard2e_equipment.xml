@@ -149,15 +149,54 @@
 				</script>
 			</button_text>
 
+			<!-- Search the shop by name. -->
+			<label name="items_search_label">
+				<anchored to="items_header">
+					<top anchor="bottom" offset="8" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+				</anchored>
+				<static>Search</static>
+			</label>
+			<basicstring name="items_search">
+				<anchored to="items_search_label" position="righthigh" offset="10,0" width="320" height="20" />
+				<script>
+					function onValueChanged()
+						window.item_list.applyFilter();
+					end
+				</script>
+			</basicstring>
+			<!-- Show one type of gear (Armor, Weapons, Ammunition, Gear) or All. -->
+			<comboboxc name="items_type">
+				<anchored to="items_search" position="righthigh" offset="14,0" width="170" height="20" />
+				<frame>
+					<name>fieldlight</name>
+					<offset>10,5,10,5</offset>
+				</frame>
+				<font>sheetlabel</font>
+				<listdirection>down</listdirection>
+				<listmaxsize>5</listmaxsize>
+				<tooltip><text>Show one type of gear</text></tooltip>
+				<script>
+					function onValueChanged()
+						window.item_list.applyFilter();
+					end
+				</script>
+			</comboboxc>
+
 			<list_content_base name="item_list">
-				<anchored height="210">
-					<top parent="items_header" anchor="bottom" relation="relative" offset="6" />
+				<anchored height="460">
+					<top parent="items_search" anchor="bottom" relation="relative" offset="8" />
 					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
 					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
 				</anchored>
 				<class>list_entry_charwiz2e_itemselection</class>
-				<sortby><control>name</control></sortby>
+				<sortby><control>sortkey</control></sortby>
 				<empty textres="charwizard2e_items_empty" />
+				<script>
+					function onFilter(w)
+						return window.isRowShown(w);
+					end
+				</script>
 			</list_content_base>
 			<scrollbar_content_base>
 				<anchored to="item_list" />
@@ -293,6 +332,14 @@
 				</anchored>
 				<font>sheetlabel</font>
 			</label>
+			<label name="category">
+				<anchored to="rightanchor" width="100" height="20">
+					<top />
+					<right relation="relative" offset="-6" postoffset="-6" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<hsc name="sortkey" />
 
 			<string_listitem_center_noframe_static_linked name="name">
 				<anchored height="20">

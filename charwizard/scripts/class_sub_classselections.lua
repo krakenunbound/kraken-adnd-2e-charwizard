@@ -59,7 +59,10 @@ function addListRecord(vNode, sLinkClass)
 		return;
 	end
 
-	if not CharWizard2E.isClassAllowedForRace(sName) then
+	if not CharWizard2E.isClassAllowedForRace(sName, DB.getPath(vNode)) then
+		return;
+	end
+	if not CharWizard2E.isClassAllowedByAbilities(sName, DB.getPath(vNode)) then
 		return;
 	end
 

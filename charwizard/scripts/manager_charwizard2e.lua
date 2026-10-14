@@ -535,6 +535,225 @@ function getKitName()
 	return (_tCharData.kit and _tCharData.kit.text) or "";
 end
 
+--
+-- Ability filtering: races, classes and kits a character's scores allow.
+-- PHB records use the PHB tables (Table 7 racial ability requirements, the
+-- class ability minimums); splatbook records carry their own ("Ability Score
+-- Range" on a race, "REQUIREMENTS" on a class or kit), read from their text.
+-- Nothing is filtered until all six scores are set.
+--
+local _tAbil = { "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma" };
+local _tPHBRaceRange = {
+	["dwarf"] = { strength = {8,18}, dexterity = {3,17}, constitution = {11,18}, intelligence = {3,18}, wisdom = {3,18}, charisma = {3,17} },
+	["elf"] = { strength = {3,18}, dexterity = {6,18}, constitution = {7,18}, intelligence = {8,18}, wisdom = {3,18}, charisma = {8,18} },
+	["gnome"] = { strength = {6,18}, dexterity = {3,18}, constitution = {8,18}, intelligence = {6,18}, wisdom = {3,18}, charisma = {3,18} },
+	["half-elf"] = { strength = {3,18}, dexterity = {6,18}, constitution = {6,18}, intelligence = {4,18}, wisdom = {3,18}, charisma = {3,18} },
+	["halfling"] = { strength = {7,18}, dexterity = {7,18}, constitution = {10,18}, intelligence = {6,18}, wisdom = {3,17}, charisma = {3,18} },
+};
+-- PHB class ability minimums (after racial adjustments), by the class's rule
+-- name; the first entry whose word is in the name applies.
+local _tClassMin = {
+	{ "paladin", { strength = 12, constitution = 9, wisdom = 13, charisma = 17 } },
+	{ "ranger", { strength = 13, dexterity = 13, constitution = 14, wisdom = 14 } },
+	{ "druid", { wisdom = 12, charisma = 15 } },
+	{ "bard", { dexterity = 12, intelligence = 13, charisma = 15 } },
+	{ "abjurer", { intelligence = 9, wisdom = 15 } },
+	{ "conjurer", { intelligence = 9, constitution = 15 } },
+	{ "diviner", { intelligence = 9, wisdom = 16 } },
+	{ "enchanter", { intelligence = 9, charisma = 16 } },
+	{ "illusionist", { intelligence = 9, dexterity = 16 } },
+	{ "invoker", { intelligence = 9, constitution = 16 } },
+	{ "necromancer", { intelligence = 9, wisdom = 16 } },
+	{ "transmuter", { intelligence = 9, dexterity = 15 } },
+	{ "mage", { intelligence = 9 } },
+	{ "thief", { dexterity = 9 } },
+	{ "cleric", { wisdom = 9 } },
+	{ "priest", { wisdom = 9 } },
+	{ "fighter", { strength = 9 } },
+};
+local _tAbilCache = {};
+
+local function plainText(sRecord)
+	local s = DB.getValue(DB.getPath(sRecord, "text"), "") or "";
+	return (s:gsub("<[^>]+>", " "):gsub("&amp;", "&"));
+end
+
+function hasAllAbilities()
+	for _, sAb in ipairs(_tAbil) do
+		if (getAbilityScore(sAb) or 0) <= 0 then
+			return false;
+		end
+	end
+	return true;
+end
+
+-- {ability = n} from a record's "REQUIREMENTS" section (class or kit text).
+function getRecordRequirements(sRecord)
+	local sKey = "req|" .. (sRecord or "");
+	if _tAbilCache[sKey] then
+		return _tAbilCache[sKey];
+	end
+	local t = {};
+	local s = plainText(sRecord or "");
+	local nAt = s:lower():find("requirements?:?%s");
+	if nAt then
+		local sReq = s:sub(nAt, nAt + 300):lower();
+		for _, sAb in ipairs(_tAbil) do
+			local n = sReq:match(sAb .. "%s+(%d+)");
+			if n then
+				t[sAb] = tonumber(n);
+			end
+		end
+	end
+	_tAbilCache[sKey] = t;
+	return t;
+end
+
+-- {ability = adjustment} from a race's "Ability Score ..." trait ("Your
+-- Constitution score increases by 1 and Your Charisma score is reduced by 1").
+function getRaceAdjustments(sRecord)
+	local sKey = "adj|" .. (sRecord or "");
+	if _tAbilCache[sKey] then
+		return _tAbilCache[sKey];
+	end
+	local t = {};
+	for _, nodeTrait in pairs(DB.getChildren(DB.getPath(sRecord or "", "traits")) or {}) do
+		if DB.getValue(nodeTrait, "name", ""):lower():find("ability score", 1, true) then
+			local s = DB.getValue(nodeTrait, "text", ""):gsub("<[^>]+>", " "):lower();
+			for _, sAb in ipairs(_tAbil) do
+				local nUp = s:match(sAb .. " score increases? by (%d+)");
+				local nDown = s:match(sAb .. " score is reduced by (%d+)") or s:match(sAb .. " score decreases? by (%d+)");
+				if nUp then t[sAb] = (t[sAb] or 0) + tonumber(nUp); end
+				if nDown then t[sAb] = (t[sAb] or 0) - tonumber(nDown); end
+			end
+		end
+	end
+	_tAbilCache[sKey] = t;
+	return t;
+end
+
+local function adjustedScore(sAb, tAdj)
+	return (getAbilityScore(sAb) or 0) + ((tAdj or {})[sAb] or 0);
+end
+
+-- True if the rolled scores allow this race.
+function isRaceAllowedByAbilities(sName, sRecord)
+	if not hasAllAbilities() then
+		return true;
+	end
+	local sBook = (sRecord or ""):match("@(.+)$") or "";
+	local tPHB = _tPHBRaceRange[(sName or ""):lower()];
+	if tPHB and sBook:lower():find("players handbook", 1, true) then
+		-- PHB Table 7, before racial adjustments.
+		for sAb, r in pairs(tPHB) do
+			local n = getAbilityScore(sAb) or 0;
+			if n < r[1] or n > r[2] then
+				return false;
+			end
+		end
+		return true;
+	end
+	-- Splatbook "Ability Score Range" table, after racial adjustments.
+	local s = plainText(sRecord or ""):lower();
+	if not s:find("minimum", 1, true) then
+		return true;
+	end
+	local tAdj = getRaceAdjustments(sRecord);
+	for _, sAb in ipairs(_tAbil) do
+		-- A shared table gives two races' figures per cell ("16/14  20/18" for
+		-- ogre/half-ogre; "13/9" for a swanmay's two cases): the most
+		-- permissive of them applies.
+		local sMin1, sMin2, sMax1, sMax2 = s:match(sAb .. "%s+(%d+)/?(%d*)%*?%s+(%d+)/?(%d*)");
+		if sMin1 then
+			local nMin = math.min(tonumber(sMin1), tonumber(sMin2) or 99);
+			local nMax = math.max(tonumber(sMax1), tonumber(sMax2) or 0);
+			local n = adjustedScore(sAb, tAdj);
+			if n < nMin or n > nMax then
+				return false;
+			end
+		end
+	end
+	return true;
+end
+
+local function currentRaceAdjustments()
+	local t = _tCharData.race;
+	if not t or not t.linkrecord then
+		return {};
+	end
+	return getRaceAdjustments(t.linkrecord);
+end
+
+-- True if the scores (after racial adjustments) meet the class minimums.
+function isClassAllowedByAbilities(sName, sRecord)
+	if not hasAllAbilities() then
+		return true;
+	end
+	local tMin = getRecordRequirements(sRecord);
+	if next(tMin) == nil then
+		local sWords = getClassRuleWords(sName, sRecord);
+		for _, t in ipairs(_tClassMin) do
+			if sWords:find(t[1], 1, true) then
+				tMin = t[2];
+				break;
+			end
+		end
+	end
+	local tAdj = currentRaceAdjustments();
+	for sAb, nMin in pairs(tMin) do
+		if adjustedScore(sAb, tAdj) < nMin then
+			return false;
+		end
+	end
+	return true;
+end
+
+-- True if the scores meet a kit's own requirements (when its text lists any).
+function isKitAllowedByAbilities(sRecord)
+	if not hasAllAbilities() then
+		return true;
+	end
+	local tAdj = currentRaceAdjustments();
+	for sAb, nMin in pairs(getRecordRequirements(sRecord)) do
+		if adjustedScore(sAb, tAdj) < nMin then
+			return false;
+		end
+	end
+	return true;
+end
+
+-- The words the rules match a class on: the heading of its record text, then
+-- its name. Splatbook specialty priests are named for their god ("Alaghor
+-- (Clangeddin Silverbeard)", Demihuman Deities); only the heading ("Specialty
+-- Priest (Alaghor)") says they are priests, for race limits, weapons, spells,
+-- proficiency slots, gear and wealth.
+local _tClassWords = {};
+function getClassRuleWords(sName, sRecord)
+	local sKey = sRecord or sName or "";
+	if _tClassWords[sKey] then
+		return _tClassWords[sKey];
+	end
+	local sWords = (sName or ""):lower();
+	if sRecord and sRecord ~= "" then
+		local sText = DB.getValue(DB.getPath(sRecord, "text"), "") or "";
+		local sHead = sText:match("<h>(.-)</h>");
+		if sHead and sHead:lower() ~= sWords then
+			sWords = sHead:lower() .. " " .. sWords;
+		end
+	end
+	_tClassWords[sKey] = sWords;
+	return sWords;
+end
+
+-- The class (chosen or pending) as the rules see it (getClassRuleWords).
+function getClassRuleName()
+	local t = _tCharData.class or _tCharData.classpending;
+	if not t or not t.text then
+		return "";
+	end
+	return getClassRuleWords(t.text, t.linkrecord);
+end
+
 function getClassName()
 	-- During the kit-selection step the class is "pending" (committed only once a
 	-- kit is picked or skipped). Fall back to the pending class so kit filtering
@@ -574,7 +793,7 @@ local _tLevelLimits = {
 -- Highest level the current race may attain in the current class (PHB Table 7).
 function getRaceClassMaxLevel()
 	local sRace = getRaceCategoryName():lower();
-	local sClass = getClassName():lower();
+	local sClass = getClassRuleName();
 	if sRace == "" or sClass == "" then
 		return 20;
 	end
@@ -992,7 +1211,7 @@ function isKitAllowedForCharacter(nodeKit)
 	end
 
 	local tClasses, tRaces = collectKitRestrictions(nodeKit);
-	local sClassName = getClassName();
+	local sClassName = getClassRuleName();
 	local sRaceName = getRaceCategoryName();
 	local sModule = DB.getModule(nodeKit) or "";
 
@@ -1003,6 +1222,9 @@ function isKitAllowedForCharacter(nodeKit)
 		return false;
 	end
 	if #tClasses == 0 and #tRaces == 0 and not modulePatternAllows(sModule, sClassName, sRaceName) then
+		return false;
+	end
+	if not isKitAllowedByAbilities(DB.getPath(nodeKit)) then
 		return false;
 	end
 	return true;
@@ -1139,7 +1361,7 @@ function processAlignment(wEntry)
 		return;
 	end
 
-	if not isAlignmentAllowedForClass(sName, getClassName()) then
+	if not isAlignmentAllowedForClass(sName, getClassRuleName()) then
 		return;
 	end
 
@@ -1550,7 +1772,7 @@ function getClassOptionsForRace(sRaceName)
 	end
 	local tOut = {};
 	for _, tOpt in ipairs(tAll) do
-		local sName = (tOpt.text or ""):lower();
+		local sName = getClassRuleWords(tOpt.text, tOpt.linkrecord);
 		for _, sKeyword in ipairs(tAllowed) do
 			if sName:find(sKeyword, 1, true) then
 				table.insert(tOut, tOpt);
@@ -1562,7 +1784,8 @@ function getClassOptionsForRace(sRaceName)
 end
 
 -- True if this class name is allowed for the current race (PHB Table 7).
-function isClassAllowedForRace(sClassName)
+-- sRecord (optional) is the class record, for its heading.
+function isClassAllowedForRace(sClassName, sRecord)
 	local sCat = getRaceCategory(getRaceCategoryName());
 	if not sCat or sCat == "human" then
 		return true;
@@ -1571,7 +1794,11 @@ function isClassAllowedForRace(sClassName)
 	if not tAllowed then
 		return true;
 	end
-	local sName = (sClassName or ""):lower();
+	if not sRecord then
+		local tClass = getClass();
+		sRecord = (tClass and tClass.text == sClassName) and tClass.linkrecord or nil;
+	end
+	local sName = getClassRuleWords(sClassName, sRecord);
 	for _, sKeyword in ipairs(tAllowed) do
 		if sName:find(sKeyword, 1, true) then
 			return true;
@@ -1600,7 +1827,7 @@ end
 function getAlignmentOptions()
 	local tOut = {};
 	for _, sAlignment in ipairs(aAlignments) do
-		if isAlignmentAllowedForClass(sAlignment, getClassName()) then
+		if isAlignmentAllowedForClass(sAlignment, getClassRuleName()) then
 			table.insert(tOut, sAlignment);
 		end
 	end
@@ -1608,7 +1835,7 @@ function getAlignmentOptions()
 end
 
 function getAlignmentRestrictionHint()
-	local sClass = getClassName():lower();
+	local sClass = getClassRuleName();
 	if sClass:find("paladin", 1, true) then
 		return Interface.getString("charwizard2e_hint_paladin_alignment");
 	end
@@ -1660,8 +1887,25 @@ end
 
 -- Family heirloom (Equipment tab; only when the DM allows it). A random keepsake
 -- text stored on the build and granted as an inventory item on commit.
+-- The heirlooms are The Drowned Archive's items (Kraken's own module, not an
+-- official book): the roll is offered only when the DM allows it and that
+-- module's items are loaded.
 function isHeirloomAllowed()
-	return OptionsManager.isOption("CWHEIR", "on");
+	if not OptionsManager.isOption("CWHEIR", "on") then
+		return false;
+	end
+	local sFirst = (CharWizard2EBio.getHeirloomByRoll(1) or ""):lower();
+	if sFirst == "" then
+		return false;
+	end
+	for _, sMapping in ipairs(LibraryData.getMappings("item") or {}) do
+		for _, vNode in pairs(DB.getChildrenGlobal(sMapping)) do
+			if StringManager.trim(DB.getValue(vNode, "name", "")):lower() == sFirst then
+				return true;
+			end
+		end
+	end
+	return false;
 end
 function getHeirloom()
 	return getEquipmentData().heirloom or "";
@@ -1823,7 +2067,7 @@ end
 
 -- PHB initial weapon proficiency slots at level 1, by group.
 function getWeaponSlots()
-	local g = profClassGroup(getClassName());
+	local g = profClassGroup(getClassRuleName());
 	if g == "warrior" then return 4; end
 	if g == "wizard" then return 1; end
 	return 2; -- priest, druid, rogue, bard
@@ -1842,7 +2086,7 @@ local _tWeaponAllow = {
 };
 
 function getAllowedWeaponKeywords()
-	local g = profClassGroup(getClassName());
+	local g = profClassGroup(getClassRuleName());
 	if g == "warrior" or g == "bard" then
 		return nil; -- any weapon
 	end
@@ -1855,7 +2099,7 @@ end
 -- race's signature weapons first. Plain names, in order (the picker no longer alpha-sorts).
 function buildWeaponCatalog()
 	local tOut = {};
-	for _, rWpn in ipairs(CharWizard2EBio.getRecommendedWeapons(getClassName(), getRaceCategoryName()) or {}) do
+	for _, rWpn in ipairs(CharWizard2EBio.getRecommendedWeapons(getClassRuleName(), getRaceCategoryName()) or {}) do
 		table.insert(tOut, rWpn.name);
 	end
 	return tOut;
@@ -1909,7 +2153,7 @@ end
 
 -- Weapon specialization (single-class fighters only; not rangers/paladins).
 function canSpecialize()
-	return getClassName():lower():find("fighter", 1, true) ~= nil;
+	return getClassRuleName():find("fighter", 1, true) ~= nil;
 end
 
 function getSpecialization()
@@ -2025,7 +2269,7 @@ end
 -- Nonweapon proficiencies: PHB initial slots by class group. (Group/cost is not
 -- in FG's data, so these are picked from the full skill library, slot-limited.)
 function getNWPSlots()
-	local g = profClassGroup(getClassName());
+	local g = profClassGroup(getClassRuleName());
 	if g == "wizard" or g == "priest" or g == "druid" then return 4; end
 	return 3; -- warrior, rogue, bard
 end
@@ -2062,7 +2306,7 @@ end
 -- group). Falls back to the full list if nothing matches, so the picker is never
 -- empty (e.g. an unusual skill library whose names don't match the allow-list).
 function buildNWPCatalog()
-	local sGroup = profClassGroup(getClassName());
+	local sGroup = profClassGroup(getClassRuleName());
 	local function gather(bFilter)
 		local tSeen = {};
 		local tOut = {};
@@ -2112,7 +2356,7 @@ end
 
 -- Spells (caster classes only). Wizard group = arcane; priest/druid = divine.
 function getCasterType()
-	local g = profClassGroup(getClassName());
+	local g = profClassGroup(getClassRuleName());
 	if g == "wizard" then return "arcane"; end
 	if g == "priest" or g == "druid" then return "divine"; end
 	return nil; -- warriors/rogues/bards: no spells at creation in this MVP
@@ -2280,7 +2524,7 @@ local function getClassWealthGroup(sClassName)
 end
 
 function getClassWealthInfo()
-	local sGroup = getClassWealthGroup(getClassName());
+	local sGroup = getClassWealthGroup(getClassRuleName());
 	if sGroup == "priest" then
 		return { sExpr = "3d6*10", sLabel = Interface.getString("charwizard2e_wealth_priest") };
 	elseif sGroup == "rogue" then
@@ -2501,13 +2745,32 @@ end
 
 -- Resolve a list of name-variant arrays against the loaded item libraries; returns
 -- an ordered array of { sPath, sName, sCost }. Callers list the Drowned Archive
--- "(Poor)" names first, so an exact match prefers them over standard items.
+-- "(Poor)" names first, so an exact match prefers them over standard items;
+-- without that module the official books' items are found, also under their
+-- own spellings ("Longsword", "Warhammer", "Thieves Picks", "Sling Stone").
+local function itemKey(s)
+	s = (s or ""):lower():gsub("[^%w]", "");
+	return (s:gsub("s$", ""));
+end
 local function buildCatalogFrom(tNamesList)
 	local tIndex = buildItemIndex();
+	local tLoose = {};
+	for k, r in pairs(tIndex) do
+		local sKey = itemKey(k);
+		if not tLoose[sKey] or #r.sName < #tLoose[sKey].sName then
+			tLoose[sKey] = r;
+		end
+	end
 
 	local function resolve(tNames)
 		for _, sN in ipairs(tNames) do
 			local r = tIndex[sN:lower()];
+			if r then
+				return r;
+			end
+		end
+		for _, sN in ipairs(tNames) do
+			local r = tLoose[itemKey(sN)];
 			if r then
 				return r;
 			end
@@ -2544,13 +2807,190 @@ end
 
 -- FREE class kit (granted at no gold cost): class kit item + adventuring pack.
 function buildFreeCatalog()
-	return buildCatalogFrom(CharWizard2EBio.getFreeGearNames(getClassName()));
+	return buildCatalogFrom(CharWizard2EBio.getFreeGearNames(getClassRuleName()));
 end
 
--- BUY starter gear (cost deducted from rolled gold): recommended weapons + armor
--- (+ matching ammo). Anything more, the player buys from FG's own Items list.
+-- BUY gear (cost deducted from rolled gold): a shop of the loaded books' mundane
+-- equipment -- the official Player's Handbook, or The Drowned Archive's "(Poor)"
+-- gear when that module is loaded -- limited to what the class may use: its
+-- weapons, the armor and shields it may wear (PHB: warriors and priests any;
+-- druids leather and a wooden shield; thieves leather, padded, studded leather
+-- or elven chain, no shield; bards up to chain mail, no shield; wizards none),
+-- ammunition only for launchers it may use, and everyday gear. Magic items,
+-- ships, livestock and services are left out. The Equipment page hides what the
+-- purse cannot pay for (CharWizard2E.getItemCostGP; its list filter).
+local _tShopGear = { ["other"] = true, ["container"] = true, ["equipment packs"] = true, ["tool"] = true,
+	["provisions"] = true, ["clothing"] = true, ["adventuring gear"] = true, [""] = true };
+
+local function isShopWeaponAllowed(sName)
+	local tAllow = getAllowedWeaponKeywords();
+	if not tAllow then
+		return true;
+	end
+	local s = sName:lower():gsub("[^%w ]", "");
+	local sTight = s:gsub(" ", "");
+	for _, k in ipairs(tAllow) do
+		if s:find(k, 1, true) or sTight:find((k:gsub(" ", "")), 1, true) then
+			return true;
+		end
+	end
+	return false;
+end
+
+local function getAmmoLauncher(sName)
+	local s = sName:lower();
+	if s:find("arrow", 1, true) then return "bow"; end
+	if s:find("quarrel", 1, true) or s:find("bolt", 1, true) then return "crossbow"; end
+	if s:find("sling bullet", 1, true) or s:find("sling stone", 1, true) then return "sling"; end
+	if s:find("needle", 1, true) then return "blowgun"; end
+	return nil;
+end
+
+local function isShopArmorAllowed(sGroup, sName, sSubtype, nAC)
+	local s = sName:lower();
+	local bShield = sSubtype:find("shield", 1, true) or s:find("shield", 1, true) or s:find("buckler", 1, true);
+	if sGroup == "wizard" then
+		return false;
+	end
+	if sGroup == "warrior" or sGroup == "priest" then
+		return true;
+	end
+	if sGroup == "druid" then
+		if bShield then
+			return s:find("small", 1, true) or s:find("buckler", 1, true) or s:find("wood", 1, true);
+		end
+		return s:find("leather", 1, true) and not s:find("studded", 1, true);
+	end
+	if sGroup == "rogue" then
+		if bShield then
+			return false;
+		end
+		return s:find("leather", 1, true) or s:find("padded", 1, true) or s:find("elven chain", 1, true);
+	end
+	if sGroup == "bard" then
+		if bShield then
+			return false;
+		end
+		return (nAC or 10) >= 5 or s:find("elven chain", 1, true);
+	end
+	return true;
+end
+
+local function isShopGearAllowed(sGroup, sName, sSubtype)
+	if not _tShopGear[sSubtype] then
+		return false;
+	end
+	local s = sName:lower();
+	-- Provisions: travel rations only (not spices, eggs or livestock feed).
+	if sSubtype == "provisions" and not s:find("ration", 1, true) then
+		return false;
+	end
+	-- Class bundles and tools for their own class.
+	if s:find("mage", 1, true) or s:find("spell ?book") then return sGroup == "wizard"; end
+	if s:find("priest", 1, true) then return sGroup == "priest" or sGroup == "druid"; end
+	if s:find("thie", 1, true) then return sGroup == "rogue" or sGroup == "bard"; end
+	return true;
+end
+
+-- Shop types, in the order the list shows them.
+SHOP_TYPES = { "Armor", "Weapons", "Ammunition", "Gear" };
+
+function getItemCostGP(sCost)
+	return parseItemCostGP(sCost);
+end
+
+-- Magic items are never starting gear: the books mark them (subtype "Magic",
+-- rarity Rare or rarer, a bonus, or not identified).
+local function isMagicItem(vNode)
+	local sSub = DB.getValue(vNode, "subtype", ""):lower();
+	local sRarity = DB.getValue(vNode, "rarity", ""):lower();
+	if sSub == "magic" or sRarity:find("rare", 1, true) or sRarity:find("legend", 1, true)
+			or sRarity:find("artifact", 1, true) then
+		return true;
+	end
+	if (tonumber(DB.getValue(vNode, "bonus", 0)) or 0) ~= 0 then
+		return true;
+	end
+	return DB.getValue(vNode, "isidentified", 1) == 0;
+end
+
+-- Everyday gear comes from the Player's Handbook, the class's own Complete
+-- handbook (a bard's instruments, a thief's tools), the race's Complete Book,
+-- The Drowned Archive (Kraken's own games) and the campaign's own items -- not
+-- every splatbook's whole catalog.
+local _tGearBooks = { "bard", "thief", "ranger", "paladin", "fighter", "priest", "wizard", "druid", "barbarian",
+	"necromancer" };
+local function isGearBookAllowed(sModule, sClassWords, sRaceBook)
+	local m = (sModule or ""):lower();
+	if m == "" or m:find("players handbook", 1, true) or m:find("drowned archive", 1, true)
+			or m == (sRaceBook or ""):lower() then
+		return true;
+	end
+	for _, w in ipairs(_tGearBooks) do
+		if m:find(w, 1, true) and sClassWords:find(w, 1, true) then
+			return true;
+		end
+	end
+	return false;
+end
+
+-- The race books' own items (a pixie's sword, a saurial's broadsword, dwarven
+-- or elven make) are offered only to characters of a race from that book.
+local _tRaceBookWords = { "book of dwarves", "book of elves", "gnomes and halflings", "book of humanoids" };
+function isRaceBookItemAllowed(sModule, sRaceBook)
+	local m = (sModule or ""):lower();
+	for _, w in ipairs(_tRaceBookWords) do
+		if m:find(w, 1, true) then
+			return m == (sRaceBook or ""):lower();
+		end
+	end
+	return true;
+end
+
 function buildStarterCatalog()
-	return buildCatalogFrom(CharWizard2EBio.getBuyGearNames(getClassName(), getRaceCategoryName()));
+	local sClassWords = getClassRuleName();
+	local sGroup = profClassGroup(sClassWords);
+	local sRaceBook = ((_tCharData.race or {}).linkrecord or ""):match("@(.+)$") or "";
+	local tOut, tSeen = {}, {};
+	for _, sMapping in ipairs(LibraryData.getMappings("item") or {}) do
+		for _, vNode in pairs(DB.getChildrenGlobal(sMapping)) do
+			local sName = StringManager.trim(DB.getValue(vNode, "name", ""));
+			local sCost = StringManager.trim(DB.getValue(vNode, "cost", ""));
+			local sType = StringManager.trim(DB.getValue(vNode, "type", "")):lower();
+			local sSub = StringManager.trim(DB.getValue(vNode, "subtype", "")):lower();
+			local nGP = parseItemCostGP(sCost);
+			local sKey = sName:lower();
+			local bOk = sName ~= "" and nGP > 0 and not tSeen[sKey] and not sName:find("[%+%-]%s*%d")
+					and not isMagicItem(vNode) and isRaceBookItemAllowed(DB.getModule(vNode), sRaceBook);
+			local sCat = "";
+			if bOk then
+				local sLauncher = getAmmoLauncher(sName);
+				if sType == "magic" then
+					bOk = false;
+				elseif sLauncher and (sType == "ammunition" or sSub == "ammunition") then
+					bOk = isShopWeaponAllowed(sLauncher);
+					sCat = "Ammunition";
+				elseif sType == "weapon" then
+					bOk = isShopWeaponAllowed(sName);
+					sCat = "Weapons";
+				elseif sType == "armor" then
+					bOk = isShopArmorAllowed(sGroup, sName, sSub, tonumber(DB.getValue(vNode, "ac", 10)) or 10);
+					sCat = "Armor";
+				elseif sType == "gear" or sType == "adventuring gear" then
+					sCat = "Gear";
+					bOk = isShopGearAllowed(sGroup, sName, sSub)
+							and isGearBookAllowed(DB.getModule(vNode), sClassWords, sRaceBook);
+				else
+					bOk = false;
+				end
+			end
+			if bOk then
+				tSeen[sKey] = true;
+				table.insert(tOut, { sPath = DB.getPath(vNode), sName = sName, sCost = sCost, sCat = sCat });
+			end
+		end
+	end
+	return tOut;
 end
 
 local function collectItemLinksFromNode(node, tSeen, tOut)

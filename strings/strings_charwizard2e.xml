@@ -108,7 +108,7 @@
 	<!-- Curated starter-gear picker -->
 	<string name="charwizard2e_items_catalog_title">Buy Starter Gear (optional) - cost is deducted from your rolled gold</string>
 	<string name="charwizard2e_button_clear_items">Clear Items</string>
-	<string name="charwizard2e_items_empty">No matching gear found in the loaded item libraries.</string>
+	<string name="charwizard2e_items_empty">Nothing to buy yet: roll your starting gold. The shop lists only gear your class can use and your purse can pay for.</string>
 	<string name="charwizard2e_button_minus">-</string>
 	<string name="charwizard2e_button_remove_tooltip">Remove one</string>
 	<string name="charwizard2e_msg_items_added">Character Wizard: added %d chosen starter item(s).</string>
