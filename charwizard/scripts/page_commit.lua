@@ -31,21 +31,25 @@ function refresh()
 		warn_text.setValue(table.concat(tLines, "\r"));
 	end
 
-	-- Only allow creation once the required choices are made.
-	create_button.setVisible(CharWizard2E.isReadyToCommit());
+	-- Always available: an unfinished character is saved with the open
+	-- choices at the top of its notes, to finish later with the DM.
+	create_button.setVisible(true);
 end
 
 function onCreate()
-	if not CharWizard2E.isReadyToCommit() then
-		refresh();
-		return;
-	end
-
 	local sName = StringManager.trim(name_entry.getValue() or "");
 	CharWizard2E.setBuildName(sName);
 
+	local tOpen = CharWizard2E.getBuildWarnings();
 	local nodeChar = CharWizard2E.createCharacter(CharWizard2E.getBuildPayload(sName));
 	if nodeChar then
+		if #tOpen > 0 then
+			local sOpen = string.format(Interface.getString("charwizard2e_notes_unfinished"), table.concat(tOpen, " "));
+			local sNotes = DB.getValue(nodeChar, "notes", "");
+			DB.setValue(nodeChar, "notes", "string", sNotes ~= "" and (sOpen .. string.char(10, 10) .. sNotes) or sOpen);
+			ChatManager.SystemMessage(string.format(Interface.getString("charwizard2e_msg_unfinished"),
+					DB.getValue(nodeChar, "name", ""), table.concat(tOpen, " ")));
+		end
 		CharWizard2E.closeWizard();
 	end
 end

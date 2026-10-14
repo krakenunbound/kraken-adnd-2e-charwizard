@@ -131,7 +131,9 @@
 	<string name="charwizard2e_warn_alignment">Choose an alignment (Alignment tab).</string>
 	<string name="charwizard2e_warn_wealth">Starting gold not rolled yet (optional - Equipment tab).</string>
 	<string name="charwizard2e_commit_ready">All required choices are made. Click Create Character to build the sheet - Fantasy Grounds will apply race, class, kit, HP, THAC0, saves and proficiencies automatically.</string>
-	<string name="charwizard2e_commit_missing">Finish these required choices before creating the character:</string>
+	<string name="charwizard2e_commit_missing">Still to choose (you can create the character now and finish these later with your DM):</string>
+	<string name="charwizard2e_notes_unfinished">Unfinished in the character wizard (finish with your DM): %s</string>
+	<string name="charwizard2e_msg_unfinished">Character Wizard: '%s' was saved unfinished. Still to do: %s The list is in the sheet's notes.</string>
 	<string name="charwizard2e_details_header">Character Details (type your own, or roll the dice)</string>
 	<string name="charwizard2e_button_rollall">Roll All Details</string>
 	<string name="charwizard2e_page_soon">This page is coming soon - the wizard is being built one page at a time.</string>
