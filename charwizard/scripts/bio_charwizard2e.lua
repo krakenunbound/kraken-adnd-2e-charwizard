@@ -726,13 +726,13 @@ end
 local function classKitNames(sClass)
 	local s = (sClass or ""):lower();
 	if s:find("paladin", 1, true) then
-		return { "Paladin's Vigil Kit (Poor)", "Paladin's Vigil Kit" };
+		return { "Paladin's Vigil Kit (Poor)", "Paladin's Vigil Kit", "Holy Symbol" };
 	end
 	if s:find("ranger", 1, true) then
 		return { "Ranger's Fieldcraft Kit (Poor)", "Ranger's Fieldcraft Kit" };
 	end
 	if s:find("fighter", 1, true) or s:find("barbarian", 1, true) then
-		return { "Fighter's Maintenance Roll (Poor)", "Fighter's Maintenance Roll" };
+		return { "Fighter's Maintenance Roll (Poor)", "Fighter's Maintenance Roll", "Whetstone" };
 	end
 	if s:find("bard", 1, true) then
 		return { "Bard's Traveling Lute (Poor)", "Lute", "Mandolin", "Musical Instrument", "Instrument" };

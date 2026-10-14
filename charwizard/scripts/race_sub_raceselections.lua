@@ -56,6 +56,9 @@ function addListRecord(vNode, sLinkClass)
 	if sName == "" then
 		return;
 	end
+	if not CharWizard2E.isRaceAllowedByAbilities(sName, DB.getPath(vNode)) then
+		return;
+	end
 
 	local rRecord = {};
 	rRecord.vNode = vNode;

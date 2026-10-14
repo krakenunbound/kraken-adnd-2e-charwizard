@@ -1,6 +1,6 @@
 # Install & User Guide
 
-Everything you need to install the **Kraken AD&D 2E Character Wizard**, know what each file is, where it goes, and how to use the wizard.
+Everything you need to install the **Kraken AD&D 2E Character Wizard**, know where it goes, and how to use the wizard.
 
 > 🎥 **Prefer to watch?** See the [video walkthrough on YouTube](https://youtu.be/DUrpYcwq9xY).
 
@@ -8,18 +8,15 @@ Everything you need to install the **Kraken AD&D 2E Character Wizard**, know wha
 
 ## 1. What's in the download
 
-From the [latest Release](../../releases/latest) you get two files:
+From the [latest Release](../../releases/latest) you get one file:
 
 | File | What it is | Where it goes |
 |------|------------|---------------|
 | **`KrakenCharWizard2E.ext`** | The extension — the character-creation wizard itself | your Fantasy Grounds **`extensions\`** folder |
-| **`The Drowned Archive.mod`** | Companion module — the "(Poor)" starter gear, family heirlooms, and the Adventure Pack the wizard hands out | your Fantasy Grounds **`modules\`** folder |
-
-> GitHub may show the module as `The.Drowned.Archive.mod` (it swaps spaces for dots). That's fine — Fantasy Grounds reads the module's real name from inside the file, so it loads correctly either way. No need to rename it.
 
 ---
 
-## 2. Where to put the files
+## 2. Where to put it
 
 Your Fantasy Grounds **data folder** is usually:
 
@@ -29,14 +26,10 @@ Your Fantasy Grounds **data folder** is usually:
 
 (Paste that into the Windows Explorer address bar, or click the **folder icon** on the Fantasy Grounds launcher screen.)
 
-Drop the two files in like this:
-
 ```
 Fantasy Grounds\                      <- your data folder
-├── extensions\
-│   └── KrakenCharWizard2E.ext        <- the extension goes here
-└── modules\
-    └── The Drowned Archive.mod       <- the module goes here
+└── extensions\
+    └── KrakenCharWizard2E.ext        <- the extension goes here
 ```
 
 That's it — no unzipping, no subfolders.
@@ -45,13 +38,13 @@ That's it — no unzipping, no subfolders.
 
 ## 3. What you must already own
 
-These are commercial SmiteWorks products and are **not** included — you need them loaded for the wizard to work:
+These are commercial SmiteWorks products and are **not** included:
 
 - **Fantasy Grounds Unity**
 - **The AD&D 2E ruleset**
-- **The 2E Player's Handbook module** — the wizard reads **races, classes, kits, spells, and nonweapon proficiencies** from it. Without it, those lists will be empty.
+- **The 2E Player's Handbook module** — the wizard reads **races, classes, kits, spells, equipment and nonweapon proficiencies** from it. Without it, those lists will be empty.
 
-(Have any other 2E source modules — Complete Handbooks, etc. — active too, and their kits/proficiencies show up automatically.)
+Any other official 2E books you load are used too — tested with the Dungeon Master Guide, Monstrous Manual, Tome of Magic, the Complete Fighter's, Thief's, Priest's, Wizard's, Bard's, Ranger's, Paladin's, Druid's and Barbarian's Handbooks, the Complete Books of Dwarves, Elves, Gnomes & Halflings and Humanoids, the Complete Book of Necromancers and Demihuman Deities. Their races, classes (including the specialty priests of the demihuman gods), kits, gear and proficiencies appear in the wizard on their own.
 
 ---
 
@@ -59,7 +52,7 @@ These are commercial SmiteWorks products and are **not** included — you need t
 
 1. Launch Fantasy Grounds and load a **2E campaign as the GM/host**.
 2. On the campaign **load screen**, click **Extensions** and tick **Kraken AD&D 2E Character Wizard**.
-3. Once in the game, open **Library → Modules** and activate **The Drowned Archive** (and your Player's Handbook, if not already on).
+3. Once in the game, open **Library → Modules** and activate your **Player's Handbook** and any other 2E books you want to offer.
 4. Open the **Characters** list — there's a wizard button to launch it.
 
 ![Character selection / launch](docs/images/00-character-selection.png)
@@ -73,67 +66,73 @@ Open **Options** (the gear / settings menu). Under **Kraken Character Wizard** y
 ![DM options](docs/images/01-options.png)
 
 - **Allow ability Method I–VI** — turn each PHB ability-score method on or off. Only the ones you allow appear in the player's dropdown.
-- **Allow family heirloom items** — lets players roll a random keepsake on the Equipment tab.
-- **Grant free starter items** — gives each character a class kit + an Adventure Pack at no gold cost.
+- **Grant free starter items** — gives each character its class item (holy symbol, spellbook, thieves' picks, an instrument...) and an Adventure Pack at no gold cost.
 - **Lock ability rolls (one roll only)** — players get a single roll, no re-rolling.
+- **Allow family heirloom items** — only for campaigns with a module that provides the heirloom items; without one the heirloom roll simply doesn't appear.
 
 ---
 
 ## 6. Build a character — tab by tab
 
-The wizard runs left to right. Each tab gets a ✓ when its required choices are made.
+The wizard runs left to right. Each tab gets a ✓ when its required choices are made. Every list only offers what the choices before it allow.
 
 ### Abilities
-Pick a generation method from the dropdown (only the methods your DM allowed are listed), then roll. Some methods let you **roll each attribute individually** (the dice icons) or **drag scores to arrange** them; the panel on the right explains the selected method.
+Pick a generation method from the dropdown (only the methods your DM allowed are listed), then roll. Some methods let you **roll each attribute individually** (the dice icons) or **drag scores to arrange** them; the panel explains the selected method.
 
 ![Abilities tab](docs/images/02-abilities.png)
 
 ### Race
-Choose from the core races. Use the **Source** and **Name** filters to narrow the list, and click the shield to open the full library record.
+Choose from every race your books provide. Use the **Source** and **Name** filters to narrow the list, and click the shield to open the full library record. Races your scores fall outside of (PHB Table 7, or a splatbook race's own Ability Score Range) are not listed.
 
 ![Race tab](docs/images/03-race.png)
 
+![Race chosen](docs/images/03b-race-chosen.png)
+
 ### Class
-Pick your class (the list is filtered to what your race may be) and set your **starting level**. Class drives your THAC0, saves, hit dice, and proficiency slots.
+Pick your class and set your **starting level**. The list holds only classes your race may take (PHB Table 7) and your scores qualify for (the PHB minimums, or the class's own REQUIREMENTS), after racial adjustments. Splatbook classes are here too: here a mountain dwarf sees the specialty priests of Demihuman Deities. Class drives your THAC0, saves, hit dice, proficiency slots, weapons, armor and spells.
+
+![Class tab](docs/images/04a-class.png)
 
 ### Kit
-Optional. Kits are filtered to your class/race; pick one or choose **No Kit**.
+Optional. Kits are filtered to your class, race and scores; pick one or choose **No Kit**.
 
 ![Kit tab](docs/images/04-kit.png)
 
 ### Alignment
-Pick from the nine alignments — the primer on the right explains the two axes while you decide. Choices your class forbids are blocked.
+Pick from the alignments your class allows (paladins lawful good, druids true neutral, and so on).
 
 ![Alignment tab](docs/images/05-alignment.png)
 
 ### Equipment
 Your **starting gold** is rolled by class group. Then:
-- **Free Starter Kit** — add your class kit + Adventure Pack at no cost.
-- **Buy Starter Gear** — optional; the cost is deducted from your rolled gold as you add items. For anything else, drag from the FG **Items** list onto your sheet later.
-- **Family Heirloom** — if your DM enabled it, roll a keepsake; click the icon to read its full details.
+- **Free Starter Kit** — if your DM grants it, add your class item and an Adventure Pack at no cost.
+- **Buy gear** — a shop of what your class can actually use: its weapons, the armor it may wear (warriors and priests any; druids leather and a small wooden shield; thieves leather, padded, studded leather or elven chain; bards up to chain mail; mages none), ammunition only for launchers it can use, and everyday gear from the Player's Handbook and your class's own Complete Handbook. The list is sorted by type — Armor, Weapons, Ammunition, Gear — with a **type dropdown** to show just one and a **Search** box for names. Anything your gold no longer covers drops off the list as you buy. Magic items are never offered at creation.
 
 ![Equipment tab](docs/images/06-equipment.png)
 
-> The "(Poor)" gear is intentionally **one step worse** than standard equipment (and can fail under pressure) — cheap to start with, worth upgrading.
-
 ### Proficiencies
 Spend your slots:
-- **Weapon Proficiencies** — only weapons your class may use are listed; spending a slot here makes that weapon proficient (no non-proficiency penalty).
-- **Languages** — your racial languages are shown as known; spend your Intelligence bonus on extras.
+- **Weapon Proficiencies** — only weapons your class may use are listed.
+- **Languages** — your racial languages are known; spend your Intelligence bonus on extras.
 - **Nonweapon Proficiencies** — pick any; a `[2]` after a name means it costs **2** slots.
+- **Spells** — casters pick their starting spells.
 
 ![Proficiencies tab](docs/images/07-proficiencies.png)
 
 ### Commit
-Name the character and fill in the details — type your own or click a dice icon to roll one (or **Roll All Details**). Then click **Create Character**. You can create at any point: if choices are still open (say you are making the character before game night without your DM), the character is saved anyway and the open choices are listed at the top of its notes, to finish with your DM.
+Name the character and fill in the details — type your own or click a dice icon to roll one (or **Roll All Details**). Then click **Create Character**.
 
 ![Commit tab](docs/images/08-commit.png)
+
+You can create at any point. If choices are still open (say you are making the character before game night without your DM), the character is saved anyway and the open choices are listed at the top of its notes, to finish with your DM:
+
+![Saving an unfinished character](docs/images/10-unfinished-commit.png)
 
 ---
 
 ## 7. The finished sheet
 
-Click **Create Character** and the wizard builds a complete 2E sheet — abilities (with derived stats), saves, **AC**, THAC0, HP, race traits, kit, proficiencies, languages, gold split into coins, and all your gear:
+Click **Create Character** and the wizard builds a complete 2E sheet — abilities (with derived stats), saves, **AC**, THAC0, HP, race traits, kit, proficiencies, languages, spells, gold split into coins, and your gear:
 
 ![Finished character sheet](docs/images/09-character-sheet.png)
 
@@ -145,11 +144,12 @@ Click **Create Character** and the wizard builds a complete 2E sheet — abiliti
 |--------|--------------------|
 | No wizard button | Extension not enabled on the load screen, or you're not loaded as GM/host. |
 | Race / Class / Spell / Proficiency lists are empty | The 2E **Player's Handbook** module isn't active (or isn't owned). |
-| No "(Poor)" gear, heirlooms, or Adventure Pack | **The Drowned Archive** module isn't active. |
+| A race or class you expected is missing | Your rolled scores don't qualify for it, or your race may not take that class — reroll or rearrange your scores. |
+| Nothing to buy | Roll your starting gold first; the shop only lists what your purse covers. |
 | An older character looks wrong (AC, coins, etc.) | Fixes apply when a character is **created** — build a fresh one; the wizard doesn't retro-edit existing sheets. |
 
 ---
 
 ## 9. Updating later
 
-When a new [Release](../../releases/latest) comes out, just replace the two files in `extensions\` and `modules\` with the new versions (same filenames) and restart Fantasy Grounds.
+When a new [Release](../../releases/latest) comes out, replace `KrakenCharWizard2E.ext` in `extensions\` with the new one (same filename) and restart Fantasy Grounds.

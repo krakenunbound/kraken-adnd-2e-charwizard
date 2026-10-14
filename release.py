@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Build and publish a GitHub Release for the Kraken AD&D 2E Character Wizard.
 
-Rebuilds KrakenCharWizard2E.ext from the extension source, copies the current
-"The Drowned Archive.mod", and creates (or updates) a GitHub Release with both
-files attached as downloadable assets.
+Rebuilds KrakenCharWizard2E.ext from the extension source and creates (or
+updates) a GitHub Release with it attached as a downloadable asset.
 
 Usage:
     python release.py                 # tag = "v" + version from extension.xml
@@ -18,8 +17,6 @@ import xml.etree.ElementTree as ET
 
 REPO    = os.path.dirname(os.path.abspath(__file__))
 FG      = os.path.abspath(os.path.join(REPO, "..", ".."))            # Fantasy Grounds data dir
-MOD_SRC = os.path.join(FG, "modules", "The Drowned Archive.mod")
-CAMP_DB = os.path.join(FG, "campaigns", "The Drowned Archive", "db.xml")
 BUILD   = os.path.join(REPO, "build")
 
 # Only these go into the .ext (everything FGU needs, nothing else).
@@ -63,24 +60,16 @@ def main():
     n = build_ext(ext_out)
     print(f"[build] {os.path.basename(ext_out)}  ({n} files, {os.path.getsize(ext_out)/1e6:.1f} MB)")
 
+    # The extension only: it reads the official 2E books. (The Drowned Archive is
+    # Kraken's own games' module, not part of the wizard's release.)
     assets = [ext_out]
-    if os.path.exists(MOD_SRC):
-        mod_out = os.path.join(BUILD, "The Drowned Archive.mod")
-        shutil.copy2(MOD_SRC, mod_out)
-        print(f"[build] {os.path.basename(mod_out)}  ({os.path.getsize(mod_out)/1e6:.0f} MB)")
-        assets.append(mod_out)
-        if os.path.exists(CAMP_DB) and os.path.getmtime(CAMP_DB) > os.path.getmtime(MOD_SRC):
-            print("[WARN] campaign db.xml is NEWER than the .mod -- re-export The Drowned "
-                  "Archive from FGU (or rebuild) so the module isn't stale.")
-    else:
-        print("[warn] module not found, releasing extension only:", MOD_SRC)
 
     title = f"Kraken AD&D 2E Character Wizard {tag}"
     if not notes:
         notes = (f"{title}\n\n"
-                 "Install: KrakenCharWizard2E.ext -> Fantasy Grounds \\extensions\\, "
-                 "The Drowned Archive.mod -> \\modules\\. "
-                 "Requires FGU + the AD&D 2E ruleset + the 2E Player's Handbook module.")
+                 "Install: KrakenCharWizard2E.ext -> Fantasy Grounds \\extensions\\. "
+                 "Requires FGU + the AD&D 2E ruleset + the 2E Player's Handbook module "
+                 "(other official 2E books are used when loaded).")
 
     exists = subprocess.run(["gh", "release", "view", tag], cwd=REPO,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
