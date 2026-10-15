@@ -50,9 +50,21 @@
 				</anchored>
 				<font>sheetlabel</font>
 			</label>
+			<!-- What the chosen kit requires or limits (CharWizard2E.getKitWeaponNote). -->
+			<stringcontrol name="weapon_kitnote">
+				<anchored>
+					<top parent="weapon_slots" anchor="bottom" relation="relative" offset="2" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+					<right parent="contentanchor" anchor="right" offset="-20" />
+				</anchored>
+				<font>sheetlabel</font>
+				<multilinespacing>18</multilinespacing>
+				<readonly />
+				<invisible />
+			</stringcontrol>
 			<list_content_base name="weapon_list">
 				<anchored height="220">
-					<top parent="weapon_slots" anchor="bottom" relation="relative" offset="4" />
+					<top parent="weapon_kitnote" anchor="bottom" relation="relative" offset="4" />
 					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
 					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
 				</anchored>

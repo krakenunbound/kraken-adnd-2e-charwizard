@@ -74,6 +74,11 @@ function registerWindow(w)
 	updateTabStatus();
 end
 
+-- Start a new build (every choice cleared), as a freshly opened wizard does.
+function resetBuild()
+	_tCharData = {};
+end
+
 function unregisterWindow(w)
 	if _wMain == w then
 		_wMain = nil;
@@ -2065,12 +2070,238 @@ local function profClassGroup(sClassName)
 	return "warrior";
 end
 
--- PHB initial weapon proficiency slots at level 1, by group.
+-- Kit weapon rules, from each kit's "Weapon Proficiencies" paragraph. They apply
+-- to the proficiencies a new character starts with (the shop still sells what the
+-- class may use, plus any weapon a kit adds). Fields:
+--   only     the kit may only take proficiencies in these weapons
+--   forbid   never these weapons
+--   add      weapons the kit may take although the class could not
+--   nomissile no purely missile or thrown weapons (except those in add)
+--   required "one of" groups the kit must take: listed first and noted
+--   slots    initial weapon slots replace the class's; extra adds to them
+--   any      any weapon at all (lifts the class limit)
+--   cleric   the cleric's limit (blunt, bludgeoning weapons)
+--   note     shown under the slot count
+-- A key is the kit name in lower case without " (F)" / " (S)"; a name used by two
+-- books is keyed "name|book word" (fighter, thief, ranger, druid, gnome, humanoid).
+local POLEARMS = { "polearm", "halberd", "glaive", "guisarme", "bardiche", "bill", "partisan", "ranseur",
+	"spetum", "voulge", "awl pike", "lucern", "bec de corbin", "fauchard", "military fork", "pike" };
+local MISSILE = { "bow", "crossbow", "sling", "dart", "blowgun", "javelin", "throwing", "boomerang", "bola",
+	"atlatl", "arquebus", "rabbit stick", "harpoon", "rock" };
+local function join(a, b)
+	local t = {};
+	for _, v in ipairs(a or {}) do table.insert(t, v); end
+	for _, v in ipairs(b or {}) do table.insert(t, v); end
+	return t;
+end
+-- Built on first use: FGU runs a script file before ipairs is available.
+local _tKitWeapons = nil;
+local function buildKitWeapons() return {
+	-- Complete Barbarian's Handbook
+	["ravager"] = { nomissile = true, add = { "spear" }, note = "Ravager: no thrown or missile weapons (a spear is acceptable)." },
+	["brute"] = { slots = 2, only = { "club", "axe", "celt", "dagger", "knife", "spear" }, required = { { "club" } },
+		note = "Brute: two weapon slots; club, then axe, celt, dagger, knife or spear." },
+	["brushrunner"] = { required = { { "boomerang" } } },
+	["plainrider"] = { required = { { "short bow" } } },
+	["witchman"] = { required = { { "dagger", "knife" } } },
+	["wizard slayer"] = { required = { { "short bow" } } },
+	["flamespeaker"] = { note = "Flamespeaker: no weapons made only of wood." },
+	-- Complete Bard's Handbook
+	["thespian"] = { slots = 1, only = { "dagger" }, note = "Thespian: dagger only at 1st level (knife at 2nd, short sword at 5th)." },
+	["halfling whistler"] = { only = { "blowgun", "short bow", "club", "light crossbow", "dagger", "dart", "footman's mace",
+		"hand axe", "harpoon", "javelin", "knife", "quarterstaff", "sling", "spear", "staff sling", "short sword", "war hammer" },
+		note = "Whistler: at least half the weapons must be ones that can be hurled." },
+	["jongleur"] = { only = join(POLEARMS, { "quarterstaff", "sling", "staff sling", "whip", "dagger", "dart", "javelin",
+		"knife", "spear", "hand axe", "throwing" }), note = "Jongleur: hurled weapons, polearms, quarterstaff, slings and whip." },
+	["meistersinger"] = { forbid = join(POLEARMS, { "harpoon", "lance", "mancatcher", "trident" }),
+		note = "Meistersinger: one melee and one missile weapon at 1st level." },
+	["blade"] = { note = "Blade: half the slots on swords, daggers or knives; one purely missile weapon at most." },
+	["loremaster"] = { only = { "blowgun", "dagger", "dart", "hand crossbow", "knife", "quarterstaff", "sling", "staff sling" } },
+	["dwarven chanter"] = { only = { "club", "flail", "mace", "javelin", "morning star", "quarterstaff", "sling", "spear",
+		"staff sling", "war hammer" } },
+	["jester"] = { only = { "blowgun", "hand crossbow", "dagger", "dart", "hand axe", "javelin", "knife", "quarterstaff",
+		"scourge", "sling", "short sword", "whip" } },
+	["elven minstrel"] = { only = { "blowgun", "bow", "dagger", "dart", "hand axe", "javelin", "knife", "quarterstaff", "sling",
+		"spear", "staff sling", "long sword", "short sword", "trident" } },
+	["gypsy-bard"] = { forbid = join(POLEARMS, { "battle axe", "lance", "trident", "two-handed sword", "bastard sword",
+		"war hammer" }), required = { { "dagger", "knife" } }, note = "Gypsy-bard: a first sword must be a khopesh or scimitar." },
+	["riddlemaster"] = { only = { "blowgun", "bow", "crossbow", "dagger", "dart", "hand axe", "javelin", "knife", "quarterstaff",
+		"sling", "spear", "staff sling", "short sword", "whip" } },
+	["gnome professor"] = { only = { "arquebus", "blowgun", "bow", "crossbow", "harpoon", "mancatcher", "scourge", "sling",
+		"staff sling", "whip" } },
+	["skald"] = { required = { { "broad sword", "hand axe", "battle axe", "spear" } },
+		note = "Skald: half the slots on broad sword, hand axe, battle axe or spear." },
+	["charlatan"] = { required = { { "dagger", "short sword", "long sword" } } },
+	["gallant"] = { required = { { "lance" } } },
+	-- Complete Book of Dwarves
+	["vindicator"] = { nomissile = true, add = { "battle axe", "war hammer" }, required = { { "battle axe" }, { "war hammer" } },
+		note = "Vindicator: no ranged weapon but the warhammer." },
+	["battlerager"] = { nomissile = true, add = { "battle axe", "war hammer" }, required = { { "battle axe" }, { "war hammer" } },
+		note = "Battlerager: must specialize in battle axe and warhammer; no ranged weapons." },
+	["hearth guard"] = { required = { { "axe" }, { "spear" }, { "light crossbow" } } },
+	["highborn"] = { required = { { "sword" }, { "hammer" }, { "light crossbow" } } },
+	["ritual priest"] = { add = { "battle axe", "crossbow", "hand axe", "throwing axe", "morning star", "war hammer" } },
+	["vermin slayer"] = { required = { { "light crossbow" }, { "hand axe", "hammer", "dagger" } } },
+	["sharpshooter"] = { required = { { "light crossbow", "heavy crossbow" } } },
+	["rapid response rider"] = { required = { { "lance" } } },
+	-- Complete Book of Elves
+	["windrider"] = { extra = 1, add = { "lance" }, required = { { "lance" } }, note = "Windrider: a bonus lance proficiency." },
+	-- Complete Book of Gnomes and Halflings
+	["healer|gnome"] = { slots = 1, cleric = true, note = "Healer: one weapon slot, from the weapons a cleric may use." },
+	["leaftender"] = { only = { "sling", "sickle", "spear", "scythe", "dagger", "staff", "club", "dart" } },
+	["rocktender"] = { note = "Rocktender: no metal weapons (stone-headed hammers and clubs, slings, flint spears)." },
+	["breachgnome"] = { required = { { "short sword" }, { "hammer", "axe" } } },
+	-- Complete Book of Humanoids
+	["humanoid bard"] = { class = "rogue" },
+	["oracle"] = { class = "priest" },
+	["tunnel rat|humanoid"] = { required = { { "short sword" } } },
+	-- Complete Druid's Handbook
+	["savage|druid"] = { only = { "blowgun", "club", "dagger", "harpoon", "knife", "spear", "staff" } },
+	["village druid"] = { required = { { "sickle", "scythe" } } },
+	-- Complete Fighter's Handbook
+	["samurai"] = { note = "Samurai: katana and daikyu specialization are chosen for you; the last slot from samurai weapons." },
+	["amazon"] = { required = { { "spear" }, { "long bow" } } },
+	["berserker"] = { nomissile = true, note = "Berserker: no ranged weapons at the start." },
+	["peasant hero"] = { forbid = join(POLEARMS, { "horseman", "lance", "long sword", "trident" }) },
+	["barbarian|fighter"] = { required = { { "battle axe" }, { "bastard sword" } } },
+	["cavalier"] = { required = { { "lance" }, { "sword" } } },
+	["gladiator"] = { required = { { "short sword" }, { "trident" }, { "net" } } },
+	["noble warrior"] = { required = { { "long sword", "bastard sword" }, { "lance" }, { "horseman's flail", "horseman's mace" } } },
+	["savage|fighter"] = { only = { "blowgun", "long bow", "short bow", "club", "dagger", "javelin", "knife", "sling", "spear" } },
+	["swashbuckler|fighter"] = { extra = 2, required = { { "stiletto", "main-gauche", "rapier", "sabre" } },
+		note = "Swashbuckler: two extra slots for stiletto, main-gauche, rapier or sabre." },
+	-- Complete Paladin's Handbook
+	["wyrmslayer"] = { only = { "lance", "awl pike", "bardiche", "glaive-guisarme", "spetum", "long sword", "two-handed sword", "trident" } },
+	["envoy"] = { slots = 2, note = "Envoy: two weapon proficiencies for the whole career." },
+	["medician"] = { slots = 1, required = { { "lance", "battle axe", "sword" } } },
+	["equerry"] = { slots = 3, required = { { "lance" } } },
+	["true paladin"] = { required = { { "lance" } } },
+	["chevalier"] = { required = { { "sword" }, { "lance" } } },
+	["errant"] = { required = { { "sword" } } },
+	["militarist"] = { required = { { "sword", "lance", "battle axe", "horseman's flail", "horseman's mace", "horseman's pick" } } },
+	-- Complete Priest's Handbook
+	["pacifist priest"] = { only = { "bow", "dart" }, note = "Pacifist Priest: bow and dart only, and only if the priest's class allows them (a cleric's does not)." },
+	["savage priest"] = { only = { "blowgun", "long bow", "short bow", "club", "dagger", "javelin", "knife", "sling", "spear" } },
+	-- Complete Ranger's Handbook
+	["beastmaster"] = { only = { "axe", "club", "dagger", "dart", "javelin", "knife", "quarterstaff", "sling", "spear" } },
+	["stalker|ranger"] = { only = { "blowgun", "dagger", "dart", "knife", "short sword", "staff", "sling", "garrote", "rapier", "stiletto" } },
+	["seeker"] = { slots = 1, only = { "club", "light crossbow", "dagger", "dart", "knife", "quarterstaff", "sickle", "sling" },
+		forbid = { "sword" } },
+	["feralan"] = { only = { "club", "knife", "blowgun", "dagger", "short bow", "dart", "hand axe", "sling", "spear" },
+		required = { { "club" }, { "knife" } } },
+	["mountain man"] = { only = { "axe", "bow", "crossbow", "club", "dagger", "dart", "javelin", "knife", "quarterstaff", "spear",
+		"staff sling", "war hammer" } },
+	["forest runner"] = { required = { { "long bow", "quarterstaff", "long sword", "dagger" } } },
+	["pathfinder"] = { required = { { "machete", "hand axe", "sword" } } },
+	-- Complete Thief's Handbook
+	["beggar"] = { only = { "club", "dagger", "dart", "knife", "sling", "staff" } },
+	["bandit"] = { extra = 1, add = { "flail", "mace", "morning star", "war hammer" }, required = { { "knife" } },
+		note = "Bandit: one bludgeoning weapon among the first slots; a third slot for any weapon." },
+	["assassin"] = { any = true },
+	["bounty hunter"] = { any = true },
+	["swashbuckler|thief"] = { extra = 1, add = { "stiletto", "main-gauche", "rapier", "sabre" },
+		required = { { "stiletto", "main-gauche", "rapier", "sabre" } } },
+	-- Complete Wizard's Handbook
+	["witch"] = { slots = 0, note = "Witch: no weapon proficiencies." },
+	["peasant wizard"] = { add = { "bow", "spear" }, required = { { "bow", "dagger", "knife", "spear", "dart", "sling" } } },
+	["amazon sorceress"] = { add = { "spear", "long bow" } },
+	["anagakok"] = { add = { "bow", "harpoon", "javelin", "trident" },
+		required = { { "bow", "dagger", "harpoon", "javelin", "knife", "sling", "trident" } } },
+	["patrician"] = { required = { { "dagger", "knife" } } },
+	["academician"] = { required = { { "dagger", "dart", "knife", "sling" } } },
+	["savage wizard"] = { add = { "spear", "blowgun" }, required = { { "spear", "blowgun", "dagger", "knife", "sling" } } },
+	["wu jen"] = { add = { "blowgun", "short bow" }, required = { { "blowgun", "short bow", "dagger", "dart", "sling" } } },
+	["mystic"] = { required = { { "dagger", "dart", "sling" } } },
+	-- Complete Book of Necromancers
+	["philosopher"] = { only = { "dagger", "dart", "knife" } },
+}; end
+local _tKitBookWord = {
+	["fighter"] = "fighter", ["thief"] = "thief", ["ranger"] = "ranger", ["druid"] = "druid",
+	["gnomes"] = "gnome", ["humanoids"] = "humanoid",
+};
+
+-- The rule for the chosen kit, or nil.
+function getKitWeaponRule()
+	local tKit = getKit();
+	if not tKit or not tKit.text then return nil; end
+	_tKitWeapons = _tKitWeapons or buildKitWeapons();
+	local sName = tKit.text:lower():gsub("%s*%(%a%)%s*$", ""):gsub("%s*%(.-%)%s*$", "");
+	sName = StringManager.trim(sName);
+	local sBook = ((tKit.linkrecord or ""):match("@(.+)$") or (tKit.book or "")):lower();
+	for sWord, sKey in pairs(_tKitBookWord) do
+		if sBook:find(sWord, 1, true) and _tKitWeapons[sName .. "|" .. sKey] then
+			return _tKitWeapons[sName .. "|" .. sKey];
+		end
+	end
+	return _tKitWeapons[sName];
+end
+
+-- True when a weapon name matches a keyword: every word of the keyword appears in
+-- the name ("short bow" matches "Bow, Short"), or the keyword without spaces is in
+-- the name without spaces ("war hammer" matches "Warhammer").
+function weaponNameMatches(sName, sKeyword)
+	local s = " " .. sName:lower():gsub("[^%w%-' ]", " "):gsub("%s+", " ") .. " ";
+	local sTight = s:gsub("[^%w]", "");
+	local k = sKeyword:lower();
+	if sTight:find((k:gsub("[^%w]", "")), 1, true) then
+		return true;
+	end
+	for sWord in k:gmatch("[%w%-']+") do
+		if not s:find(sWord, 1, true) then
+			return false;
+		end
+	end
+	return true;
+end
+
+local function matchesAny(sName, tKeywords)
+	for _, k in ipairs(tKeywords or {}) do
+		if weaponNameMatches(sName, k) then return true; end
+	end
+	return false;
+end
+
+-- Kit-required weapons as a sentence ("club; dagger or knife").
+function getKitRequiredText(tRule)
+	local tParts = {};
+	for _, tGroup in ipairs((tRule or {}).required or {}) do
+		table.insert(tParts, table.concat(tGroup, " or "));
+	end
+	return table.concat(tParts, "; ");
+end
+
+-- The line under the weapon slot count: what the kit requires or limits.
+function getKitWeaponNote()
+	local tRule = getKitWeaponRule();
+	if not tRule then return ""; end
+	local tParts = {};
+	if tRule.note then table.insert(tParts, tRule.note); end
+	local sReq = getKitRequiredText(tRule);
+	if sReq ~= "" then
+		table.insert(tParts, string.format(Interface.getString("charwizard2e_kit_required"), getKitName(), sReq));
+	end
+	if tRule.only and not tRule.note then
+		table.insert(tParts, string.format(Interface.getString("charwizard2e_kit_only"), getKitName()));
+	end
+	return table.concat(tParts, " ");
+end
+
+-- PHB initial weapon proficiency slots at level 1, by group; a kit may set its
+-- own number (a Witch has none) or add slots (its record's weaponprofs, or the
+-- rule's extra: a Swashbuckler's two).
 function getWeaponSlots()
 	local g = profClassGroup(getClassRuleName());
-	if g == "warrior" then return 4; end
-	if g == "wizard" then return 1; end
-	return 2; -- priest, druid, rogue, bard
+	local n = 2; -- priest, druid, rogue, bard
+	if g == "warrior" then n = 4; elseif g == "wizard" then n = 1; end
+	local tRule = getKitWeaponRule() or {};
+	if tRule.slots then n = tRule.slots; end
+	local nExtra = tRule.extra;
+	if not nExtra then
+		local tKit = getKit();
+		local nodeKit = tKit and tKit.linkrecord and DB.findNode(tKit.linkrecord) or nil;
+		nExtra = nodeKit and tonumber(DB.getValue(nodeKit, "weaponprofs", 0)) or 0;
+	end
+	return n + (nExtra or 0);
 end
 
 -- nil => any weapon. Otherwise the class may only be proficient in weapons whose
@@ -2086,6 +2317,9 @@ local _tWeaponAllow = {
 };
 
 function getAllowedWeaponKeywords()
+	local tRule = getKitWeaponRule() or {};
+	if tRule.any then return nil; end
+	if tRule.class then return _tWeaponAllow[tRule.class]; end
 	local g = profClassGroup(getClassRuleName());
 	if g == "warrior" or g == "bard" then
 		return nil; -- any weapon
@@ -2101,18 +2335,64 @@ local function weaponKey(sName)
 	return (sName or ""):lower():gsub("[^%w]", "");
 end
 
+-- A kit's limits on the proficiencies a new character takes (only / forbid /
+-- no missile weapons); weapons the kit adds or requires are always allowed.
+function isKitProfAllowed(sName)
+	local tRule = getKitWeaponRule();
+	if not tRule then return true; end
+	if matchesAny(sName, tRule.add) then return true; end
+	for _, tGroup in ipairs(tRule.required or {}) do
+		if matchesAny(sName, tGroup) then return true; end
+	end
+	if tRule.only and not matchesAny(sName, tRule.only) then return false; end
+	if tRule.forbid and matchesAny(sName, tRule.forbid) then return false; end
+	if tRule.nomissile and matchesAny(sName, MISSILE) then return false; end
+	return true;
+end
+
 function buildWeaponCatalog()
 	local tOut, tSeen = {}, {};
+	if getWeaponSlots() <= 0 then
+		return tOut; -- no weapon proficiencies (a Witch)
+	end
+	local tShop = {};
+	for _, rItem in ipairs(buildStarterCatalog() or {}) do
+		if rItem.sCat == "Weapons" then table.insert(tShop, rItem.sName); end
+	end
+	table.sort(tShop);
+	local function add(sName)
+		local sKey = weaponKey(sName);
+		if sKey ~= "" and not tSeen[sKey] and isKitProfAllowed(sName) then
+			tSeen[sKey] = true;
+			table.insert(tOut, sName);
+		end
+	end
+	-- The kit's required weapons first (each shop weapon that matches).
+	for _, tGroup in ipairs((getKitWeaponRule() or {}).required or {}) do
+		for _, sName in ipairs(tShop) do
+			if matchesAny(sName, tGroup) then add(sName); end
+		end
+	end
+	-- Recommended weapons by the books' own item names, so a proficiency matches
+	-- the weapon it is for on the sheet ("Mace" is "Mace, Footmans" and
+	-- "Mace, Horseman's"; a proficiency named "Mace" would link to neither).
 	for _, rWpn in ipairs(CharWizard2EBio.getRecommendedWeapons(getClassRuleName(), getRaceCategoryName()) or {}) do
-		table.insert(tOut, rWpn.name);
-		tSeen[weaponKey(rWpn.name)] = true;
+		local sWant = weaponKey(rWpn.name);
+		local bFound = false;
+		for _, sName in ipairs(tShop) do
+			if weaponKey(sName) == sWant then add(sName); bFound = true; end
+		end
+		if not bFound then
+			for _, sName in ipairs(tShop) do
+				if weaponNameMatches(sName, rWpn.name) then add(sName); bFound = true; end
+			end
+		end
 	end
 	local tMore = {};
-	for _, rItem in ipairs(buildStarterCatalog() or {}) do
-		local sKey = weaponKey(rItem.sName);
-		if rItem.sCat == "Weapons" and sKey ~= "" and not tSeen[sKey] then
-			tSeen[sKey] = true;
-			table.insert(tMore, rItem.sName);
+	for _, sName in ipairs(tShop) do
+		if not tSeen[weaponKey(sName)] and isKitProfAllowed(sName) then
+			table.insert(tMore, sName);
+			tSeen[weaponKey(sName)] = true;
 		end
 	end
 	table.sort(tMore);
@@ -2416,6 +2696,10 @@ function getSpellSlots(nSpellLevel)
 	if sType == "arcane" then
 		local tRow = _tWizSlots[nLevel];
 		nBase = (tRow and tRow[nSpellLevel]) or 0;
+		-- A specialist gets one more spell of each level he can cast (PHB).
+		if nBase > 0 and getSpecialistKey() then
+			nBase = nBase + 1;
+		end
 	else
 		local tRow = _tPriestSlots[nLevel];
 		nBase = (tRow and tRow[nSpellLevel]) or 0;
@@ -2446,6 +2730,82 @@ end
 -- Spells from the loaded spell libraries for the caster's type, level <= max.
 -- A spell record's level is "level"; arcane spells carry a "school", divine
 -- spells carry a "sphere" (that's how we tell wizard vs priest spells apart).
+-- Who may learn a spell. PHB: a cleric has major access to every sphere but
+-- plant, animal, weather and elemental (minor access, levels 1-3, to elemental);
+-- a druid major access to all, animal, elemental, healing, plant and weather, minor
+-- to divination. A spell in several spheres needs access to one of them; a
+-- sphere naming a god (Demihuman Deities: "Creation, Corellon Larethian") is that
+-- god's specialty priests' only. Other priest classes are not filtered.
+-- Specialist wizards may not learn spells of their opposition schools (PHB
+-- Table 22; a spell in two schools is barred if either is opposed); Wild Magic is
+-- for wild mages (Tome of Magic).
+local _tSpheres = { ["all"] = true, ["animal"] = true, ["astral"] = true, ["charm"] = true, ["combat"] = true,
+	["creation"] = true, ["divination"] = true, ["elemental"] = true, ["air"] = true, ["earth"] = true, ["fire"] = true,
+	["water"] = true, ["guardian"] = true, ["healing"] = true, ["necromantic"] = true, ["plant"] = true,
+	["protection"] = true, ["summoning"] = true, ["sun"] = true, ["weather"] = true, ["chaos"] = true, ["law"] = true,
+	["numbers"] = true, ["thought"] = true, ["time"] = true, ["travelers"] = true, ["war"] = true, ["wards"] = true };
+local _tSphereAccess = {
+	cleric = { barred = { animal = true, plant = true, weather = true }, minor = { elemental = true, air = true, earth = true,
+		fire = true, water = true } },
+	druid = { only = { all = true, animal = true, elemental = true, air = true, earth = true, fire = true, water = true,
+		healing = true, plant = true, weather = true, divination = true }, minor = { divination = true } },
+};
+local _tOpposed = {
+	abjurer = { "alteration", "illusion", "phantasm" },
+	conjurer = { "invocation", "evocation" },
+	diviner = { "conjuration", "summoning" },
+	enchanter = { "invocation", "evocation", "necromancy" },
+	illusionist = { "necromancy", "invocation", "evocation", "abjuration" },
+	invoker = { "enchantment", "charm", "conjuration", "summoning" },
+	necromancer = { "illusion", "phantasm", "enchantment", "charm" },
+	transmuter = { "abjuration", "necromancy" },
+};
+
+function getSpecialistKey()
+	local s = getClassRuleName():lower();
+	for sKey in pairs(_tOpposed) do
+		if s:find(sKey, 1, true) then return sKey; end
+	end
+	return nil;
+end
+
+function isPriestSpellAllowed(sSphere, nLevel)
+	local sClass = getClassRuleName():lower();
+	local tAccess = (sClass:find("cleric", 1, true) and _tSphereAccess.cleric)
+		or (sClass:find("druid", 1, true) and _tSphereAccess.druid) or nil;
+	if not tAccess then return true; end
+	local bAny = false;
+	for sPart in sSphere:lower():gmatch("[^,/]+") do
+		sPart = StringManager.trim(sPart);
+		if sPart ~= "" and not _tSpheres[sPart] then
+			return false; -- a god's own spell
+		end
+	end
+	for sPart in sSphere:lower():gmatch("[^,/]+") do
+		sPart = StringManager.trim(sPart);
+		local bOk = sPart ~= "" and not (tAccess.barred or {})[sPart] and (not tAccess.only or tAccess.only[sPart]);
+		if bOk and (tAccess.minor or {})[sPart] and nLevel > 3 then bOk = false; end
+		if bOk then bAny = true; end
+	end
+	return bAny;
+end
+
+function isWizardSpellAllowed(sSchool)
+	local s = sSchool:lower();
+	if s:find("wild magic", 1, true) and not getClassRuleName():lower():find("wild", 1, true) then
+		return false;
+	end
+	local sKey = getSpecialistKey();
+	if not sKey then return true; end
+	local nSchools = 0;
+	for _ in s:gmatch("[^,/]+") do nSchools = nSchools + 1; end
+	if nSchools >= 8 then return true; end -- universal magic, listed under every school
+	for _, sOpp in ipairs(_tOpposed[sKey]) do
+		if s:find(sOpp, 1, true) then return false; end
+	end
+	return true;
+end
+
 function buildSpellCatalog()
 	local sType = getCasterType();
 	if not sType then return {}; end
@@ -2463,6 +2823,11 @@ function buildSpellCatalog()
 				-- priest spells (which also have one) into the mage list.
 				local bDivine = StringManager.trim(DB.getValue(vNode, "sphere", "")) ~= "";
 				local bMatch = (sType == "divine" and bDivine) or (sType == "arcane" and not bDivine);
+				if bMatch and bDivine then
+					bMatch = isPriestSpellAllowed(DB.getValue(vNode, "sphere", ""), nLvl);
+				elseif bMatch then
+					bMatch = isWizardSpellAllowed(DB.getValue(vNode, "school", ""));
+				end
 				if bMatch then
 					local sName = StringManager.trim(DB.getValue(vNode, "name", ""));
 					local sKey = sName:lower();
@@ -2839,7 +3204,57 @@ end
 local _tShopGear = { ["other"] = true, ["container"] = true, ["equipment packs"] = true, ["tool"] = true,
 	["provisions"] = true, ["clothing"] = true, ["adventuring gear"] = true, [""] = true };
 
-local function isShopWeaponAllowed(sName)
+-- A cleric (PHB "Allowed Weapons: Any blunt or bludgeoning weapon") may use a
+-- weapon whose damage includes bludgeoning (a morning star's piercing/bludgeoning
+-- counts; a spiked club's piercing does not). The type comes from the item's
+-- weapon entries or its dtype; an item with no type falls back to the priest
+-- keywords, never a spiked weapon.
+local function isBludgeoningWeapon(vNode, sName)
+	local tTypes = {};
+	if vNode then
+		table.insert(tTypes, DB.getValue(vNode, "dtype", "") or "");
+		for _, vW in pairs(DB.getChildren(vNode, "weaponlist")) do
+			for _, vD in pairs(DB.getChildren(vW, "damagelist")) do
+				table.insert(tTypes, DB.getValue(vD, "type", "") or "");
+			end
+		end
+	end
+	local bTyped = false;
+	for _, sType in ipairs(tTypes) do
+		for sTok in sType:lower():gmatch("%a+") do
+			if sTok == "b" or sTok:sub(1, 4) == "blud" then
+				return true;
+			end
+			if sTok == "p" or sTok == "s" or sTok:sub(1, 4) == "pier" or sTok:sub(1, 4) == "slas" then
+				bTyped = true;
+			end
+		end
+	end
+	if bTyped then
+		return false;
+	end
+	if sName:lower():find("spike", 1, true) then
+		return false;
+	end
+	-- No damage type on record: only the plainly blunt weapons (not whip, scourge
+	-- or mancatcher, which the priest keywords allow other priests).
+	for _, k in ipairs({ "club", "mace", "hammer", "staff", "sling", "flail", "morning star", "bludgeon" }) do
+		if weaponNameMatches(sName, k) then return true; end
+	end
+	return false;
+end
+
+function isShopWeaponAllowed(sName, vNode)
+	local tRule = getKitWeaponRule() or {};
+	if tRule.any or matchesAny(sName, tRule.add) then
+		return true;
+	end
+	for _, tGroup in ipairs(tRule.required or {}) do
+		if matchesAny(sName, tGroup) then return true; end
+	end
+	if tRule.cleric or (not tRule.class and getClassRuleName():find("cleric", 1, true)) then
+		return isBludgeoningWeapon(vNode, sName);
+	end
 	local tAllow = getAllowedWeaponKeywords();
 	if not tAllow then
 		return true;
@@ -2987,8 +3402,13 @@ function buildStarterCatalog()
 				elseif sLauncher and (sType == "ammunition" or sSub == "ammunition") then
 					bOk = isShopWeaponAllowed(sLauncher);
 					sCat = "Ammunition";
+				elseif sType == "weapon" and (sName:lower():find("scabbard", 1, true) or sName:lower():find("sheath", 1, true)
+						or sName:lower():find("baldric", 1, true)) then
+					-- Some books type a scabbard or baldric as a weapon: gear, not a weapon.
+					sCat = "Gear";
+					bOk = isShopGearAllowed(sGroup, sName, sSub);
 				elseif sType == "weapon" then
-					bOk = isShopWeaponAllowed(sName);
+					bOk = isShopWeaponAllowed(sName, vNode);
 					sCat = "Weapons";
 				elseif sType == "armor" then
 					bOk = isShopArmorAllowed(sGroup, sName, sSub, tonumber(DB.getValue(vNode, "ac", 10)) or 10);
