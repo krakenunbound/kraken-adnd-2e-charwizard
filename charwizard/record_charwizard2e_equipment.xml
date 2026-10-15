@@ -177,7 +177,12 @@
 				<listmaxsize>5</listmaxsize>
 				<tooltip><text>Show one type of gear</text></tooltip>
 				<script>
+					-- A new type starts a new search: a word left in the box
+					-- ("sling") would otherwise hide the whole new list.
 					function onValueChanged()
+						if (window.items_search.getValue() or "") ~= "" then
+							window.items_search.setValue("");
+						end
 						window.item_list.applyFilter();
 					end
 				</script>

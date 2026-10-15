@@ -3201,7 +3201,26 @@ end
 -- leaving an unnamed attack in the Actions tab. Each weapon entry links back to its
 -- inventory item via its shortcut; that item's name is always present, so use it.
 local function fixWeaponNames(nodeChar)
+	-- Starting gear is ordinary gear the character knows: mark it identified, or
+	-- the sheet shows each weapon's unidentified name ("Club Spiked"), and a blank
+	-- line when the book item has none (the Battle Axe). Fill a missing
+	-- unidentified name from the real one so unidentifying it later still reads.
+	for _, vItem in pairs(DB.getChildren(nodeChar, "inventorylist")) do
+		if not DB.getChild(vItem, "isidentified") then
+			DB.setValue(vItem, "isidentified", "number", 1);
+		end
+		local sItemName = DB.getValue(vItem, "name", "");
+		if type(sItemName) == "string" and sItemName ~= "" and StringManager.trim(DB.getValue(vItem, "nonid_name", "") or "") == "" then
+			DB.setValue(vItem, "nonid_name", "string", sItemName);
+		end
+	end
 	for _, vW in pairs(DB.getChildren(nodeChar, "weaponlist")) do
+		local _, sLinked = DB.getValue(vW, "shortcut", "", "");
+		local sLinkedId = (type(sLinked) == "string") and sLinked:match("inventorylist%.([%w%-]+)%s*$") or nil;
+		local nodeLinked = sLinkedId and DB.getChild(nodeChar, "inventorylist." .. sLinkedId) or nil;
+		if nodeLinked and StringManager.trim(DB.getValue(vW, "nonid_name", "") or "") == "" then
+			DB.setValue(vW, "nonid_name", "string", DB.getValue(nodeLinked, "nonid_name", ""));
+		end
 		local sName = DB.getValue(vW, "name", "");
 		if type(sName) ~= "string" or StringManager.trim(sName) == "" then
 			local _, sRec = DB.getValue(vW, "shortcut", "", "");
@@ -3217,6 +3236,11 @@ local function fixWeaponNames(nodeChar)
 			end
 		end
 	end
+end
+
+-- The same pass for a sheet made outside the wizard (and for testing).
+function fixStartingGear(nodeChar)
+	fixWeaponNames(nodeChar);
 end
 
 -- Write the player's chosen weapon proficiencies into the charsheet proficiency
