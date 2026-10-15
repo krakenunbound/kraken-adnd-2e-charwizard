@@ -5,6 +5,7 @@ All releases: [GitHub Releases](../../releases). Install steps: [README](README.
 ## Unreleased
 
 - **Weapon names on the Actions tab.** Gear bought in the wizard is now marked identified, so each attack shows the weapon's name ("Club, Spiked") instead of its unidentified name ("Club Spiked"). Weapons whose book entry has no unidentified name (Battle Axe, Longsword, Two-handed Sword, the crossbows, Quarterstaff and about 40 more) showed a blank line; they now show their name.
+- **Weapon proficiencies list every weapon your class may use**, not only a short recommended list. The recommended weapons still come first, then every other weapon the shop sells your class, A-Z. A fighter could buy a Spiked Club but not take a proficiency in it.
 - **Shop search clears when you change the gear type**, so a word left in the box ("sling") no longer empties the new list.
 
 ## v1.0-beta4 (2026-10-14)
