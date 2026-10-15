@@ -38,6 +38,7 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 - **Filters as you go.** Races outside your rolled scores, classes your race may not take or your scores don't qualify for (PHB minimums, or a splatbook class's own requirements), kits your class, race or scores don't allow, and alignments your class forbids are not offered.
 - **A shop that makes sense.** Sorted by type (armor, weapons, ammunition, gear) with a type filter and search. Weapons your class may use, armor it may wear (no plate for a mage), ammunition only for launchers it can use, everyday gear from the Player's Handbook and your class's own handbook — and only what your rolled gold still covers. Magic items are never in the starting shop.
+- **Players build their own.** A player opens **Characters** after joining and clicks the wizard icon; **Create Character** asks the GM's table for a new character sheet that the player owns (as the **+** on Character Selection does). Before 1.0-beta4 only the GM could create characters with it.
 - **Save unfinished.** Make a character before game night without your DM: **Create Character** works at any point, and whatever is still open is listed at the top of the sheet's notes to finish together.
 
 ## Install (players / testers)
@@ -62,6 +63,6 @@ This repository **is** the live extension folder — edit in place and FGU loads
 Cut a release (rebuilds the `.ext` and publishes it as a GitHub Release asset):
 
 ```sh
-python release.py             # tag from extension.xml version, e.g. v1.0-beta3
-python release.py v1.0-beta3  # explicit tag
+python release.py             # tag from extension.xml version, e.g. v1.0-beta4
+python release.py v1.0-beta4  # explicit tag
 ```

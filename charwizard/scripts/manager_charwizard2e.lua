@@ -3381,10 +3381,24 @@ local function applyAbilities(nodeChar, rBuild)
 	AbilityScoreADND.updateForEffects(nodeChar);
 end
 
--- Create the character sheet from the gathered build data.
-function createCharacter(rBuild)
+-- Create the character sheet from the gathered build data. fnDone(nodeChar)
+-- runs once the sheet is built. The GM's sheet is made here; a player's comes
+-- from the GM's table (a new identity the player owns, as when a player clicks
+-- the + on Character Selection), so it is built when the host answers.
+function createCharacter(rBuild, fnDone)
 	if not Session.IsHost then
-		ChatManager.SystemMessage(Interface.getString("charwizard2e_msg_hostonly"));
+		ChatManager.SystemMessage(Interface.getString("charwizard2e_msg_requesting"));
+		UserManager.requestIdentity(nil, { fnResponse = function(_, sIdentity)
+			local nodeNew = DB.findNode(DB.getPath("charsheet", sIdentity or ""));
+			if not nodeNew then
+				ChatManager.SystemMessage(Interface.getString("charwizard2e_msg_nosheet"));
+				return;
+			end
+			local nodeChar = fillCharacter(nodeNew, rBuild);
+			if fnDone then
+				fnDone(nodeChar);
+			end
+		end });
 		return nil;
 	end
 
@@ -3392,7 +3406,15 @@ function createCharacter(rBuild)
 	if not nodeChar then
 		return nil;
 	end
+	nodeChar = fillCharacter(nodeChar, rBuild);
+	if fnDone then
+		fnDone(nodeChar);
+	end
+	return nodeChar;
+end
 
+-- Fill a new, empty character sheet from the build.
+function fillCharacter(nodeChar, rBuild)
 	-- Mirror the standard "new character" setup (identity, registration, base nodes).
 	if RecordManager.onRecordAddEvent then
 		RecordManager.onRecordAddEvent("charsheet", nodeChar);

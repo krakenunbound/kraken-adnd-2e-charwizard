@@ -41,8 +41,12 @@ function onCreate()
 	CharWizard2E.setBuildName(sName);
 
 	local tOpen = CharWizard2E.getBuildWarnings();
-	local nodeChar = CharWizard2E.createCharacter(CharWizard2E.getBuildPayload(sName));
-	if nodeChar then
+	-- A player's sheet arrives from the GM's table a moment later, so the rest
+	-- runs when the character is built.
+	CharWizard2E.createCharacter(CharWizard2E.getBuildPayload(sName), function(nodeChar)
+		if not nodeChar then
+			return;
+		end
 		if #tOpen > 0 then
 			local sOpen = string.format(Interface.getString("charwizard2e_notes_unfinished"), table.concat(tOpen, " "));
 			local sNotes = DB.getValue(nodeChar, "notes", "");
@@ -51,5 +55,5 @@ function onCreate()
 					DB.getValue(nodeChar, "name", ""), table.concat(tOpen, " ")));
 		end
 		CharWizard2E.closeWizard();
-	end
+	end);
 end
