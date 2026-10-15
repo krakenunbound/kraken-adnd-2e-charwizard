@@ -2172,7 +2172,7 @@ local function buildKitWeapons() return {
 		note = "Swashbuckler: two extra slots for stiletto, main-gauche, rapier or sabre." },
 	-- Complete Paladin's Handbook
 	["wyrmslayer"] = { only = { "lance", "awl pike", "bardiche", "glaive-guisarme", "spetum", "long sword", "two-handed sword", "trident" } },
-	["envoy"] = { slots = 2, note = "Envoy: two weapon proficiencies for the whole career." },
+	["envoy"] = { slots = 2, fixed = true, note = "Envoy: two weapon proficiencies for the whole career." },
 	["medician"] = { slots = 1, required = { { "lance", "battle axe", "sword" } } },
 	["equerry"] = { slots = 3, required = { { "lance" } } },
 	["true paladin"] = { required = { { "lance" } } },
@@ -2202,7 +2202,7 @@ local function buildKitWeapons() return {
 	["swashbuckler|thief"] = { extra = 1, add = { "stiletto", "main-gauche", "rapier", "sabre" },
 		required = { { "stiletto", "main-gauche", "rapier", "sabre" } } },
 	-- Complete Wizard's Handbook
-	["witch"] = { slots = 0, note = "Witch: no weapon proficiencies." },
+	["witch"] = { slots = 0, fixed = true, note = "Witch: no weapon proficiencies." },
 	["peasant wizard"] = { add = { "bow", "spear" }, required = { { "bow", "dagger", "knife", "spear", "dart", "sling" } } },
 	["amazon sorceress"] = { add = { "spear", "long bow" } },
 	["anagakok"] = { add = { "bow", "harpoon", "javelin", "trident" },
@@ -2289,12 +2289,30 @@ end
 -- PHB initial weapon proficiency slots at level 1, by group; a kit may set its
 -- own number (a Witch has none) or add slots (its record's weaponprofs, or the
 -- rule's extra: a Swashbuckler's two).
-function getWeaponSlots()
+-- PHB Table 34, by group: initial weapon slots, a new one every N levels;
+-- initial nonweapon slots, a new one every N levels. Bards use the rogue row,
+-- druids the priest row.
+local _tProfSlots = {
+	warrior = { 4, 3, 3, 3 },
+	wizard = { 1, 6, 4, 3 },
+	priest = { 2, 4, 4, 3 },
+	rogue = { 2, 4, 3, 4 },
+};
+local function getProfSlotRow()
 	local g = profClassGroup(getClassRuleName());
-	local n = 2; -- priest, druid, rogue, bard
-	if g == "warrior" then n = 4; elseif g == "wizard" then n = 1; end
+	if g == "bard" then g = "rogue"; elseif g == "druid" then g = "priest"; end
+	return _tProfSlots[g] or _tProfSlots.priest;
+end
+
+function getWeaponSlots()
+	local tRow = getProfSlotRow();
+	local nLevel = getTargetLevel();
+	local n = tRow[1];
 	local tRule = getKitWeaponRule() or {};
 	if tRule.slots then n = tRule.slots; end
+	-- A slot at every level evenly divisible by the group's number (Table 34),
+	-- unless the kit fixes the total for the whole career (Witch, Envoy).
+	if not tRule.fixed then n = n + math.floor(nLevel / tRow[2]); end
 	local nExtra = tRule.extra;
 	if not nExtra then
 		local tKit = getKit();
@@ -2566,9 +2584,8 @@ end
 -- Nonweapon proficiencies: PHB initial slots by class group. (Group/cost is not
 -- in FG's data, so these are picked from the full skill library, slot-limited.)
 function getNWPSlots()
-	local g = profClassGroup(getClassRuleName());
-	if g == "wizard" or g == "priest" or g == "druid" then return 4; end
-	return 3; -- warrior, rogue, bard
+	local tRow = getProfSlotRow();
+	return tRow[3] + math.floor(getTargetLevel() / tRow[4]);
 end
 
 function getChosenNWPs()

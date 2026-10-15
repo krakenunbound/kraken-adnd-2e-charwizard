@@ -2,6 +2,10 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
+## Unreleased
+
+- **Proficiency slots grow with the starting level** (PHB Table 34): a 5th-level fighter starts with 5 weapon and 4 nonweapon slots, not 4 and 3. Warriors gain a weapon slot every 3 levels, priests and rogues every 4, wizards every 6; nonweapon slots every 3 levels (rogues every 4). Kits that fix a career total (Witch, Envoy) keep it.
+
 ## v1.0-beta5 (2026-10-15)
 
 - **Weapon names on the Actions tab.** Gear bought in the wizard is now marked identified, so each attack shows the weapon's name ("Club, Spiked") instead of its unidentified name ("Club Spiked"). Weapons whose book entry has no unidentified name (Battle Axe, Longsword, Two-handed Sword, the crossbows, Quarterstaff and about 40 more) showed a blank line; they now show their name.
