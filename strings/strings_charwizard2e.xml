@@ -10,7 +10,15 @@
 	<string name="charwizard2e_tab_alignment">Alignment</string>
 	<string name="charwizard2e_tab_equipment">Equipment</string>
 	<string name="charwizard2e_tab_proficiencies">Profs</string>
+	<string name="charwizard2e_tab_spells">Spells</string>
+	<string name="charwizard2e_spell_school">School:</string>
+	<string name="charwizard2e_spell_sphere">Sphere:</string>
+	<string name="charwizard2e_spell_any">Any</string>
+	<string name="charwizard2e_spell_search">Search</string>
+	<string name="charwizard2e_msg_spellfull">Character Wizard: your %s-level spells are full (%d). Remove one to choose another.</string>
 	<string name="charwizard2e_tab_commit">Commit</string>
+	<string name="charwizard2e_msg_nocaster">This class casts no spells at the chosen level. Nothing to choose here.</string>
+	<string name="charwizard2e_msg_needclass_for_spells">Choose a class first - your spells depend on it.</string>
 	<string name="charwizard2e_title_proficiencies">Proficiencies &amp; Languages</string>
 	<string name="charwizard2e_msg_needclass_for_profs">Choose a class first - your weapon and nonweapon proficiency slots depend on it.</string>
 	<string name="charwizard2e_prof_intro">Spend your starting proficiency slots and pick languages here. Weapon proficiencies are filtered to those your class may use; languages start from your racial tongues. (Pickers are being added section by section.)</string>

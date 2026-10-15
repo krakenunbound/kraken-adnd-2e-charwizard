@@ -2,6 +2,13 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
+## Unreleased
+
+- **Spells have their own tab**, right after Kit, shown only for a class that casts at the chosen level (and checked automatically for one that doesn't). Before, the spell list sat below the proficiency lists and was out of sight unless the window was stretched.
+- **Spell guidance**: the top of the tab says how many spells of each level the class gets at the chosen level and what it may use (a specialist's extra spell and barred schools, a priest's spheres, Wisdom bonus spells). One button per spell level shows picked / allowed ("2nd 1/3", green when full) and switches the list; a School or Sphere filter and a Search box narrow it; each spell shows its school or sphere. Picking past the limit says so in chat.
+- **Bards, paladins and rangers cast**: bards wizard spells from 2nd level (PHB Table 32), paladins priest spells of the combat, divination, healing and protection spheres from 9th (Table 17), rangers plant and animal spells from 8th (Table 18); no Wisdom bonus spells for paladins and rangers. A multi-class character with a mage class gets mage spells.
+- Tabs are a little narrower so nine fit.
+
 ## v1.0-beta6 (2026-10-15)
 
 - **DM option: Starting gold above 1st level** (Options > Kraken Character Wizard). The PHB leaves extra funds for a higher-level start to the DM. *PHB (one roll)* keeps Table 43 at any level (default); *One roll per level* rolls the group's Table 43 dice once per level and adds them up (a 5th-level warrior rolls 25d4 x 10); *Roll x level* multiplies one roll by the level. Both give the same average (a 5th-level warrior about 625 gp: plate mail about half the time, field plate never before 16th); one roll per level spreads much less, so players of the same level end up evenly equipped. Changing the level after rolling clears the roll.

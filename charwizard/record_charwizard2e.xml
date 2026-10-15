@@ -84,6 +84,9 @@
 			<sub_content_framed_groupbox_hidden name="sub_proficiencies">
 				<class>charwizard2e_sub_proficiencies</class>
 			</sub_content_framed_groupbox_hidden>
+			<sub_content_framed_groupbox_hidden name="sub_spells">
+				<class>charwizard2e_sub_spells</class>
+			</sub_content_framed_groupbox_hidden>
 			<sub_content_framed_groupbox_hidden name="sub_commit">
 				<class>charwizard2e_sub_commit</class>
 			</sub_content_framed_groupbox_hidden>
@@ -117,6 +120,10 @@
 				<target>sub_proficiencies</target>
 			</scrollbar_content_base>
 			<scrollbar_content_base>
+				<anchored to="sub_spells" />
+				<target>sub_spells</target>
+			</scrollbar_content_base>
+			<scrollbar_content_base>
 				<anchored to="sub_commit" />
 				<target>sub_commit</target>
 			</scrollbar_content_base>
@@ -141,6 +148,9 @@
 			</charwiz2e_tab>
 			<charwiz2e_tab name="button_kit">
 				<state textres="charwizard2e_tab_kit" />
+			</charwiz2e_tab>
+			<charwiz2e_tab name="button_spells">
+				<state textres="charwizard2e_tab_spells" />
 			</charwiz2e_tab>
 			<charwiz2e_tab name="button_alignment">
 				<state textres="charwizard2e_tab_alignment" />

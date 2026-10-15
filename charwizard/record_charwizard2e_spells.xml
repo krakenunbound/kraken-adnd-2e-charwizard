@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<!-- Spells tab (after Kit; only for a class that casts at the chosen level):
+	     what the class may take, one button per spell level with picked/allowed,
+	     a school or sphere filter and a search box, and the whole page for the
+	     list. Rows are list_entry_charwiz2e_spellpick (record_charwizard2e_proficiencies.xml). -->
+	<template name="charwiz2e_spelllevel">
+		<stringcontrol>
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<font>sheetlabel</font>
+			<center />
+			<readonly />
+			<invisible />
+			<script>
+				function onClickDown()
+					return true;
+				end
+				function onClickRelease()
+					window.onSpellLevelSet(tonumber(getName():match("(%d+)$")) or 0);
+					return true;
+				end
+			</script>
+		</stringcontrol>
+	</template>
+
+	<windowclass name="charwizard2e_sub_spells">
+		<margins control="0,0,0,7" />
+		<script file="charwizard/scripts/page_spells.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<genericcontrol name="spells_art">
+				<anchored>
+					<top parent="contentanchor" anchor="top" relation="relative" offset="0" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="0" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<header_content_framed_metalplate name="spell_header">
+				<static textres="charwizard2e_spell_header" />
+			</header_content_framed_metalplate>
+
+			<!-- Shown when the class casts no spells at this level (or no class yet). -->
+			<label name="label_nocaster">
+				<anchored to="contentanchor">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left anchor="left" relation="relative" offset="6" />
+					<right offset="-14" />
+				</anchored>
+				<multilinespacing>16</multilinespacing>
+			</label>
+
+			<!-- Spells per level for this class and level, and its rules. -->
+			<stringcontrol name="spell_guide">
+				<anchored>
+					<top parent="spell_header" anchor="bottom" offset="6" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+					<right parent="contentanchor" anchor="right" offset="-14" />
+				</anchored>
+				<font>sheetlabel</font>
+				<multilinespacing>18</multilinespacing>
+				<readonly />
+			</stringcontrol>
+
+			<!-- "All", then one button per spell level: "1st 2/4" (picked / allowed),
+			     each placed right of the one before. -->
+			<charwiz2e_spelllevel name="spell_lvl_0">
+				<anchored to="spell_guide" width="50" height="22">
+					<top anchor="bottom" offset="8" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_1">
+				<anchored to="spell_lvl_0" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_2">
+				<anchored to="spell_lvl_1" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_3">
+				<anchored to="spell_lvl_2" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_4">
+				<anchored to="spell_lvl_3" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_5">
+				<anchored to="spell_lvl_4" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_6">
+				<anchored to="spell_lvl_5" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_7">
+				<anchored to="spell_lvl_6" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_8">
+				<anchored to="spell_lvl_7" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+			<charwiz2e_spelllevel name="spell_lvl_9">
+				<anchored to="spell_lvl_8" width="74" height="22">
+					<top />
+					<left anchor="right" offset="10" />
+				</anchored>
+			</charwiz2e_spelllevel>
+
+			<!-- Filter by school (wizard spells) or sphere (priest spells), and search. -->
+			<label name="spell_filter_label">
+				<anchored to="spell_lvl_0" width="70" height="20">
+					<top anchor="bottom" offset="10" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
+			<comboboxc name="spell_filter">
+				<anchored to="spell_filter_label" position="righthigh" offset="6,0" width="230" height="20" />
+				<frame>
+					<name>fieldlight</name>
+					<offset>10,5,10,5</offset>
+				</frame>
+				<font>sheetlabel</font>
+				<listdirection>down</listdirection>
+				<listmaxsize>12</listmaxsize>
+				<script>
+					function onValueChanged()
+						window.buildSpellList();
+					end
+				</script>
+			</comboboxc>
+			<label name="spell_search_label">
+				<anchored to="spell_filter" position="righthigh" offset="20,0" width="50" height="20" />
+				<static textres="charwizard2e_spell_search" />
+				<font>sheetlabel</font>
+			</label>
+			<basicstring name="spell_search">
+				<anchored to="spell_search_label" position="righthigh" offset="6,0" width="200" height="20" />
+				<script>
+					function onValueChanged()
+						window.buildSpellList();
+					end
+				</script>
+			</basicstring>
+
+			<list_content_base name="spell_list">
+				<anchored>
+					<top parent="spell_filter_label" anchor="bottom" offset="8" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
+					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
+					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
+				</anchored>
+				<class>list_entry_charwiz2e_spellpick</class>
+				<empty textres="charwizard2e_spell_empty" />
+			</list_content_base>
+			<scrollbar_content_base>
+				<anchored to="spell_list" />
+				<target>spell_list</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+</root>
