@@ -6,6 +6,11 @@ All releases: [GitHub Releases](../../releases). Install steps: [README](README.
 
 - **Weapon names on the Actions tab.** Gear bought in the wizard is now marked identified, so each attack shows the weapon's name ("Club, Spiked") instead of its unidentified name ("Club Spiked"). Weapons whose book entry has no unidentified name (Battle Axe, Longsword, Two-handed Sword, the crossbows, Quarterstaff and about 40 more) showed a blank line; they now show their name.
 - **Weapon proficiencies list every weapon your class may use**, not only a short recommended list. The recommended weapons still come first, then every other weapon the shop sells your class, A-Z. A fighter could buy a Spiked Club but not take a proficiency in it.
+- **Clerics keep to blunt weapons** (PHB: "Any blunt or bludgeoning weapon"), judged by each weapon's damage type in its book: a morning star (piercing and bludgeoning) is allowed, a spiked club (piercing) is not.
+- **Kit weapon rules** from the kits' own Weapon Proficiencies text, for the books' 200+ kits: weapons a kit is limited to (Loremaster, Jester, Beggar, Seeker...), forbidden weapons (Meistersinger, Gypsy-bard, Peasant Hero), no missile weapons (Berserker, Ravager, Battlerager), weapons a kit adds (Bandit, Ritual Priest, wizard kits), required weapons listed first with a note under the slot count, and slot changes (Witch none, Brute and Envoy two, Thespian, Medician and Seeker one; Samurai, Thug, Swashbuckler and others get their extra slots).
+- **Recommended weapons use the books' item names**, so a proficiency always attaches to its weapon on the sheet (a proficiency named "Mace" matched neither the footman's nor the horseman's mace).
+- **Spells follow sphere access and specialist schools** (PHB): clerics no longer get plant, animal or weather spells and get elemental spells only up to 3rd level; druids get their own spheres; spells of a god's specialty priests (Demihuman Deities) are left out; specialist wizards lose their opposition schools and gain their extra spell per level; Wild Magic spells only for wild mages.
+- A scabbard or baldric typed as a weapon in its book is sold as gear, not offered as a weapon proficiency.
 - **Shop search clears when you change the gear type**, so a word left in the box ("sling") no longer empties the new list.
 
 ## v1.0-beta4 (2026-10-14)
