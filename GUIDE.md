@@ -55,6 +55,8 @@ Any other official 2E books you load are used too — tested with the Dungeon Ma
 3. Once in the game, open **Library → Modules** and activate your **Player's Handbook** and any other 2E books you want to offer.
 4. Open the **Characters** list — there's a wizard button to launch it.
 
+**Players** use it the same way: after joining, open **Characters** and click the wizard icon. **Create Character** asks the GM's table for a new character sheet that the player owns, just like the **+** on Character Selection, so the campaign needs a free character slot. The GM only has to enable the extension; players don't install anything.
+
 ![Character selection / launch](docs/images/00-character-selection.png)
 
 ---
@@ -142,7 +144,8 @@ Click **Create Character** and the wizard builds a complete 2E sheet — abiliti
 
 | Symptom | Likely cause / fix |
 |--------|--------------------|
-| No wizard button | Extension not enabled on the load screen, or you're not loaded as GM/host. |
+| No wizard button | The GM hasn't enabled the extension on the load screen. |
+| A player's Create Character makes no sheet | The GM's table gave no new character (no free character slot?). The choices stay in the wizard; try again. |
 | Race / Class / Spell / Proficiency lists are empty | The 2E **Player's Handbook** module isn't active (or isn't owned). |
 | A race or class you expected is missing | Your rolled scores don't qualify for it, or your race may not take that class — reroll or rearrange your scores. |
 | Nothing to buy | Roll your starting gold first; the shop only lists what your purse covers. |

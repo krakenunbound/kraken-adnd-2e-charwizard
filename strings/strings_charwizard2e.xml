@@ -173,7 +173,8 @@
 	<string name="charwizard2e_select_cancel">Cancel</string>
 	<string name="charwizard2e_select_hint">Click a row to select it.</string>
 
-	<string name="charwizard2e_msg_hostonly">Character Wizard: only the GM (host) can create characters with this tool in this version.</string>
+	<string name="charwizard2e_msg_requesting">Character Wizard: asking the GM's table for a new character sheet...</string>
+	<string name="charwizard2e_msg_nosheet">Character Wizard: the GM's table did not give a new character sheet (is a character slot free?). Your choices are still in the wizard; try Create Character again.</string>
 	<string name="charwizard2e_msg_noraces">Character Wizard: no race records found. Load an AD&amp;D 2E race library/module first.</string>
 	<string name="charwizard2e_msg_noclasses">Character Wizard: no class records found. Load an AD&amp;D 2E class library/module first.</string>
 	<string name="charwizard2e_msg_created">Character Wizard: created '%s'.</string>
