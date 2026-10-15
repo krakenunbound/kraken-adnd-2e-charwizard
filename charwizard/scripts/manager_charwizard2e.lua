@@ -53,6 +53,16 @@ function onInit()
 		"option_label_method5", "", { default = "on" });   -- 4d6 drop lowest
 	OptionsManager.registerOption2("CWM6", false, "option_header_charwizard2e",
 		"option_label_method6", "", { default = "on" });   -- all 8s + place 7d6
+
+	-- DM choice: starting gold for a character made above 1st level. The PHB
+	-- leaves it to the DM ("check with the DM to see if you can increase your
+	-- character's funds"). PHB = one Table 43 roll at any level; perlevel = one
+	-- Table 43 roll per level, added up; xlevel = one roll times the level. Both
+	-- give the same average (a 5th-level warrior about 625 gp: plate mail half the
+	-- time, field plate never before 16th); per level spreads far less.
+	OptionsManager.registerOption2("CWGOLD", false, "option_header_charwizard2e", "option_label_gold_level", "option_entry_cycler",
+		{ labels = "option_val_gold_perlevel|option_val_gold_xlevel", values = "perlevel|xlevel",
+			baselabel = "option_val_gold_phb", baseval = "off", default = "off" });
 end
 
 function setActiveWindow(w)
@@ -833,6 +843,13 @@ end
 
 function setTargetLevel(n)
 	n = math.max(1, math.min(tonumber(n) or 1, getRaceClassMaxLevel()));
+	-- With the level-based gold option, a gold roll made at another level no
+	-- longer fits: clear it so the player rolls again (bought gear is kept).
+	if n ~= _tCharData.targetlevel and OptionsManager.getOption("CWGOLD") ~= "off" and isWealthRolled() then
+		local tEq = getEquipmentData();
+		tEq.nGold = nil;
+		tEq.bRolled = nil;
+	end
 	_tCharData.targetlevel = n;
 	updateTabStatus();
 end
@@ -2922,16 +2939,35 @@ local function getClassWealthGroup(sClassName)
 	return "warrior";
 end
 
+-- Table 43 dice per group: count, sides, plus per roll (wizard 1d4+1).
+local _tWealthDice = {
+	warrior = { 5, 4, 0, "charwizard2e_wealth_warrior" },
+	priest = { 3, 6, 0, "charwizard2e_wealth_priest" },
+	rogue = { 2, 6, 0, "charwizard2e_wealth_rogue" },
+	wizard = { 1, 4, 1, "charwizard2e_wealth_wizard" },
+};
+
+-- The starting-wealth roll. Above 1st level the DM's option (CWGOLD) may add
+-- one Table 43 roll per level, or multiply the one roll by the level.
 function getClassWealthInfo()
-	local sGroup = getClassWealthGroup(getClassRuleName());
-	if sGroup == "priest" then
-		return { sExpr = "3d6*10", sLabel = Interface.getString("charwizard2e_wealth_priest") };
-	elseif sGroup == "rogue" then
-		return { sExpr = "2d6*10", sLabel = Interface.getString("charwizard2e_wealth_rogue") };
-	elseif sGroup == "wizard" then
-		return { sExpr = "(1d4+1)*10", sLabel = Interface.getString("charwizard2e_wealth_wizard") };
+	local t = _tWealthDice[getClassWealthGroup(getClassRuleName())] or _tWealthDice.warrior;
+	local nCount, nSides, nPlus, sRes = t[1], t[2], t[3], t[4];
+	local sLabel = Interface.getString(sRes);
+	local nLevel = getTargetLevel();
+	local sMode = OptionsManager.getOption("CWGOLD");
+	local nRolls, nMult = 1, 10;
+	if nLevel > 1 and sMode == "perlevel" then
+		nRolls = nLevel;
+		sLabel = string.format(Interface.getString("charwizard2e_wealth_perlevel"), sLabel, nLevel);
+	elseif nLevel > 1 and sMode == "xlevel" then
+		nMult = 10 * nLevel;
+		sLabel = string.format(Interface.getString("charwizard2e_wealth_xlevel"), sLabel, nLevel);
 	end
-	return { sExpr = "5d4*10", sLabel = Interface.getString("charwizard2e_wealth_warrior") };
+	local sDice = string.format("%dd%d", nCount * nRolls, nSides);
+	if nPlus > 0 then
+		sDice = string.format("(%s+%d)", sDice, nPlus * nRolls);
+	end
+	return { sExpr = sDice .. "*" .. nMult, sLabel = sLabel };
 end
 
 function rollStartingWealth(w)
