@@ -15,8 +15,10 @@
 	<string name="charwizard2e_msg_needclass_for_profs">Choose a class first - your weapon and nonweapon proficiency slots depend on it.</string>
 	<string name="charwizard2e_prof_intro">Spend your starting proficiency slots and pick languages here. Weapon proficiencies are filtered to those your class may use; languages start from your racial tongues. (Pickers are being added section by section.)</string>
 	<string name="charwizard2e_weapon_header">Weapon Proficiencies</string>
-	<string name="charwizard2e_weapon_slots">Weapon slots used: %d / %d  -  only weapons your class may use are listed</string>
-	<string name="charwizard2e_weapon_empty">No usable weapons found in the loaded item libraries.</string>
+	<string name="charwizard2e_weapon_slots">Weapon slots used: %d / %d  -  only weapons your class and kit may use are listed</string>
+	<string name="charwizard2e_kit_required">%s must take: %s.</string>
+	<string name="charwizard2e_kit_only">%s may only take the weapons listed.</string>
+	<string name="charwizard2e_weapon_empty">No weapons to choose: your class and kit allow none from the loaded books (see the note above).</string>
 	<string name="charwizard2e_label_level">Starting Level:</string>
 	<string name="charwizard2e_button_plus">+</string>
 	<string name="charwizard2e_level_max">(max %d for this race/class)</string>

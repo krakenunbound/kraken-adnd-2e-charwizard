@@ -54,6 +54,7 @@ end
 function setSectionsVisible(bVisible)
 	weapon_header.setVisible(bVisible);
 	weapon_slots.setVisible(bVisible);
+	weapon_kitnote.setVisible(bVisible and (weapon_kitnote.getValue() or "") ~= "");
 	weapon_list.setVisible(bVisible);
 	language_header.setVisible(bVisible);
 	known_label.setVisible(bVisible);
@@ -86,6 +87,9 @@ function updateSlots()
 	weapon_slots.setValue(string.format(
 		Interface.getString("charwizard2e_weapon_slots"),
 		CharWizard2E.getWeaponSlotsUsed(), CharWizard2E.getWeaponSlots()));
+	local sKitNote = CharWizard2E.getKitWeaponNote();
+	weapon_kitnote.setValue(sKitNote);
+	weapon_kitnote.setVisible(sKitNote ~= "");
 	language_slots.setValue(string.format(
 		Interface.getString("charwizard2e_lang_slots"),
 		CharWizard2E.getLanguagesUsed(), CharWizard2E.getLanguageCount()));
