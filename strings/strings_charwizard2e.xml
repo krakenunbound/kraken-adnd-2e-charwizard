@@ -97,6 +97,12 @@
 	<string name="option_label_method3">Allow ability Method III (3d6 x6, arrange)</string>
 	<string name="option_label_method4">Allow ability Method IV (3d6 x12, keep best 6)</string>
 	<string name="option_label_method5">Allow ability Method V (4d6, drop lowest)</string>
+	<string name="option_label_gold_level">Starting gold above 1st level</string>
+	<string name="option_val_gold_phb">PHB (one roll)</string>
+	<string name="option_val_gold_perlevel">One roll per level</string>
+	<string name="option_val_gold_xlevel">Roll x level</string>
+	<string name="charwizard2e_wealth_perlevel">%s, one roll per level: %d rolls</string>
+	<string name="charwizard2e_wealth_xlevel">%s, times level %d</string>
 	<string name="option_label_method6">Allow ability Method VI (all 8s, then place 7d6)</string>
 	<string name="charwizard2e_method_prev">&lt;</string>
 	<string name="charwizard2e_method_next">&gt;</string>
