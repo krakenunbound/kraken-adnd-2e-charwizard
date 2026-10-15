@@ -2,9 +2,10 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
-## Unreleased
+## v1.0-beta6 (2026-10-15)
 
 - **DM option: Starting gold above 1st level** (Options > Kraken Character Wizard). The PHB leaves extra funds for a higher-level start to the DM. *PHB (one roll)* keeps Table 43 at any level (default); *One roll per level* rolls the group's Table 43 dice once per level and adds them up (a 5th-level warrior rolls 25d4 x 10); *Roll x level* multiplies one roll by the level. Both give the same average (a 5th-level warrior about 625 gp: plate mail about half the time, field plate never before 16th); one roll per level spreads much less, so players of the same level end up evenly equipped. Changing the level after rolling clears the roll.
+- **Priests return their leftover gold** (PHB Table 43): after shopping a priest (cleric, druid, specialty priest) keeps 3 gp and the rest goes back to his order; chat says how much. Multi-class characters with a warrior, rogue or wizard class keep theirs.
 - **Proficiency slots grow with the starting level** (PHB Table 34): a 5th-level fighter starts with 5 weapon and 4 nonweapon slots, not 4 and 3. Warriors gain a weapon slot every 3 levels, priests and rogues every 4, wizards every 6; nonweapon slots every 3 levels (rogues every 4). Kits that fix a career total (Witch, Envoy) keep it.
 
 ## v1.0-beta5 (2026-10-15)

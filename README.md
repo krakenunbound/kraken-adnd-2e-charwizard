@@ -8,7 +8,7 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 > 📖 **New here? Read the [Install & User Guide](GUIDE.md)** — what to install, where it goes, the DM options, and a screenshot walkthrough of every tab.
 
-> 🆕 **v1.0-beta5: class and kit weapon rules, spells by sphere and school, weapon names on the Actions tab.** v1.0-beta4: players can create their own characters. Every change is in the **[Changelog](CHANGELOG.md)**. Download: **[latest release](../../releases/latest)**.
+> 🆕 **v1.0-beta6: higher-level starts get their proficiency slots, a DM option for starting gold above 1st level, priests return leftover gold.** v1.0-beta5: class and kit weapon rules, spells by sphere and school, weapon names. Every change is in the **[Changelog](CHANGELOG.md)**. Download: **[latest release](../../releases/latest)**.
 
 ## 🎥 Demo
 
@@ -73,6 +73,6 @@ This repository **is** the live extension folder — edit in place and FGU loads
 Cut a release (rebuilds the `.ext` and publishes it as a GitHub Release asset):
 
 ```sh
-python release.py             # tag from extension.xml version, e.g. v1.0-beta5
-python release.py v1.0-beta5  # explicit tag
+python release.py             # tag from extension.xml version, e.g. v1.0-beta6
+python release.py v1.0-beta6  # explicit tag
 ```
