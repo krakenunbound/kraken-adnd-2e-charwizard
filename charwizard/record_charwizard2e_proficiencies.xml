@@ -146,77 +146,6 @@
 				<target>nwp_list</target>
 			</scrollbar_content_base>
 
-			<!-- ===== Spells (casters only) ===== -->
-			<header_content_framed_metalplate name="spell_header">
-				<anchored to="nwp_list">
-					<top anchor="bottom" relation="relative" offset="12" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
-				</anchored>
-				<static textres="charwizard2e_spell_header" />
-			</header_content_framed_metalplate>
-			<label name="spell_info">
-				<anchored to="spell_header">
-					<top anchor="bottom" relation="relative" offset="4" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
-				</anchored>
-				<font>sheetlabel</font>
-			</label>
-			<!-- Spell-level filter: show one level at a time so high-level casters
-			     aren't faced with hundreds of undifferentiated spells. -->
-			<button_text name="spell_lvl_prev">
-				<anchored to="spell_info" width="66" height="20">
-					<top anchor="bottom" relation="relative" offset="4" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
-				</anchored>
-				<state textres="charwizard2e_spell_lvl_prev" />
-				<script>
-					function onButtonPress()
-						window.onSpellLevelStep(-1);
-					end
-				</script>
-			</button_text>
-			<button_text name="spell_lvl_all">
-				<anchored to="spell_lvl_prev" width="40" height="20">
-					<top />
-					<left anchor="right" relation="relative" offset="6" />
-				</anchored>
-				<state textres="charwizard2e_spell_lvl_all" />
-				<script>
-					function onButtonPress()
-						window.onSpellLevelSet(0);
-					end
-				</script>
-			</button_text>
-			<button_text name="spell_lvl_next">
-				<anchored to="spell_lvl_all" width="66" height="20">
-					<top />
-					<left anchor="right" relation="relative" offset="6" />
-				</anchored>
-				<state textres="charwizard2e_spell_lvl_next" />
-				<script>
-					function onButtonPress()
-						window.onSpellLevelStep(1);
-					end
-				</script>
-			</button_text>
-
-			<list_content_base name="spell_list">
-				<anchored>
-					<top parent="spell_lvl_prev" anchor="bottom" relation="relative" offset="6" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
-					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
-				</anchored>
-				<class>list_entry_charwiz2e_spellpick</class>
-				<sortby><control>spellname</control></sortby>
-				<empty textres="charwizard2e_spell_empty" />
-			</list_content_base>
-			<scrollbar_content_base>
-				<anchored to="spell_list" />
-				<target>spell_list</target>
-			</scrollbar_content_base>
 		</sheetdata>
 	</windowclass>
 
@@ -492,12 +421,19 @@
 				<font>sheetlabel</font>
 			</label>
 
+			<label name="spellschool">
+				<anchored to="mark" width="230" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<font>sheetlabel</font>
+			</label>
 			<link_charwiz2e_info name="shortcut" />
 			<label name="spellname">
 				<anchored height="20">
 					<top parent="leftanchor" anchor="top" />
 					<left parent="shortcut" anchor="right" relation="relative" offset="8" />
-					<right parent="mark" anchor="left" relation="relative" offset="-8" />
+					<right parent="spellschool" anchor="left" relation="relative" offset="-8" />
 				</anchored>
 				<font>sheettext</font>
 			</label>

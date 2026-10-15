@@ -11,9 +11,9 @@
 	<!-- One tab across the top of the wizard -->
 	<template name="charwiz2e_tab">
 		<button_text>
-			<anchored to="leftanchor" width="96" height="30">
+			<anchored to="leftanchor" width="86" height="30">
 				<top />
-				<left relation="relative" offset="5" postoffset="5" />
+				<left relation="relative" offset="4" postoffset="4" />
 			</anchored>
 			<script>
 				function onButtonPress()

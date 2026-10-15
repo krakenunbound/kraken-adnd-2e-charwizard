@@ -75,7 +75,7 @@ end
 
 local _wMain = nil;
 local _tCharData = {};
-local _tTabs = { "abilities", "race", "class", "kit", "alignment", "equipment", "proficiencies", "commit" };
+local _tTabs = { "abilities", "race", "class", "kit", "spells", "alignment", "equipment", "proficiencies", "commit" };
 
 function registerWindow(w)
 	_wMain = w;
@@ -190,6 +190,23 @@ function isProficienciesComplete()
 	return true;
 end
 
+-- Spells tab: done for a class with no spells at this level, otherwise when
+-- every spell level's picks are used.
+function isSpellsComplete()
+	if not isClassComplete() then
+		return false;
+	end
+	if not getCasterType() or getMaxSpellLevel() <= 0 then
+		return true;
+	end
+	for nLvl = 1, getMaxSpellLevel() do
+		if getSpellsUsedAtLevel(nLvl) < getSpellSlots(nLvl) then
+			return false;
+		end
+	end
+	return true;
+end
+
 function isTabComplete(sTab)
 	if sTab == "abilities" then
 		return areAbilitiesComplete();
@@ -205,6 +222,8 @@ function isTabComplete(sTab)
 		return isEquipmentComplete();
 	elseif sTab == "proficiencies" then
 		return isProficienciesComplete();
+	elseif sTab == "spells" then
+		return isSpellsComplete();
 	elseif sTab == "commit" then
 		return isReadyToCommit();
 	end
@@ -217,6 +236,16 @@ function updateTabStatus()
 		return;
 	end
 	local wTabs = w.sub_tabs.subwindow;
+	-- The Spells tab exists only for a class that casts at the chosen level
+	-- (shown until a class is chosen; hidden for a fighter, a 1st-level paladin...).
+	if wTabs.button_spells then
+		local bNoSpells = isClassComplete() and (not getCasterType() or getMaxSpellLevel() <= 0);
+		wTabs.button_spells.setVisible(not bNoSpells);
+		if bNoSpells and w.sub_spells and w.sub_spells.isVisible() then
+			onTabButtonPressed(w, "proficiencies");
+			return;
+		end
+	end
 	for _, sTab in ipairs(_tTabs) do
 		local cButton = wTabs["button_" .. sTab];
 		if cButton and cButton.addBitmapWidget then
@@ -503,6 +532,9 @@ local function notifyProficienciesPage()
 	if wMain and wMain.sub_proficiencies and wMain.sub_proficiencies.subwindow
 			and wMain.sub_proficiencies.subwindow.updateSlots then
 		wMain.sub_proficiencies.subwindow.updateSlots();
+	end
+	if wMain and wMain.sub_spells and wMain.sub_spells.subwindow and wMain.sub_spells.subwindow.updateSlots then
+		wMain.sub_spells.subwindow.updateSlots();
 	end
 	updateTabStatus(); -- slots changed -> the Profs tab check may flip
 end
@@ -2686,20 +2718,36 @@ function removeNWP(sPath)
 end
 
 -- Spells (caster classes only). Wizard group = arcane; priest/druid = divine.
-function getCasterType()
-	local g = profClassGroup(getClassRuleName());
-	if g == "wizard" then return "arcane"; end
-	if g == "priest" or g == "druid" then return "divine"; end
-	return nil; -- warriors/rogues/bards: no spells at creation in this MVP
+-- The class whose spell table the character uses: "wizard" (mages, specialists,
+-- and a multi-class with one), "priest" (clerics, druids, specialty priests),
+-- "bard" (wizard spells from 2nd level, PHB Table 32), "paladin" (priest spells
+-- from 9th, Table 17), "ranger" (priest spells from 8th, Table 18), or nil.
+function getSpellcasterClass()
+	local s = getClassRuleName():lower();
+	if s == "" then return nil; end
+	local function has(t)
+		for _, w in ipairs(t) do
+			if s:find(w, 1, true) then return true; end
+		end
+		return false;
+	end
+	if has({ "mage", "wizard", "illusion", "conjur", "divin", "enchant", "invok", "necrom", "transmut", "abjur" }) then
+		return "wizard";
+	end
+	if has({ "cleric", "priest", "druid", "shaman", "monk", "mystic" }) then
+		return "priest";
+	end
+	if s:find("bard", 1, true) then return "bard"; end
+	if s:find("paladin", 1, true) then return "paladin"; end
+	if s:find("ranger", 1, true) then return "ranger"; end
+	return nil;
 end
 
--- Highest spell level castable at the target level (PHB progression).
-function getMaxSpellLevel()
-	local sType = getCasterType();
-	if not sType then return 0; end
-	local nMax = math.ceil(getTargetLevel() / 2);
-	if sType == "arcane" then return math.min(9, nMax); end
-	return math.min(7, nMax);
+function getCasterType()
+	local sClass = getSpellcasterClass();
+	if sClass == "wizard" or sClass == "bard" then return "arcane"; end
+	if sClass then return "divine"; end
+	return nil;
 end
 
 -- Spells memorizable per spell level, by class level (PHB Tables 21 / 24).
@@ -2721,22 +2769,58 @@ local _tPriestWisBonus = {
 	[17] = {2,2,1}, [18] = {2,2,1,1},
 };
 
+-- Bard (PHB Table 32), paladin (Table 17) and ranger (Table 18) spells per day.
+local _tBardSlots = {
+	[2] = {1}, [3] = {2}, [4] = {2,1}, [5] = {3,1}, [6] = {3,2}, [7] = {3,2,1}, [8] = {3,3,1},
+	[9] = {3,3,2}, [10] = {3,3,2,1}, [11] = {3,3,3,1}, [12] = {3,3,3,2}, [13] = {3,3,3,2,1},
+	[14] = {3,3,3,3,1}, [15] = {3,3,3,3,2}, [16] = {4,3,3,3,2,1}, [17] = {4,4,3,3,3,1},
+	[18] = {4,4,4,3,3,2}, [19] = {4,4,4,4,3,2}, [20] = {4,4,4,4,4,3},
+};
+local _tPaladinSlots = {
+	[9] = {1}, [10] = {2}, [11] = {2,1}, [12] = {2,2}, [13] = {2,2,1}, [14] = {3,2,1},
+	[15] = {3,2,1,1}, [16] = {3,3,2,1}, [17] = {3,3,3,1}, [18] = {3,3,3,1}, [19] = {3,3,3,2}, [20] = {3,3,3,3},
+};
+local _tRangerSlots = {
+	[8] = {1}, [9] = {2}, [10] = {2,1}, [11] = {2,2}, [12] = {2,2,1}, [13] = {3,2,1},
+	[14] = {3,2,2}, [15] = {3,3,2}, [16] = {3,3,3},
+};
+
+-- The spells-per-day row for the class at the target level (nil: none yet).
+function getSpellRow()
+	local sClass = getSpellcasterClass();
+	local nLevel = getTargetLevel();
+	if sClass == "wizard" then return _tWizSlots[math.min(nLevel, 15)]; end
+	if sClass == "priest" then return _tPriestSlots[math.min(nLevel, 15)]; end
+	if sClass == "bard" then return _tBardSlots[math.min(nLevel, 20)]; end
+	if sClass == "paladin" then return _tPaladinSlots[math.min(nLevel, 20)]; end
+	if sClass == "ranger" then return _tRangerSlots[math.min(nLevel, 16)]; end
+	return nil;
+end
+
+-- Highest spell level castable at the target level (the class's own table).
+function getMaxSpellLevel()
+	local tRow = getSpellRow();
+	if not tRow then return 0; end
+	local nMax = 0;
+	for i, n in ipairs(tRow) do
+		if n > 0 then nMax = i; end
+	end
+	return nMax;
+end
+
 -- How many spells of nSpellLevel the caster gets (per-level cap for picking).
 function getSpellSlots(nSpellLevel)
-	local sType = getCasterType();
-	if not sType then return 0; end
-	local nLevel = math.min(getTargetLevel(), 15);
-	local nBase = 0;
-	if sType == "arcane" then
-		local tRow = _tWizSlots[nLevel];
-		nBase = (tRow and tRow[nSpellLevel]) or 0;
+	local sClass = getSpellcasterClass();
+	local tRow = getSpellRow();
+	if not tRow then return 0; end
+	local nBase = tRow[nSpellLevel] or 0;
+	if sClass == "wizard" then
 		-- A specialist gets one more spell of each level he can cast (PHB).
 		if nBase > 0 and getSpecialistKey() then
 			nBase = nBase + 1;
 		end
-	else
-		local tRow = _tPriestSlots[nLevel];
-		nBase = (tRow and tRow[nSpellLevel]) or 0;
+	elseif sClass == "priest" then
+		-- Paladins and rangers get no Wisdom bonus spells (PHB); priests do.
 		-- Wisdom bonus spells apply only where the priest already has slots.
 		if nBase > 0 then
 			local nWis = tonumber((_tCharData.abilities or {}).wisdom) or 0;
@@ -2783,6 +2867,8 @@ local _tSphereAccess = {
 		fire = true, water = true } },
 	druid = { only = { all = true, animal = true, elemental = true, air = true, earth = true, fire = true, water = true,
 		healing = true, plant = true, weather = true, divination = true }, minor = { divination = true } },
+	paladin = { only = { combat = true, divination = true, healing = true, protection = true } },
+	ranger = { only = { plant = true, animal = true } },
 };
 local _tOpposed = {
 	abjurer = { "alteration", "illusion", "phantasm" },
@@ -2805,7 +2891,9 @@ end
 
 function isPriestSpellAllowed(sSphere, nLevel)
 	local sClass = getClassRuleName():lower();
-	local tAccess = (sClass:find("cleric", 1, true) and _tSphereAccess.cleric)
+	local sCaster = getSpellcasterClass();
+	local tAccess = (sCaster == "paladin" and _tSphereAccess.paladin) or (sCaster == "ranger" and _tSphereAccess.ranger)
+		or (sClass:find("cleric", 1, true) and _tSphereAccess.cleric)
 		or (sClass:find("druid", 1, true) and _tSphereAccess.druid) or nil;
 	if not tAccess then return true; end
 	local bAny = false;
@@ -2867,7 +2955,8 @@ function buildSpellCatalog()
 					local sKey = sName:lower();
 					if sName ~= "" and not tSeen[sKey] then
 						tSeen[sKey] = true;
-						table.insert(tOut, { sName = sName, sPath = DB.getPath(vNode), nLevel = nLvl });
+						local sSchool = StringManager.trim(DB.getValue(vNode, bDivine and "sphere" or "school", ""));
+						table.insert(tOut, { sName = sName, sPath = DB.getPath(vNode), nLevel = nLvl, sSchool = sSchool });
 					end
 				end
 			end
@@ -2878,6 +2967,58 @@ function buildSpellCatalog()
 		return a.sName < b.sName;
 	end);
 	return tOut;
+end
+
+function ordinal(n)
+	local t = { "1st", "2nd", "3rd" };
+	return t[n] or (tostring(n) .. "th");
+end
+
+local _tOpposedText = {
+	abjurer = "Alteration and Illusion", conjurer = "Invocation/Evocation (and greater Divination)",
+	diviner = "Conjuration/Summoning", enchanter = "Invocation/Evocation and Necromancy",
+	illusionist = "Necromancy, Invocation/Evocation and Abjuration", invoker = "Enchantment/Charm and Conjuration/Summoning",
+	necromancer = "Illusion and Enchantment/Charm", transmuter = "Abjuration and Necromancy",
+};
+
+-- What the Spells tab says at the top: spells per level for this class and
+-- level, and the rules that shape the list.
+function getSpellGuidance()
+	local sClass = getSpellcasterClass();
+	local nMax = getMaxSpellLevel();
+	if not sClass or nMax <= 0 then return ""; end
+	local tParts = {};
+	for n = 1, nMax do
+		table.insert(tParts, string.format("%d of %s level", getSpellSlots(n), ordinal(n)));
+	end
+	local sName = getClassName();
+	local tLines = { string.format("%s, level %d: %s.", sName, getTargetLevel(), table.concat(tParts, ", ")) };
+	if sClass == "wizard" then
+		local sKey = getSpecialistKey();
+		if sKey then
+			table.insert(tLines, string.format("Specialist: one extra spell of each level (counted above); no %s spells.", _tOpposedText[sKey]));
+		else
+			table.insert(tLines, "Every school of magic; Wild Magic spells are for wild mages.");
+		end
+	elseif sClass == "bard" then
+		table.insert(tLines, "Wizard spells of any school (a bard never specializes). The PHB has a 2nd-level bard start with one to four spells, chosen at random or by the DM.");
+	elseif sClass == "paladin" then
+		table.insert(tLines, "Priest spells of the combat, divination, healing and protection spheres; no bonus spells for Wisdom.");
+	elseif sClass == "ranger" then
+		table.insert(tLines, "Priest spells of the plant and animal spheres; no bonus spells for Wisdom.");
+	else
+		local s = getClassRuleName():lower();
+		if s:find("cleric", 1, true) then
+			table.insert(tLines, "Every sphere but plant, animal and weather; elemental spells up to 3rd level.");
+		elseif s:find("druid", 1, true) then
+			table.insert(tLines, "Spheres all, animal, elemental, healing, plant and weather; divination up to 3rd level.");
+		end
+		local nWis = tonumber((_tCharData.abilities or {}).wisdom) or 0;
+		if nWis >= 13 then
+			table.insert(tLines, string.format("Wisdom %d bonus spells are counted above.", nWis));
+		end
+	end
+	return table.concat(tLines, " ");
 end
 
 function getChosenSpells()
@@ -2902,6 +3043,8 @@ function addSpell(sPath, sName, nLevel)
 	end
 	nLevel = nLevel or 1;
 	if getSpellsUsedAtLevel(nLevel) >= getSpellSlots(nLevel) then
+		ChatManager.SystemMessage(string.format(Interface.getString("charwizard2e_msg_spellfull"),
+			ordinal(nLevel), getSpellSlots(nLevel)));
 		return; -- that spell level is full
 	end
 	table.insert(getChosenSpells(), { sName = sName or "", sPath = sPath, nLevel = nLevel });

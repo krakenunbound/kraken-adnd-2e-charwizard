@@ -28,5 +28,6 @@
     <includefile source="charwizard/record_charwizard2e_alignment.xml" />
     <includefile source="charwizard/record_charwizard2e_equipment.xml" />
     <includefile source="charwizard/record_charwizard2e_proficiencies.xml" />
+    <includefile source="charwizard/record_charwizard2e_spells.xml" />
   </base>
 </root>
