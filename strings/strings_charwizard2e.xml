@@ -79,7 +79,8 @@
 	<string name="charwizard2e_msg_needalignment_for_equipment">Choose and confirm an alignment before rolling starting funds.</string>
 	<string name="charwizard2e_label_wealth_formula">Starting funds (PHB):</string>
 	<string name="charwizard2e_wealth_warrior">Warrior group - roll 5d4, multiply by 10 gp (Fighter, Ranger, Paladin)</string>
-	<string name="charwizard2e_wealth_priest">Priest group - roll 3d6, multiply by 10 gp (Cleric, Druid)</string>
+	<string name="charwizard2e_wealth_priest">Priest group - roll 3d6, multiply by 10 gp (Cleric, Druid); after shopping a priest keeps only 3 gp, the rest goes to his order</string>
+	<string name="charwizard2e_msg_priest_returns">Character Wizard: %s gp left after shopping go back to the priest's order; he keeps %d gp (PHB Table 43).</string>
 	<string name="charwizard2e_wealth_rogue">Rogue group - roll 2d6, multiply by 10 gp (Thief, Bard)</string>
 	<string name="charwizard2e_wealth_wizard">Wizard group - roll (1d4+1), multiply by 10 gp (Mage and specialists)</string>
 	<string name="charwizard2e_wealth_roll_tooltip">Roll starting gold for your class (animated dice)</string>

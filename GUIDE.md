@@ -88,6 +88,7 @@ Open **Options** (the gear / settings menu). Under **Kraken Character Wizard** y
 - **Grant free starter items** — gives each character its class item (holy symbol, spellbook, thieves' picks, an instrument...) and an Adventure Pack at no gold cost.
 - **Lock ability rolls (one roll only)** — players get a single roll, no re-rolling.
 - **Allow family heirloom items** — only for campaigns with a module that provides the heirloom items; without one the heirloom roll simply doesn't appear.
+- **Starting gold above 1st level** — for a character made above 1st level (the PHB leaves extra funds to the DM): *PHB (one roll)* keeps the normal Table 43 roll; *One roll per level* rolls the class group's Table 43 dice once per level and adds them up (recommended: everyone of the same level ends up about equally equipped); *Roll x level* multiplies one roll by the level. Both give the same average, about 625 gp for a 5th-level warrior. Priests always keep only 3 gp of what is left after shopping (PHB Table 43).
 
 ---
 

@@ -3598,10 +3598,22 @@ local function applyChosenItems(nodeChar, tEq)
 	end
 end
 
+-- PHB Table 43: "Priest characters can use their money only to purchase
+-- equipment and goods. Once all purchases are made, the priest character must
+-- return all but two or three of his remaining gold pieces to his superiors."
+-- A priest keeps 3 gp of what is left; chat says how much went to the order.
+local PRIEST_KEEPS_GP = 3;
+
 local function applyEquipment(nodeChar, rBuild)
 	local tEq = rBuild.equipment or {};
-	if tEq.nGold and tEq.nGold > 0 then
-		applyStartingGold(nodeChar, tEq.nGold);
+	local nGold = tEq.nGold;
+	if nGold and nGold > PRIEST_KEEPS_GP and getClassWealthGroup(getClassRuleName()) == "priest" then
+		ChatManager.SystemMessage(string.format(Interface.getString("charwizard2e_msg_priest_returns"),
+			math.floor((nGold - PRIEST_KEEPS_GP) * 100 + 0.5) / 100, PRIEST_KEEPS_GP));
+		nGold = PRIEST_KEEPS_GP;
+	end
+	if nGold and nGold > 0 then
+		applyStartingGold(nodeChar, nGold);
 	end
 
 	-- All chosen gear is granted here: the player's selected free kit (bFree, no
