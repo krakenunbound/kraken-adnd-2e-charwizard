@@ -2093,14 +2093,31 @@ function getAllowedWeaponKeywords()
 	return _tWeaponAllow[g];
 end
 
--- Short, race+class-recommended weapon shortlist for the proficiency picker
--- (CharWizard2EBio.getRecommendedWeapons). Previously this listed EVERY weapon in
--- every loaded module; now it returns a curated set in recommended order, with the
--- race's signature weapons first. Plain names, in order (the picker no longer alpha-sorts).
+-- Weapons for the proficiency picker: the race+class recommended shortlist first
+-- (CharWizard2EBio.getRecommendedWeapons, race signature weapons first), then every
+-- other weapon the shop sells this class, A-Z. A fighter may be proficient in any
+-- weapon (PHB), so a Spiked Club bought in the shop must be pickable too.
+local function weaponKey(sName)
+	return (sName or ""):lower():gsub("[^%w]", "");
+end
+
 function buildWeaponCatalog()
-	local tOut = {};
+	local tOut, tSeen = {}, {};
 	for _, rWpn in ipairs(CharWizard2EBio.getRecommendedWeapons(getClassRuleName(), getRaceCategoryName()) or {}) do
 		table.insert(tOut, rWpn.name);
+		tSeen[weaponKey(rWpn.name)] = true;
+	end
+	local tMore = {};
+	for _, rItem in ipairs(buildStarterCatalog() or {}) do
+		local sKey = weaponKey(rItem.sName);
+		if rItem.sCat == "Weapons" and sKey ~= "" and not tSeen[sKey] then
+			tSeen[sKey] = true;
+			table.insert(tMore, rItem.sName);
+		end
+	end
+	table.sort(tMore);
+	for _, sName in ipairs(tMore) do
+		table.insert(tOut, sName);
 	end
 	return tOut;
 end
