@@ -8,6 +8,8 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 > 📖 **New here? Read the [Install & User Guide](GUIDE.md)** — what to install, where it goes, the DM options, and a screenshot walkthrough of every tab.
 
+> 🆕 **v1.0-beta4: players can now create their own characters** (before, only the GM could). Every change is in the **[Changelog](CHANGELOG.md)**. Download: **[latest release](../../releases/latest)**.
+
 ## 🎥 Demo
 
 [![Watch the demo on YouTube](https://img.youtube.com/vi/DUrpYcwq9xY/hqdefault.jpg)](https://youtu.be/DUrpYcwq9xY)
@@ -32,6 +34,10 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 ![Finished character sheet](docs/images/09-character-sheet.png)
 
+**Players build their own** — on a player's screen, Create Character gets a sheet from the GM's table and the wizard fills it in
+
+![A player's new character](docs/images/13-player-sheet.png)
+
 > The full tab-by-tab walkthrough (with every screen) is in the **[Install & User Guide](GUIDE.md)**.
 
 ## What it does for you
@@ -41,15 +47,19 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 - **Players build their own.** A player opens **Characters** after joining and clicks the wizard icon; **Create Character** asks the GM's table for a new character sheet that the player owns (as the **+** on Character Selection does). Before 1.0-beta4 only the GM could create characters with it.
 - **Save unfinished.** Make a character before game night without your DM: **Create Character** works at any point, and whatever is still open is listed at the top of the sheet's notes to finish together.
 
-## Install (players / testers)
+## Install
 
-Grab the latest [**Release**](../../releases/latest) and:
+Only the **GM** installs it. Grab the latest [**Release**](../../releases/latest) and:
 
-1. Put `KrakenCharWizard2E.ext` in your Fantasy Grounds data folder under `extensions\`.
-   - Data folder is usually `%appdata%\SmiteWorks\Fantasy Grounds`.
-2. Launch FGU, load a 2E campaign (as host), click **Extensions** on the load screen, and enable **Kraken AD&D 2E Character Wizard**.
+1. Put `KrakenCharWizard2E.ext` in your Fantasy Grounds data folder under `extensions\` — or unzip the release's `.zip` straight into the data folder (it holds `extensions\KrakenCharWizard2E.ext` and a Read Me).
+   - The data folder is usually `%appdata%\SmiteWorks\Fantasy Grounds` (or click the folder icon on the Fantasy Grounds launcher).
+2. Launch FGU, select your 2E campaign, click **Extensions** on the load screen, tick **Kraken AD&D 2E Character Wizard**, and start the campaign.
 3. In game, open **Library → Modules** and activate the **Player's Handbook** (and any other 2E books you want the wizard to use).
-4. Open the Characters list and click the wizard icon to build a character.
+4. Open **Characters** and click the wizard icon (top-left) to build a character.
+
+**Players** don't install anything: Fantasy Grounds sends them the extension when they join. They open **Characters**, click the wizard icon, and **Create Character** makes a sheet they own (the campaign needs a free character slot).
+
+**Updating:** replace the `.ext` with the new one (same name) and restart Fantasy Grounds. See the [Changelog](CHANGELOG.md) for what changed.
 
 ### Requirements (commercial — not included)
 - Fantasy Grounds Unity

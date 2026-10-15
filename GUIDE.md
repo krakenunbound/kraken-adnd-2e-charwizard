@@ -8,11 +8,14 @@ Everything you need to install the **Kraken AD&D 2E Character Wizard**, know whe
 
 ## 1. What's in the download
 
-From the [latest Release](../../releases/latest) you get one file:
+From the [latest Release](../../releases/latest) (what changed: [Changelog](CHANGELOG.md)):
 
 | File | What it is | Where it goes |
 |------|------------|---------------|
 | **`KrakenCharWizard2E.ext`** | The extension — the character-creation wizard itself | your Fantasy Grounds **`extensions\`** folder |
+| **`Kraken.AD.D.2E.Character.Wizard.zip`** | The same extension in an `extensions\` folder, plus a Read Me | unzip it straight into your Fantasy Grounds **data folder** |
+
+Take either one; only the GM needs it.
 
 ---
 
@@ -58,6 +61,20 @@ Any other official 2E books you load are used too — tested with the Dungeon Ma
 **Players** use it the same way: after joining, open **Characters** and click the wizard icon. **Create Character** asks the GM's table for a new character sheet that the player owns, just like the **+** on Character Selection, so the campaign needs a free character slot. The GM only has to enable the extension; players don't install anything.
 
 ![Character selection / launch](docs/images/00-character-selection.png)
+
+### Players
+
+Since v1.0-beta4 players build their own characters. On a player's screen, **Characters** shows the same wizard icon:
+
+![A player's Character Selection](docs/images/11-player-character-selection.png)
+
+They go through the tabs like the GM; on **Commit**, **Create Character** asks the GM's table for a new sheet the player owns (chat says *asking the GM's table for a new character sheet…*), and the wizard fills it in:
+
+![A player's Commit tab](docs/images/12-player-commit.png)
+
+![The player's new character](docs/images/13-player-sheet.png)
+
+If nothing arrives, the campaign may have no free character slot: the choices stay in the wizard, so the player can try again once the GM frees one.
 
 ---
 
