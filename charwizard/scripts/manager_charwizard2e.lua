@@ -3725,15 +3725,28 @@ local function applyWeaponProfs(nodeChar)
 	-- expected names from the chosen proficiencies, this can't be defeated by how
 	-- any item library happens to spell or punctuate a weapon -- no per-weapon
 	-- testing or alias table needed.
+	--
+	-- Punctuation is ignored, and an attack line also matches through the
+	-- inventory item it came from: a Staff sling item gives two attacks named
+	-- "Staff- sling (Bullet)" and "Staff- sling (Stone)".
 	if CombatManagerADND and CombatManagerADND.setWeaponProfApplication then
-		local function weaponMatchesProf(sItem, sProf)
-			return sItem == sProf or sItem:sub(1, #sProf + 2) == (sProf .. " (");
+		local function tight(s)
+			return (s or ""):lower():gsub("[^%w]", "");
+		end
+		local function weaponMatchesProf(nodeWeapon, sProf)
+			local sP = tight(sProf);
+			local sName = DB.getValue(nodeWeapon, "name", "");
+			if tight(sName) == sP or tight(sName:gsub("%s*%b()%s*$", "")) == sP then
+				return true;
+			end
+			local _, sRecord = DB.getValue(nodeWeapon, "shortcut", "", "");
+			local nodeItem = (sRecord or "") ~= "" and DB.findNode(sRecord) or nil;
+			return nodeItem ~= nil and tight(DB.getValue(nodeItem, "name", "")) == sP;
 		end
 		for _, nodeWeapon in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
 			if DB.getChildCount(nodeWeapon, "proflist") < 1 then
-				local sItem = DB.getValue(nodeWeapon, "name", ""):lower();
 				for _, sProf in ipairs(tWeapons) do
-					if weaponMatchesProf(sItem, sProf:lower()) then
+					if weaponMatchesProf(nodeWeapon, sProf) then
 						CombatManagerADND.setWeaponProfApplication(nodeWeapon, sProf, true);
 						DB.setValue(nodeWeapon, "applied", "number", 1);
 						local nHit = (sProf == sSpec) and 1 or 0;
