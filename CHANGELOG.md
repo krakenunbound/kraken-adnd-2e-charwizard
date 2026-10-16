@@ -2,7 +2,7 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
-## Unreleased
+## v1.0-beta7 (2026-10-15)
 
 - **Spells have their own tab**, right after Kit, shown only for a class that casts at the chosen level (and checked automatically for one that doesn't). Before, the spell list sat below the proficiency lists and was out of sight unless the window was stretched.
 - **Spell guidance**: the top of the tab says how many spells of each level the class gets at the chosen level and what it may use (a specialist's extra spell and barred schools, a priest's spheres, Wisdom bonus spells). One button per spell level shows picked / allowed ("2nd 1/3", green when full) and switches the list; a School or Sphere filter and a Search box narrow it; each spell shows its school or sphere. Picking past the limit says so in chat.
