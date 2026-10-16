@@ -12,9 +12,9 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 ## 🎥 Demo
 
-[![Watch the demo on YouTube](https://img.youtube.com/vi/DUrpYcwq9xY/hqdefault.jpg)](https://youtu.be/DUrpYcwq9xY)
+[![Watch the demo on YouTube](https://img.youtube.com/vi/9oW3nTTR3yQ/hqdefault.jpg)](https://youtu.be/9oW3nTTR3yQ)
 
-*A walkthrough of building a character with the wizard — [watch on YouTube](https://youtu.be/DUrpYcwq9xY).*
+*A walkthrough of building a character with the wizard — [watch on YouTube](https://youtu.be/9oW3nTTR3yQ).*
 
 ## Screenshots
 
