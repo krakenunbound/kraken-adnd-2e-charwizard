@@ -20,24 +20,11 @@ function onInit()
 	ActionsManager.registerResultHandler("charwiz_ability", onAbilityResult);
 	ActionsManager.registerResultHandler("charwiz_strpct", onStrPctResult);
 	ActionsManager.registerResultHandler("charwiz_wealth", onWealthResult);
-	ActionsManager.registerResultHandler("charwiz_heirloom", onHeirloomResult);
-
-	-- DM toggle (Options > "Kraken Character Wizard" > "Grant free starter items").
-	-- Global (not bLocal) so it is a host/campaign setting; default off. When on,
-	-- a new character is granted its free class kit (instrument, holy symbol,
-	-- thieves' picks, spellbook, ...) plus an adventuring pack, at no gold cost.
-	OptionsManager.registerOption2("CWFI", false, "option_header_charwizard2e",
-		"option_label_free_items", "", { default = "off" });
 
 	-- DM toggle: when on, abilities can be rolled only once per character (no
 	-- re-rolling until you like the numbers). Global/host setting, default off.
 	OptionsManager.registerOption2("CWRL", false, "option_header_charwizard2e",
 		"option_label_roll_lock", "", { default = "off" });
-
-	-- DM toggle: when on, the Equipment tab offers a random "family heirloom" roll
-	-- (The Drowned Archive table), added to the new character. Global, default off.
-	OptionsManager.registerOption2("CWHEIR", false, "option_header_charwizard2e",
-		"option_label_heirloom", "", { default = "off" });
 
 	-- DM toggles: which PHB ability-score generation methods players may pick from
 	-- on the Abilities tab. The player chooses among whichever are enabled. Global.
@@ -366,9 +353,6 @@ function getBuildSummaryText()
 	if isWealthRolled() then
 		add(Interface.getString("charwizard2e_sum_gold"), string.format("%d gp", getStartingGold()));
 	end
-
-	add(Interface.getString("charwizard2e_sum_freebies"),
-		Interface.getString(getDmFreebies() and "charwizard2e_val_on" or "charwizard2e_val_off"));
 
 	local tItems = getChosenItems();
 	if #tItems > 0 then
@@ -1903,7 +1887,7 @@ function getAlignmentRestrictionHint()
 end
 
 --
--- Equipment: PHB starting wealth by class group + optional DM freebies.
+-- Equipment: PHB starting wealth by class group.
 --
 
 function getEquipmentData()
@@ -1932,43 +1916,6 @@ function clearStartingWealth()
 	tEq.bRolled = nil;
 	notifyEquipmentPage();
 	updateTabStatus();
-end
-
--- Whether the DM has enabled free starter items (Options menu, not per-character).
-function getDmFreebies()
-	return OptionsManager.isOption("CWFI", "on");
-end
-
--- Family heirloom (Equipment tab; only when the DM allows it). A random keepsake
--- text stored on the build and granted as an inventory item on commit.
--- The heirlooms are The Drowned Archive's items (Kraken's own module, not an
--- official book): the roll is offered only when the DM allows it and that
--- module's items are loaded.
-function isHeirloomAllowed()
-	if not OptionsManager.isOption("CWHEIR", "on") then
-		return false;
-	end
-	local sFirst = (CharWizard2EBio.getHeirloomByRoll(1) or ""):lower();
-	if sFirst == "" then
-		return false;
-	end
-	for _, sMapping in ipairs(LibraryData.getMappings("item") or {}) do
-		for _, vNode in pairs(DB.getChildrenGlobal(sMapping)) do
-			if StringManager.trim(DB.getValue(vNode, "name", "")):lower() == sFirst then
-				return true;
-			end
-		end
-	end
-	return false;
-end
-function getHeirloom()
-	return getEquipmentData().heirloom or "";
-end
-function setHeirloom(sText)
-	getEquipmentData().heirloom = sText or "";
-end
-function clearHeirloom()
-	getEquipmentData().heirloom = nil;
 end
 
 --
@@ -3135,27 +3082,6 @@ function onWealthResult(rSource, _, rRoll)
 	end
 end
 
--- Roll a random family heirloom (d20 on the Drowned Archive table).
-function rollHeirloom(w)
-	_wActive = w;
-	local rRoll = {
-		sType = "charwiz_heirloom",
-		sDesc = "[CHARGEN] Family heirloom (d20)",
-		aDice = { "d20" },
-		nMod = 0,
-	};
-	ActionsManager.actionDirect(nil, "charwiz_heirloom", { rRoll }, { {} });
-end
-
-function onHeirloomResult(rSource, _, rRoll)
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	Comm.deliverChatMessage(rMessage);
-
-	local nTotal = ActionsManager.total(rRoll);
-	setHeirloom(CharWizard2EBio.getHeirloomByRoll(nTotal));
-	notifyEquipmentPage();
-end
-
 local function applyStartingGold(nodeChar, nGP)
 	if not nGP or nGP <= 0 then
 		return;
@@ -3277,50 +3203,6 @@ local function buildItemIndex()
 	return tIndex;
 end
 
--- Find a single item record by exact name across all loaded item libraries.
--- Unfiltered (heirlooms can be pricey/magical), used to grant the rolled family
--- heirloom as its real Drowned Archive item record.
-local function findItemNodeByExactName(sName)
-	if not sName or sName == "" then return nil; end
-	local sTarget = StringManager.trim(sName):lower();
-	for _, sMapping in ipairs(LibraryData.getMappings("item") or {}) do
-		for _, vNode in pairs(DB.getChildrenGlobal(sMapping)) do
-			if StringManager.trim(DB.getValue(vNode, "name", "")):lower() == sTarget then
-				return vNode;
-			end
-		end
-	end
-	return nil;
-end
-
--- Details of the rolled family heirloom for the Equipment tab's display: the
--- item's own picture asset (qualified with its module) and a plain-text version
--- of its description. Returns nil if nothing has been rolled.
-function getHeirloomDetails()
-	local sName = getHeirloom();
-	if not sName or sName == "" then return nil; end
-	local nodeItem = findItemNodeByExactName(sName);
-	local sPic, sDesc = "", "";
-	if nodeItem then
-		-- The item's picture is stored relative to its own module; qualify it with
-		-- "@<module>" (taken from the node path) so it resolves from the wizard.
-		local sMod = (DB.getPath(nodeItem) or ""):match("@(.+)$");
-		sPic = DB.getValue(nodeItem, "picture", "");
-		if type(sPic) ~= "string" then sPic = ""; end
-		if sPic ~= "" and not sPic:find("@", 1, true) and sMod then
-			sPic = sPic .. "@" .. sMod;
-		end
-		sDesc = DB.getValue(nodeItem, "description", "");
-		if type(sDesc) ~= "string" then sDesc = ""; end
-		sDesc = sDesc:gsub("</p>%s*<p>", "\r\r"):gsub("<[^>]+>", "");
-		sDesc = sDesc:gsub("&#34;", '"'):gsub("&#39;", "'"):gsub("&apos;", "'")
-			:gsub("&quot;", '"'):gsub("&amp;", "&"):gsub("&lt;", "<"):gsub("&gt;", ">");
-		sDesc = sDesc:gsub("^%s+", ""):gsub("%s+$", "");
-	end
-	return { sName = sName, sPicture = sPic, sDesc = sDesc,
-		sPath = nodeItem and DB.getPath(nodeItem) or "" };
-end
-
 -- Resolve a list of name-variant arrays against the loaded item libraries; returns
 -- an ordered array of { sPath, sName, sCost }. Callers list the Drowned Archive
 -- "(Poor)" names first, so an exact match prefers them over standard items;
@@ -3381,11 +3263,6 @@ local function buildCatalogFrom(tNamesList)
 		end
 	end
 	return tResolved;
-end
-
--- FREE class kit (granted at no gold cost): class kit item + adventuring pack.
-function buildFreeCatalog()
-	return buildCatalogFrom(CharWizard2EBio.getFreeGearNames(getClassRuleName()));
 end
 
 -- BUY gear (cost deducted from rolled gold): a shop of the loaded books' mundane
@@ -3626,70 +3503,6 @@ function buildStarterCatalog()
 	return tOut;
 end
 
-local function collectItemLinksFromNode(node, tSeen, tOut)
-	if not node then
-		return;
-	end
-	for _, vChild in pairs(DB.getChildren(node) or {}) do
-		local sPath = DB.getPath(vChild);
-		if not tSeen[sPath] then
-			tSeen[sPath] = true;
-			local sClass, sRecord = DB.getValue(vChild, "link", "", "");
-			if (sClass == "" or sClass == "item") and sRecord ~= "" then
-				table.insert(tOut, sRecord);
-			end
-			sClass, sRecord = DB.getValue(vChild, "shortcut", "", "");
-			if sClass == "item" and sRecord ~= "" then
-				table.insert(tOut, sRecord);
-			end
-			collectItemLinksFromNode(vChild, tSeen, tOut);
-		end
-	end
-end
-
-local function applyDmFreebies(nodeChar, tClassLink, sClassName, tSkip)
-	local tItems = {};
-	local tSeen = {};
-
-	-- Any item links the class record itself carries (kit gear, etc.).
-	if tClassLink and tClassLink.linkrecord then
-		local nodeClass = DB.findNode(tClassLink.linkrecord);
-		if nodeClass then
-			collectItemLinksFromNode(nodeClass, tSeen, tItems);
-		end
-	end
-
-	-- The free class kit (kit item + adventuring pack), resolved with the Drowned
-	-- Archive "(Poor)" / "(Secondhand)" versions preferred.
-	for _, rItem in ipairs(buildFreeCatalog()) do
-		table.insert(tItems, rItem.sPath);
-	end
-
-	-- Dedupe by path so links from the class record don't double up with the
-	-- explicit pack / essential lookups. Seed with tSkip so we never re-grant an
-	-- item the player already picked from the curated list.
-	local nAdded = 0;
-	local tDone = {};
-	for sPath in pairs(tSkip or {}) do
-		tDone[sPath] = true;
-	end
-	local sCharPath = DB.getPath(nodeChar);
-	for _, sItemPath in ipairs(tItems) do
-		if sItemPath ~= "" and not tDone[sItemPath]
-				and ItemManager and ItemManager.handleItem then
-			ItemManager.handleItem(sCharPath, "inventorylist", "item", sItemPath, true);
-			tDone[sItemPath] = true;
-			nAdded = nAdded + 1;
-		end
-	end
-
-	if nAdded > 0 then
-		ChatManager.SystemMessage(string.format(Interface.getString("charwizard2e_msg_freebies_added"), nAdded));
-	else
-		ChatManager.SystemMessage(Interface.getString("charwizard2e_msg_freebies_none"));
-	end
-end
-
 -- Grant the items the player picked from the curated starter list.
 -- Grant the contents of a "pack" item (any item that defines <subitems>, e.g. an
 -- adventuring pack). A manual drag unpacks these via the ruleset's drop handler,
@@ -3759,29 +3572,9 @@ local function applyEquipment(nodeChar, rBuild)
 		applyStartingGold(nodeChar, nGold);
 	end
 
-	-- All chosen gear is granted here: the player's selected free kit (bFree, no
-	-- gold) AND the items they bought. Free items are picked by the player now,
-	-- not auto-granted, so they feel like a real choice.
+	-- All chosen gear (the items they bought) is granted here.
 	applyChosenItems(nodeChar, tEq);
 
-	-- Family heirloom (if the DM enabled it and the player rolled one): grant the
-	-- actual rolled item record from The Drowned Archive, so it arrives with its
-	-- own art, stats, and description -- exactly as if dragged from the book.
-	if tEq.heirloom and tEq.heirloom ~= "" then
-		local nodeHeir = findItemNodeByExactName(tEq.heirloom);
-		if nodeHeir and ItemManager and ItemManager.handleItem then
-			ItemManager.handleItem(DB.getPath(nodeChar), "inventorylist", "item", DB.getPath(nodeHeir), true);
-		else
-			-- Fallback (item record not found, e.g. the module isn't loaded): drop a
-			-- named keepsake so the player still receives something.
-			local nodeItem = DB.createChild(nodeChar, "inventorylist");
-			if nodeItem then
-				DB.setValue(nodeItem, "name", "string", tEq.heirloom);
-				DB.setValue(nodeItem, "count", "number", 1);
-				DB.setValue(nodeItem, "isidentified", "number", 1);
-			end
-		end
-	end
 end
 
 -- Armor Class for a freshly built character.

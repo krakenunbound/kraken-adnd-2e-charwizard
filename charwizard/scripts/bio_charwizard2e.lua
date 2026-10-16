@@ -720,56 +720,6 @@ local function starterArmorNames(sGroup)
 	return t;
 end
 
--- The class's "kit" -- the cheap thing it needs to function. Keyed by the SPECIFIC
--- class (fighter/ranger/paladin each get their own, since the book has all three).
--- Drowned Archive "(Poor)" name first, then generic fallbacks.
-local function classKitNames(sClass)
-	local s = (sClass or ""):lower();
-	if s:find("paladin", 1, true) then
-		return { "Paladin's Vigil Kit (Poor)", "Paladin's Vigil Kit", "Holy Symbol" };
-	end
-	if s:find("ranger", 1, true) then
-		return { "Ranger's Fieldcraft Kit (Poor)", "Ranger's Fieldcraft Kit" };
-	end
-	if s:find("fighter", 1, true) or s:find("barbarian", 1, true) then
-		return { "Fighter's Maintenance Roll (Poor)", "Fighter's Maintenance Roll", "Whetstone" };
-	end
-	if s:find("bard", 1, true) then
-		return { "Bard's Traveling Lute (Poor)", "Lute", "Mandolin", "Musical Instrument", "Instrument" };
-	end
-	if s:find("thief", 1, true) or s:find("rogue", 1, true) then
-		return { "Thief's Tools (Poor)", "Thieves' Tools", "Thieves' Picks", "Lock Picks", "Lockpicks" };
-	end
-	if s:find("druid", 1, true) then
-		return { "Druid's Gathering Satchel (Poor)", "Mistletoe", "Holy Symbol" };
-	end
-	if s:find("cleric", 1, true) or s:find("priest", 1, true) then
-		return { "Cleric's Holy Symbol (Poor)", "Holy Symbol", "Holy Symbol, Silver", "Symbol, Holy" };
-	end
-	if s:find("mage", 1, true) or s:find("wizard", 1, true) or s:find("illusion", 1, true)
-			or s:find("conjur", 1, true) or s:find("divin", 1, true) or s:find("enchant", 1, true)
-			or s:find("invok", 1, true) or s:find("necrom", 1, true) or s:find("transmut", 1, true)
-			or s:find("abjur", 1, true) then
-		return { "Spellbook (Poor)", "Spellbook", "Spell Book", "Book, Spell" };
-	end
-	return nil;
-end
-
-local function backpackNames()
-	return { "Adventure Pack (Poor)", "Adventure Pack (Secondhand)", "Adventure Pack", "Adventurer's Pack", "Adventurers Pack", "Backpack" };
-end
-
--- FREE items (granted at no gold cost): the class kit + an adventuring pack.
-function getFreeGearNames(sClass)
-	local tOut = {};
-	local tKit = classKitNames(sClass);
-	if tKit then
-		tOut[#tOut + 1] = tKit;
-	end
-	tOut[#tOut + 1] = backpackNames();
-	return tOut;
-end
-
 -- BUY items (cost deducted from rolled gold): recommended weapons + basic armor,
 -- plus matching ammo when a bow or sling is among the weapons. "(Poor)" preferred.
 function getBuyGearNames(sClass, sRace)
@@ -794,42 +744,6 @@ function getBuyGearNames(sClass, sRace)
 		tOut[#tOut + 1] = tArmor;
 	end
 	return tOut;
-end
-
--- Family heirlooms (The Drowned Archive d20 table). A purely random keepsake from
--- home -- NOT filtered by class/race; it may even be useless to the class, which is
--- the point. Index == the d20 result so an actual die roll picks the entry.
--- The 20 packaged heirloom items in The Drowned Archive, in d20 order (matching
--- that module's "Family heirlooms" table: roll 1 -> item.id-00024 ... roll 20 ->
--- item.id-00043). On commit we grant the real item record by name, so the player
--- receives the actual heirloom -- with its own art, stats, and description.
-local _tHeirloomItems = {
-	"Grandfather's Initialed Dagger",
-	"Distant Cousin's Silver Holy Symbol",
-	"Unanswered Signet and Sealed Letter",
-	"Cloak of the Foreign Coin",
-	"Northfinding Walking Stick",
-	"Grandmother Eda's Restorative Recipes",
-	"Moonlit Mirror of Frank Advice",
-	"Uncle Ren's Belt Knife and Whetstone",
-	"Key to an Unremembered Door",
-	"Traveler's Bedroll with Map Fragment",
-	"Copper Coin of Second Thoughts",
-	"Great-Aunt Maribel's Restorative Brandy",
-	"Grandmother's Warm Brooch",
-	"Iron Ring of the Taper",
-	"Smiling-Stone Sling",
-	"Scabbard of the Patient Edge",
-	"Owl Whistle of Borrowed Calls",
-	"Deck of the Missing Queen",
-	"Cedar-Scented Crest Blanket",
-	"Locket of the Watchful Portrait",
-};
-
--- Heirloom item name for a given d20 roll (1-20); clamps out-of-range rolls.
-function getHeirloomByRoll(nRoll)
-	local n = math.max(1, math.min(20, tonumber(nRoll) or 1));
-	return _tHeirloomItems[n] or "";
 end
 
 -- Normalize a class record name to a class key. Specialist wizards keep their own
