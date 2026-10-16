@@ -8,6 +8,7 @@ All releases: [GitHub Releases](../../releases). Install steps: [README](README.
 - **Spell guidance**: the top of the tab says how many spells of each level the class gets at the chosen level and what it may use (a specialist's extra spell and barred schools, a priest's spheres, Wisdom bonus spells). One button per spell level shows picked / allowed ("2nd 1/3", green when full) and switches the list; a School or Sphere filter and a Search box narrow it; each spell shows its school or sphere. Picking past the limit says so in chat.
 - **Bards, paladins and rangers cast**: bards wizard spells from 2nd level (PHB Table 32), paladins priest spells of the combat, divination, healing and protection spheres from 9th (Table 17), rangers plant and animal spells from 8th (Table 18); no Wisdom bonus spells for paladins and rangers. A multi-class character with a mage class gets mage spells.
 - Tabs are a little narrower so nine fit.
+- **Removed the DM options "Grant free starter items" and "Allow family heirloom items"** and the Equipment tab's Free Starter Kit and heirloom sections. Both depended on a supplement module the wizard no longer uses; everything is now bought with the rolled gold.
 
 ## v1.0-beta6 (2026-10-15)
 

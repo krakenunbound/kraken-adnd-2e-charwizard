@@ -96,11 +96,8 @@
 	<string name="charwizard2e_wealth_result_value">%d gp</string>
 	<string name="charwizard2e_wealth_result_none">(not rolled yet)</string>
 	<string name="charwizard2e_button_clear_roll">Clear Roll</string>
-	<!-- Options menu: DM toggle for free starter items -->
 	<string name="option_header_charwizard2e">Kraken Character Wizard</string>
-	<string name="option_label_free_items">Grant free starter items</string>
 	<string name="option_label_roll_lock">Lock ability rolls (one roll only)</string>
-	<string name="option_label_heirloom">Allow family heirloom items</string>
 	<string name="option_label_method1">Allow ability Method I (3d6, in order)</string>
 	<string name="option_label_method2">Allow ability Method II (3d6 twice each, keep higher)</string>
 	<string name="option_label_method3">Allow ability Method III (3d6 x6, arrange)</string>
@@ -118,10 +115,6 @@
 	<string name="charwizard2e_msg_rolllocked">Character Wizard: the DM has locked ability rolls - you may only roll once. (Options &#187; Kraken Character Wizard)</string>
 	<string name="charwizard2e_label_hint_locked">Abilities rolled. The DM has locked re-rolls. Drag one score onto another to swap them.</string>
 	<!-- Equipment-tab status line reflecting the Options toggle -->
-	<string name="charwizard2e_freebies_status_on">Free starter items: ON. This character will be granted a basic adventuring pack and the cheap item their class needs to function (instrument, holy symbol, thieves&#39; picks, spellbook, etc.). The DM controls this in Options &#187; Kraken Character Wizard.</string>
-	<string name="charwizard2e_freebies_status_off">Free starter items: OFF. The DM can enable free class essentials in Options &#187; Kraken Character Wizard &#187; "Grant free starter items".</string>
-	<string name="charwizard2e_msg_freebies_added">Character Wizard: granted %d free starter item(s) (pack + class essentials).</string>
-	<string name="charwizard2e_msg_freebies_none">Character Wizard: free starter items are enabled, but no matching items were found in the loaded item libraries. Add gear manually or load the relevant equipment module.</string>
 	<!-- Curated starter-gear picker -->
 	<string name="charwizard2e_items_catalog_title">Buy Starter Gear (optional) - cost is deducted from your rolled gold</string>
 	<string name="charwizard2e_button_clear_items">Clear Items</string>
@@ -138,7 +131,6 @@
 	<string name="charwizard2e_sum_class">Class</string>
 	<string name="charwizard2e_sum_alignment">Alignment</string>
 	<string name="charwizard2e_sum_gold">Starting gold</string>
-	<string name="charwizard2e_sum_freebies">Free starter items</string>
 	<string name="charwizard2e_sum_items">Chosen gear</string>
 	<string name="charwizard2e_val_on">On</string>
 	<string name="charwizard2e_val_off">Off</string>

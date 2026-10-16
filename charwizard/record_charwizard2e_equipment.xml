@@ -92,34 +92,10 @@
 				</script>
 			</button_text>
 
-			<!-- ===== Free Starter Kit: player-selectable, no gold cost (DM-gated) ===== -->
-			<header_content_framed_metalplate name="free_header">
-				<anchored to="wealth_clear_button">
-					<top anchor="bottom" relation="relative" offset="18" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
-				</anchored>
-				<static>Free Starter Kit</static>
-			</header_content_framed_metalplate>
-			<list_content_base name="free_list">
-				<anchored height="96">
-					<top parent="free_header" anchor="bottom" relation="relative" offset="6" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="4" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-20" />
-				</anchored>
-				<class>list_entry_charwiz2e_itemselection</class>
-				<sortby><control>name</control></sortby>
-				<empty textres="charwizard2e_items_empty" />
-			</list_content_base>
-			<scrollbar_content_base>
-				<anchored to="free_list" />
-				<target>free_list</target>
-			</scrollbar_content_base>
-
 			<!-- Reminder line for the buy section. -->
 			<simplestringc name="items_hint">
-				<anchored to="free_list">
-					<top anchor="bottom" relation="relative" offset="12" />
+				<anchored to="wealth_clear_button">
+					<top anchor="bottom" relation="relative" offset="18" />
 					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
 					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
 				</anchored>
@@ -206,82 +182,6 @@
 			<scrollbar_content_base>
 				<anchored to="item_list" />
 				<target>item_list</target>
-			</scrollbar_content_base>
-
-			<!-- Family heirloom roll (only when the DM allows it: Options > Allow family heirloom items) -->
-			<header_content_framed_metalplate name="heirloom_header">
-				<anchored to="item_list">
-					<top anchor="bottom" relation="relative" offset="12" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="0" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="0" />
-				</anchored>
-				<static>Family Heirloom (a keepsake from home)</static>
-				<invisible />
-			</header_content_framed_metalplate>
-			<buttoncontrol name="heirloom_roll_button">
-				<anchored to="heirloom_header" width="36" height="36">
-					<top anchor="bottom" relation="relative" offset="30" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
-				</anchored>
-				<icon normal="charwizard2e_dice" />
-				<tooltip><text>Roll a random family heirloom</text></tooltip>
-				<invisible />
-				<script>
-					function onButtonPress()
-						CharWizard2E.rollHeirloom(window);
-					end
-				</script>
-			</buttoncontrol>
-			<simplestringc name="heirloom_result">
-				<anchored to="heirloom_roll_button" height="40">
-					<top anchor="top" relation="relative" offset="0" />
-					<left anchor="right" relation="relative" offset="12" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
-				</anchored>
-				<font>sheettext</font>
-				<multilinespacing>15</multilinespacing>
-				<readonly />
-				<nodrag />
-				<invisible />
-			</simplestringc>
-
-			<!-- Once rolled: a clickable link that opens the heirloom's own record
-			     (its picture + full text), with the plain description shown below. -->
-			<link_listitem_left name="heirloom_link">
-				<anchored width="24" height="24">
-					<top parent="heirloom_roll_button" anchor="bottom" relation="relative" offset="14" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
-				</anchored>
-				<invisible />
-			</link_listitem_left>
-			<simplestringc name="heirloom_linklabel">
-				<anchored height="22">
-					<top parent="heirloom_link" anchor="top" relation="relative" offset="3" />
-					<left parent="heirloom_link" anchor="right" relation="relative" offset="8" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
-				</anchored>
-				<font>sheetlabel</font>
-				<static>Click the icon to open this heirloom and see its picture and full details.</static>
-				<readonly />
-				<nodrag />
-				<invisible />
-			</simplestringc>
-			<simplestringc name="heirloom_desc">
-				<anchored>
-					<top parent="heirloom_link" anchor="bottom" relation="relative" offset="12" />
-					<left parent="contentanchor" anchor="left" relation="relative" offset="14" />
-					<right parent="contentanchor" anchor="right" relation="relative" offset="-16" />
-					<bottom parent="bottomanchor" anchor="bottom" relation="relative" offset="-10" />
-				</anchored>
-				<font>sheettext</font>
-				<multilinespacing>16</multilinespacing>
-				<readonly />
-				<nodrag />
-				<invisible />
-			</simplestringc>
-			<scrollbar_content_base>
-				<anchored to="heirloom_desc" />
-				<target>heirloom_desc</target>
 			</scrollbar_content_base>
 		</sheetdata>
 	</windowclass>

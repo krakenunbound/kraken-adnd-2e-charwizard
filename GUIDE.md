@@ -85,9 +85,7 @@ Open **Options** (the gear / settings menu). Under **Kraken Character Wizard** y
 ![DM options](docs/images/01-options.png)
 
 - **Allow ability Method I–VI** — turn each PHB ability-score method on or off. Only the ones you allow appear in the player's dropdown.
-- **Grant free starter items** — gives each character its class item (holy symbol, spellbook, thieves' picks, an instrument...) and an Adventure Pack at no gold cost.
 - **Lock ability rolls (one roll only)** — players get a single roll, no re-rolling.
-- **Allow family heirloom items** — only for campaigns with a module that provides the heirloom items; without one the heirloom roll simply doesn't appear.
 - **Starting gold above 1st level** — for a character made above 1st level (the PHB leaves extra funds to the DM): *PHB (one roll)* keeps the normal Table 43 roll; *One roll per level* rolls the class group's Table 43 dice once per level and adds them up (recommended: everyone of the same level ends up about equally equipped); *Roll x level* multiplies one roll by the level. Both give the same average, about 625 gp for a 5th-level warrior. Priests always keep only 3 gp of what is left after shopping (PHB Table 43).
 
 ---
@@ -125,7 +123,6 @@ Pick from the alignments your class allows (paladins lawful good, druids true ne
 
 ### Equipment
 Your **starting gold** is rolled by class group. Then:
-- **Free Starter Kit** — if your DM grants it, add your class item and an Adventure Pack at no cost.
 - **Buy gear** — a shop of what your class can actually use: its weapons, the armor it may wear (warriors and priests any; druids leather and a small wooden shield; thieves leather, padded, studded leather or elven chain; bards up to chain mail; mages none), ammunition only for launchers it can use, and everyday gear from the Player's Handbook and your class's own Complete Handbook. The list is sorted by type — Armor, Weapons, Ammunition, Gear — with a **type dropdown** to show just one and a **Search** box for names. Anything your gold no longer covers drops off the list as you buy. Magic items are never offered at creation.
 
 ![Equipment tab](docs/images/06-equipment.png)
