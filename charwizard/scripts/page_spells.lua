@@ -22,7 +22,36 @@ local function isCaster()
 	return CharWizard2E.isClassComplete() and CharWizard2E.getMaxSpellLevel() > 0;
 end
 
+local _bFillingCaster = false;
+
+-- The caster box: one entry per spell-casting class (shown with two or more).
+function fillCaster()
+	local tCasters = CharWizard2E.getCasterEntries();
+	_bFillingCaster = true;
+	spell_caster.clear();
+	for _, c in ipairs(tCasters) do
+		spell_caster.add(c.label);
+	end
+	local cActive = CharWizard2E.getActiveCaster();
+	if cActive then spell_caster.setValue(cActive.label); end
+	_bFillingCaster = false;
+	spell_caster.setVisible(#tCasters > 1);
+end
+
+function onCasterChanged()
+	if _bFillingCaster then
+		return;
+	end
+	CharWizard2E.setActiveCasterByLabel(spell_caster.getValue());
+	refresh();
+end
+
 function refresh()
+	if CharWizard2E.isClassComplete() then
+		fillCaster();
+	else
+		spell_caster.setVisible(false);
+	end
 	local bHaveClass = CharWizard2E.isClassComplete();
 	local bCaster = isCaster();
 	label_nocaster.setValue(Interface.getString(bHaveClass and "charwizard2e_msg_nocaster" or "charwizard2e_msg_needclass_for_spells"));

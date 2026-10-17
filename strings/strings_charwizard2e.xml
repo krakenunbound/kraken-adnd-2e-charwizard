@@ -30,6 +30,16 @@
 	<string name="charwizard2e_label_level">Starting Level:</string>
 	<string name="charwizard2e_button_plus">+</string>
 	<string name="charwizard2e_level_max">(max %d for this race/class)</string>
+	<string name="charwizard2e_level_max_multi">(max: %s)</string>
+	<string name="charwizard2e_label_classtype">Class type:</string>
+	<string name="charwizard2e_classtype_single">Single class</string>
+	<string name="charwizard2e_classtype_multi">Multi-class: %s</string>
+	<string name="charwizard2e_classtype_dual">Dual-class: then %s</string>
+	<string name="charwizard2e_dual_label">%s %d, then %s</string>
+	<string name="charwizard2e_label_duallevel">Levels as %s:</string>
+	<string name="charwizard2e_dual_note">Starting Level is the new class. Until it passes this level: no new hit points, old abilities cost XP.</string>
+	<string name="charwizard2e_multi_note">Multi-class (PHB): experience is split between the classes; hit points are averaged; the best THAC0 and saves; the most proficiency slots.</string>
+	<string name="charwizard2e_spell_caster">Caster:</string>
 	<string name="charwizard2e_label_proficient">Proficient</string>
 	<string name="charwizard2e_label_specialized">Specialized</string>
 	<string name="charwizard2e_button_spec">Spec</string>
@@ -82,6 +92,9 @@
 	<string name="charwizard2e_hint_paladin_alignment">Paladins must be Lawful Good.</string>
 	<string name="charwizard2e_hint_druid_alignment">Druids must be True Neutral.</string>
 	<string name="charwizard2e_hint_monk_alignment">Monks must be lawful (Lawful Good, Lawful Neutral, or Lawful Evil).</string>
+	<string name="charwizard2e_hint_ranger_alignment">Rangers are always good (Lawful, Neutral or Chaotic Good).</string>
+	<string name="charwizard2e_hint_bard_alignment">Bards must be at least partially neutral.</string>
+	<string name="charwizard2e_hint_thief_alignment">Thieves can be any alignment except Lawful Good.</string>
 
 	<string name="charwizard2e_title_equipment">Starting Equipment</string>
 	<string name="charwizard2e_msg_needalignment_for_equipment">Choose and confirm an alignment before rolling starting funds.</string>

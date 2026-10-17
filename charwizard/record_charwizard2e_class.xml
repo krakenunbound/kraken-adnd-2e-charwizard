@@ -90,11 +90,107 @@
 				<invisible />
 			</label>
 
+			<!-- Class type: single class, a multi-class combination (demihumans) or a
+			     class to dual-class into (humans); for a dual-class, the first class's levels. -->
+			<label name="lbl_classtype">
+				<anchored to="lbl_level">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<static textres="charwizard2e_label_classtype" />
+				<font>sheetlabel</font>
+				<invisible />
+			</label>
+			<comboboxc name="cb_classtype">
+				<anchored to="lbl_classtype" width="300" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<frame>
+					<name>fieldlight</name>
+					<offset>10,5,10,5</offset>
+				</frame>
+				<font>sheetlabel</font>
+				<listdirection>down</listdirection>
+				<listmaxsize>12</listmaxsize>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.onClassTypeChanged();
+					end
+				</script>
+			</comboboxc>
+			<simplestringc name="classtype_note">
+				<anchored to="lbl_classtype">
+					<top anchor="bottom" offset="8" />
+					<left parent="contentanchor" anchor="left" offset="8" />
+					<right parent="contentanchor" anchor="right" offset="-14" />
+				</anchored>
+				<font>sheettext</font>
+				<multilinespacing>15</multilinespacing>
+				<readonly />
+				<nodrag />
+				<invisible />
+			</simplestringc>
+			<label name="lbl_duallevel">
+				<anchored to="lbl_classtype">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="contentanchor" anchor="left" relation="relative" offset="8" />
+				</anchored>
+				<font>sheetlabel</font>
+				<invisible />
+			</label>
+			<button_text name="dual_dec">
+				<anchored to="lbl_duallevel" width="24" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<state textres="charwizard2e_button_minus" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.onDualLevel(-1);
+					end
+				</script>
+			</button_text>
+			<label name="dual_value">
+				<anchored to="dual_dec" width="34" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+				<font>sheetlabel</font>
+				<center />
+				<invisible />
+			</label>
+			<button_text name="dual_inc">
+				<anchored to="dual_value" width="24" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="4" />
+				</anchored>
+				<state textres="charwizard2e_button_plus" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						window.onDualLevel(1);
+					end
+				</script>
+			</button_text>
+			<label name="dual_note">
+				<anchored to="dual_inc" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="14" />
+					<right parent="contentanchor" anchor="right" offset="-14" />
+				</anchored>
+				<static textres="charwizard2e_dual_note" />
+				<font>sheettext</font>
+				<invisible />
+			</label>
+
 			<!-- Class portrait + description (shown once a class is confirmed; mirrors the Race tab,
 			     but the portrait frame is taller to suit the portrait-orientation class art). -->
 			<header_content_framed_metalplate name="class_about_header">
 				<anchored to="class_header" height="20">
-					<top anchor="bottom" relation="relative" offset="40" />
+					<top anchor="bottom" relation="relative" offset="100" />
 					<left parent="contentanchor" anchor="left" relation="relative" offset="6" />
 					<right parent="contentanchor" anchor="right" relation="relative" offset="-14" />
 				</anchored>

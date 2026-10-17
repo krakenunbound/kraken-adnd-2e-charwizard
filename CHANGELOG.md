@@ -2,6 +2,15 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
+## Unreleased
+
+- **Multi-class and dual-class characters** (PHB Chapter 3). The Class tab has a **Class type** box under the starting level:
+  - **Multi-class** (demihumans only): the combinations in the PHB's Multi-Class Combinations table for the race that include the chosen class (an elf fighter: Fighter/Mage, Fighter/Thief, Fighter/Mage/Thief; a gnome illusionist: Fighter/Illusionist, Cleric/Illusionist, Illusionist/Thief...). Offered only when the scores meet every class's minimums and some alignment suits every class; paladins, bards and specialist wizards (except gnome illusionists) can't multi-class. Every class advances to the starting level, each stopping at the race's limit for it (a halfling fighter/thief at 12th is Fighter 9 / Thief 12).
+  - **Dual-class** (humans only): 15 or more in the first class's prime requisites, 17 or more in the new class's. Set the first class's levels (at least 2nd); the starting level is the new class's. The sheet gets the first class marked inactive: no new hit points until the new class passes the old one's level.
+  - Hit points split between the classes, best THAC0 and saves (the sheet's own multi-class handling). Proficiency slots: the largest initial number and the fastest rate (PHB), also written to the sheet. Starting gold rolled for the most generous class. A multi-class priest keeps his priest weapons (a fighter/cleric uses blunt weapons; a fighter/druid the druid's), a multi-class fighter can't specialize, and a priest returns leftover gold only when every class is a priest.
+  - Spells for each casting class at its own level: the Spells tab has a caster box (Mage / Cleric) when there are two, and each class's spells go to the sheet in their own groups ("Mage Level 1", "Cleric Level 1").
+- **Alignment limits for every class** (PHB): rangers always good, bards at least partly neutral, thieves never lawful good, besides paladins and druids. A multi- or dual-class meets all of its classes' limits.
+
 ## v1.0-beta7 (2026-10-15)
 
 - **Spells have their own tab**, right after Kit, shown only for a class that casts at the chosen level (and checked automatically for one that doesn't). Before, the spell list sat below the proficiency lists and was out of sight unless the window was stretched.

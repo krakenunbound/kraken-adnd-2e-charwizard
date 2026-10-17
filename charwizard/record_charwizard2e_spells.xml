@@ -44,6 +44,23 @@
 				<static textres="charwizard2e_spell_header" />
 			</header_content_framed_metalplate>
 
+			<!-- With two spell-casting classes (a cleric/mage): which class's spells. -->
+			<comboboxc name="spell_caster">
+				<anchored to="spell_header" position="insidetopright" offset="30,1" width="180" height="18" />
+				<frame>
+					<name>fieldlight</name>
+					<offset>10,5,10,5</offset>
+				</frame>
+				<font>sheetlabel</font>
+				<listdirection>down</listdirection>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.onCasterChanged();
+					end
+				</script>
+			</comboboxc>
+
 			<!-- Shown when the class casts no spells at this level (or no class yet). -->
 			<label name="label_nocaster">
 				<anchored to="contentanchor">

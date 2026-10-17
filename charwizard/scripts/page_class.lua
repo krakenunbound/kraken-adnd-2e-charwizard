@@ -38,7 +38,7 @@ function updateClassUI()
 		-- Confirmed: hide the list and show the portrait + write-up (like the Race tab),
 		-- with the level selector pinned at the top.
 		sub_classselection.setVisible(false);
-		class_header.setValue(string.upper(tClass.text));
+		class_header.setValue(string.upper(CharWizard2E.getClassComboLabel()));
 		button_changeclass.setVisible(true);
 		setLevelUIVisible(true);
 		updateLevelUI();
@@ -104,12 +104,56 @@ function setLevelUIVisible(bVisible)
 	level_value.setVisible(bVisible);
 	level_inc.setVisible(bVisible);
 	level_max.setVisible(bVisible);
+	if not bVisible then
+		for _, c in ipairs({ lbl_classtype, cb_classtype, classtype_note, lbl_duallevel, dual_dec, dual_value, dual_inc, dual_note }) do
+			c.setVisible(false);
+		end
+	end
 end
+
+local _bFilling = false;
 
 function updateLevelUI()
 	level_value.setValue(tostring(CharWizard2E.getTargetLevel()));
-	level_max.setValue(string.format(
-		Interface.getString("charwizard2e_level_max"), CharWizard2E.getRaceClassMaxLevel()));
+	level_max.setValue(CharWizard2E.getLevelCapText());
+	-- Class type: shown when the race and scores allow a multi- or dual-class.
+	local tOptions = CharWizard2E.getClassTypeOptions();
+	local bTypes = #tOptions > 1 or CharWizard2E.getClassMode() ~= "single";
+	lbl_classtype.setVisible(bTypes);
+	cb_classtype.setVisible(bTypes);
+	_bFilling = true;
+	cb_classtype.clear();
+	for _, t in ipairs(tOptions) do
+		cb_classtype.add(t.label);
+	end
+	cb_classtype.setValue(CharWizard2E.getClassTypeLabel());
+	_bFilling = false;
+	local sMode = CharWizard2E.getClassMode();
+	classtype_note.setValue(sMode == "multi" and Interface.getString("charwizard2e_multi_note") or "");
+	classtype_note.setVisible(bTypes and sMode == "multi");
+	local bDual = sMode == "dual";
+	for _, c in ipairs({ lbl_duallevel, dual_dec, dual_value, dual_inc, dual_note }) do
+		c.setVisible(bDual);
+	end
+	if bDual then
+		local tClass = CharWizard2E.getClass();
+		lbl_duallevel.setValue(string.format(Interface.getString("charwizard2e_label_duallevel"), tClass and tClass.text or ""));
+		dual_value.setValue(tostring(CharWizard2E.getDualFirstLevel()));
+	end
+	class_header.setValue(string.upper(CharWizard2E.getClassComboLabel()));
+end
+
+function onClassTypeChanged()
+	if _bFilling then
+		return;
+	end
+	CharWizard2E.setClassTypeByLabel(cb_classtype.getValue());
+	updateLevelUI();
+end
+
+function onDualLevel(nStep)
+	CharWizard2E.setDualFirstLevel(CharWizard2E.getDualFirstLevel() + nStep);
+	updateLevelUI();
 end
 
 function onLevelInc()

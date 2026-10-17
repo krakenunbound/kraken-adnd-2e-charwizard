@@ -111,6 +111,8 @@ Pick your class and set your **starting level**. The list holds only classes you
 
 ![Class tab](docs/images/04a-class.png)
 
+**Multi-class and dual-class.** Under the starting level, **Class type** offers *Single class*, the PHB multi-class combinations your race allows (demihumans), or the classes you may dual-class into (humans: 15+ in your class's prime requisites, 17+ in the new class's). A multi-class advances every class to the starting level, each stopping at your race's limit for it; the Spells tab gets a caster box when two classes cast. A dual-class sets the first class's levels (2nd or more); the starting level is the new class's.
+
 ### Kit
 Optional. Kits are filtered to your class, race and scores; pick one or choose **No Kit**.
 
