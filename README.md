@@ -8,7 +8,7 @@ It reads the official 2E books you have loaded: the **Player's Handbook**, plus 
 
 > 📖 **New here? Read the [Install & User Guide](GUIDE.md)** — what to install, where it goes, the DM options, and a screenshot walkthrough of every tab.
 
-> 🆕 **v1.0-beta7: spells get their own tab after Kit, with spells per level, school or sphere filters and picked/allowed counts; bards, paladins and rangers cast; weapon proficiencies tick on every attack of a weapon.** v1.0-beta6: proficiency slots by level, starting gold option above 1st level, priests return leftover gold. Every change is in the **[Changelog](CHANGELOG.md)**. Download: **[latest release](../../releases/latest)**.
+> 🆕 **v1.0-beta8: multi-class and dual-class characters by the PHB rules (race combinations, ability and alignment limits, level limits per class, split hit points, spells for each casting class), experience on the sheet, kits by the class handbooks.** v1.0-beta7: a Spells tab with per-level counts and filters; bards, paladins and rangers cast. Every change is in the **[Changelog](CHANGELOG.md)**. Download: **[latest release](../../releases/latest)**.
 
 ## 🎥 Demo
 
@@ -73,6 +73,6 @@ This repository **is** the live extension folder — edit in place and FGU loads
 Cut a release (rebuilds the `.ext` and publishes it as a GitHub Release asset):
 
 ```sh
-python release.py             # tag from extension.xml version, e.g. v1.0-beta7
-python release.py v1.0-beta7  # explicit tag
+python release.py             # tag from extension.xml version, e.g. v1.0-beta8
+python release.py v1.0-beta8  # explicit tag
 ```
