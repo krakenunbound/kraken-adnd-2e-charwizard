@@ -2,7 +2,7 @@
 
 All releases: [GitHub Releases](../../releases). Install steps: [README](README.md#install) and the [Install & User Guide](GUIDE.md).
 
-## Unreleased
+## v1.0-beta8 (2026-10-16)
 
 - **Multi-class and dual-class characters** (PHB Chapter 3). The Class tab has a **Class type** box under the starting level:
   - **Multi-class** (demihumans only): the combinations in the PHB's Multi-Class Combinations table for the race that include the chosen class (an elf fighter: Fighter/Mage, Fighter/Thief, Fighter/Mage/Thief; a gnome illusionist: Fighter/Illusionist, Cleric/Illusionist, Illusionist/Thief...). Offered only when the scores meet every class's minimums and some alignment suits every class; paladins, bards and specialist wizards (except gnome illusionists) can't multi-class. Every class advances to the starting level, each stopping at the race's limit for it (a halfling fighter/thief at 12th is Fighter 9 / Thief 12).
