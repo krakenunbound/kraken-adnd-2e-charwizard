@@ -183,15 +183,30 @@ function isSpellsComplete()
 	if not isClassComplete() then
 		return false;
 	end
-	if not getCasterType() or getMaxSpellLevel() <= 0 then
-		return true;
-	end
-	for nLvl = 1, getMaxSpellLevel() do
-		if getSpellsUsedAtLevel(nLvl) < getSpellSlots(nLvl) then
-			return false;
+	local nKeep = _tCharData.spellcaster;
+	local bDone = true;
+	for i = 1, #getCasterEntries() do
+		_tCharData.spellcaster = i;
+		for nLvl = 1, getMaxSpellLevel() do
+			if getSpellsUsedAtLevel(nLvl) < getSpellSlots(nLvl) then
+				bDone = false;
+			end
 		end
 	end
-	return true;
+	_tCharData.spellcaster = nKeep;
+	return bDone;
+end
+
+-- Does any class of the build cast spells at its level?
+function hasAnySpells()
+	local nKeep = _tCharData.spellcaster;
+	local bAny = false;
+	for i = 1, #getCasterEntries() do
+		_tCharData.spellcaster = i;
+		if getMaxSpellLevel() > 0 then bAny = true; end
+	end
+	_tCharData.spellcaster = nKeep;
+	return bAny;
 end
 
 function isTabComplete(sTab)
@@ -226,7 +241,7 @@ function updateTabStatus()
 	-- The Spells tab exists only for a class that casts at the chosen level
 	-- (shown until a class is chosen; hidden for a fighter, a 1st-level paladin...).
 	if wTabs.button_spells then
-		local bNoSpells = isClassComplete() and (not getCasterType() or getMaxSpellLevel() <= 0);
+		local bNoSpells = isClassComplete() and not hasAnySpells();
 		wTabs.button_spells.setVisible(not bNoSpells);
 		if bNoSpells and w.sub_spells and w.sub_spells.isVisible() then
 			onTabButtonPressed(w, "proficiencies");
@@ -273,6 +288,10 @@ function getBuildPayload(sName)
 		classlink = getClass(),
 		kitlink = getKit(),
 		targetlevel = getTargetLevel(),
+		classmode = getClassMode(),
+		classentries = getClassEntries(),
+		weaponslots = getWeaponSlots(),
+		nwpslots = getNWPSlots(),
 		equipment = getEquipmentData(),
 	};
 end
@@ -782,6 +801,9 @@ function getClassRuleName()
 	if not t or not t.text then
 		return "";
 	end
+	if _tCharData.class and getClassMode() ~= "single" then
+		return getAllClassWords();
+	end
 	return getClassRuleWords(t.text, t.linkrecord);
 end
 
@@ -799,7 +821,7 @@ function getClassName()
 end
 
 function getClassDisplayName()
-	local sClass = getClassName();
+	local sClass = getClassComboLabel();
 	local sKit = getKitName();
 	if sClass == "" then
 		return "";
@@ -822,9 +844,25 @@ local _tLevelLimits = {
 };
 
 -- Highest level the current race may attain in the current class (PHB Table 7).
+-- Multi-class: the highest of its classes' limits (each class stops at its own);
+-- dual-class: the new class's.
 function getRaceClassMaxLevel()
+	local sMode = getClassMode();
+	if sMode == "multi" then
+		local n = 1;
+		for _, t in ipairs(_tCharData.classlist or {}) do
+			n = math.max(n, getRaceClassMaxLevelFor(getClassRuleWords(t.text, t.linkrecord)));
+		end
+		return n;
+	elseif sMode == "dual" then
+		local t = (_tCharData.classlist or {})[1];
+		return t and getRaceClassMaxLevelFor(getClassRuleWords(t.text, t.linkrecord)) or 20;
+	end
+	return getRaceClassMaxLevelFor(getClassRuleName());
+end
+
+function getRaceClassMaxLevelFor(sClass)
 	local sRace = getRaceCategoryName():lower();
-	local sClass = getClassRuleName();
 	if sRace == "" or sClass == "" then
 		return 20;
 	end
@@ -1845,19 +1883,339 @@ function isClassAllowedForRace(sClassName, sRecord)
 	return false;
 end
 
+--
+-- Multi-class and dual-class characters (PHB Chapter 3).
+-- Multi-class: demihumans only, the Multi-Class Combinations table; every class
+-- advances together (the target level, each capped by the race's limit for it).
+-- Dual-class: humans only; 15+ in the first class's prime requisites, 17+ in the
+-- new class's, and at least 2nd level in the first class before switching. The
+-- first class stops at its level (inactive on the sheet); the target level is the
+-- new class's level.
+-- State: _tCharData.classmode ("multi" / "dual"), _tCharData.classlist (multi:
+-- every class record in table order, the chosen class included; dual: the new
+-- class), _tCharData.duallevel (dual: the first class's level). The mode belongs
+-- to the class and race it was chosen for (classmodefor / classmoderace) and is
+-- ignored once either changes.
+--
+local _tMultiCombos = {
+	dwarf = { { "fighter", "thief" }, { "fighter", "cleric" } },
+	elf = { { "fighter", "mage" }, { "fighter", "thief" }, { "mage", "thief" }, { "fighter", "mage", "thief" } },
+	gnome = { { "fighter", "cleric" }, { "fighter", "illusionist" }, { "fighter", "thief" },
+		{ "cleric", "illusionist" }, { "cleric", "thief" }, { "illusionist", "thief" } },
+	-- "Cleric*: or Druid" in the table.
+	["half-elf"] = { { "fighter", "cleric" }, { "fighter", "druid" }, { "fighter", "thief" }, { "fighter", "mage" },
+		{ "cleric", "ranger" }, { "druid", "ranger" }, { "cleric", "mage" }, { "druid", "mage" }, { "thief", "mage" },
+		{ "fighter", "mage", "cleric" }, { "fighter", "mage", "druid" }, { "fighter", "mage", "thief" } },
+	halfling = { { "fighter", "thief" } },
+};
+local _tBaseClassName = { fighter = "Fighter", mage = "Mage", thief = "Thief", cleric = "Cleric",
+	druid = "Druid", ranger = "Ranger", illusionist = "Illusionist" };
+
+-- The PHB class a record is, for the combinations table: fighter, ranger, paladin,
+-- cleric, druid, illusionist, thief, bard or mage; nil for the classes that cannot
+-- multi-class (other specialist wizards, wild mages, elementalists, barbarians).
+function getBaseClassKey(sText, sRecord)
+	local s = getClassRuleWords(sText or "", sRecord):lower();
+	for _, w in ipairs({ "barbarian", "wild mage", "elementalist", "abjur", "conjur", "diviner", "enchant",
+			"invok", "necrom", "transmut" }) do
+		if s:find(w, 1, true) then return nil; end
+	end
+	for _, k in ipairs({ "paladin", "ranger", "druid", "cleric", "fighter", "illusion", "thief", "bard" }) do
+		if s:find(k, 1, true) then
+			return (k == "illusion") and "illusionist" or k;
+		end
+	end
+	if s:find("mage", 1, true) or s:find("wizard", 1, true) then return "mage"; end
+	return nil;
+end
+
+-- Prime requisites (PHB Table 13 and the class descriptions).
+function getPrimeRequisites(sWords)
+	local s = (sWords or ""):lower();
+	if s:find("paladin", 1, true) then return { "strength", "charisma" }; end
+	if s:find("ranger", 1, true) then return { "strength", "dexterity", "wisdom" }; end
+	if s:find("druid", 1, true) then return { "wisdom", "charisma" }; end
+	if s:find("bard", 1, true) then return { "dexterity", "charisma" }; end
+	if s:find("fighter", 1, true) or s:find("barbarian", 1, true) then return { "strength" }; end
+	if s:find("thief", 1, true) then return { "dexterity" }; end
+	if s:find("cleric", 1, true) or s:find("priest", 1, true) or s:find("shaman", 1, true) then return { "wisdom" }; end
+	return { "intelligence" };
+end
+
+local function primesAtLeast(sWords, nMin)
+	local tAdj = currentRaceAdjustments();
+	for _, sAb in ipairs(getPrimeRequisites(sWords)) do
+		if adjustedScore(sAb, tAdj) < nMin then return false; end
+	end
+	return true;
+end
+
+local function anyAlignmentFor(sWords)
+	for _, sAlign in ipairs(aAlignments) do
+		if isAlignmentAllowedForClass(sAlign, sWords) then return true; end
+	end
+	return false;
+end
+
+-- A class option (getClassOptions) of a base class, preferring the record named
+-- exactly ("Mage") and the Player's Handbook.
+local function findBaseClassOption(sKey)
+	local tBest, nBest = nil, -1;
+	for _, tOpt in ipairs(getClassOptions()) do
+		if getBaseClassKey(tOpt.text, tOpt.linkrecord) == sKey then
+			local n = 0;
+			if tOpt.text == _tBaseClassName[sKey] then n = n + 2; end
+			if isPlayersHandbookLabel(tOpt.book) then n = n + 1; end
+			if n > nBest then tBest, nBest = tOpt, n; end
+		end
+	end
+	return tBest;
+end
+
+local function classMatches(tA, tB)
+	return tA and tB and (tA.linkrecord or "") == (tB.linkrecord or "") and (tA.text or "") == (tB.text or "");
+end
+
+function getClassMode()
+	local tClass = _tCharData.class;
+	local tRace = _tCharData.race;
+	if not _tCharData.classmode or not tClass or not tRace
+			or _tCharData.classmodefor ~= tClass.linkrecord or _tCharData.classmoderace ~= tRace.linkrecord then
+		return "single";
+	end
+	return _tCharData.classmode;
+end
+
+-- Every class of the build: { t = class record, level, active }. Single: the
+-- class at the target level. Multi: each class at the target level, capped by its
+-- race limit. Dual: the first class (inactive) at its level, the new one active.
+function getClassEntries()
+	local tClass = _tCharData.class;
+	if not tClass then return {}; end
+	local sMode = getClassMode();
+	local nTarget = tonumber(_tCharData.targetlevel) or 1;
+	if sMode == "multi" then
+		local tOut = {};
+		for _, t in ipairs(_tCharData.classlist or {}) do
+			local nCap = getRaceClassMaxLevelFor(getClassRuleWords(t.text, t.linkrecord));
+			table.insert(tOut, { t = t, level = math.max(1, math.min(nTarget, nCap)), active = true });
+		end
+		return tOut;
+	elseif sMode == "dual" then
+		local tNew = (_tCharData.classlist or {})[1];
+		return { { t = tClass, level = getDualFirstLevel(), active = false },
+			{ t = tNew, level = math.max(1, math.min(nTarget, 20)), active = true } };
+	end
+	return { { t = tClass, level = getTargetLevel(), active = true } };
+end
+
+function getDualFirstLevel()
+	return math.max(2, math.min(tonumber(_tCharData.duallevel) or 2, 20));
+end
+function setDualFirstLevel(n)
+	_tCharData.duallevel = math.max(2, math.min(tonumber(n) or 2, 20));
+	updateTabStatus();
+end
+
+-- Class words of every class (single: the class), joined: what alignment, wealth,
+-- kits and weapon groups are judged by.
+function getAllClassWords()
+	local tWords = {};
+	for _, e in ipairs(getClassEntries()) do
+		if e.t then table.insert(tWords, getClassRuleWords(e.t.text, e.t.linkrecord)); end
+	end
+	return table.concat(tWords, " ");
+end
+
+-- The class being used: dual-class, the new class (whose restrictions apply);
+-- otherwise every class.
+function getActiveClassWords()
+	if getClassMode() == "dual" then
+		local tNew = (_tCharData.classlist or {})[1];
+		return tNew and getClassRuleWords(tNew.text, tNew.linkrecord) or "";
+	end
+	return getClassRuleName();
+end
+
+-- "Fighter/Mage" (multi), "Fighter 4, then Mage" (dual) or the class name.
+function getClassComboLabel()
+	local sMode = getClassMode();
+	local tNames = {};
+	for _, e in ipairs(getClassEntries()) do
+		table.insert(tNames, (e.t and e.t.text) or "");
+	end
+	if sMode == "multi" then return table.concat(tNames, "/"); end
+	if sMode == "dual" then
+		return string.format(Interface.getString("charwizard2e_dual_label"), tNames[1] or "", getDualFirstLevel(), tNames[2] or "");
+	end
+	return getClassName();
+end
+
+-- Choices for the Class tab's Class type box: single class, then the multi-class
+-- combinations (demihumans) or the classes to dual-class into (humans) that the
+-- race, ability scores and alignments allow.
+function getClassTypeOptions()
+	local tOut = { { label = Interface.getString("charwizard2e_classtype_single"), mode = "single" } };
+	local tClass = _tCharData.class;
+	if not tClass then return tOut; end
+	local sCat = getRaceCategory(getRaceCategoryName());
+	local sWords = getClassRuleWords(tClass.text, tClass.linkrecord);
+	if sCat == "human" then
+		if not primesAtLeast(sWords, 15) then return tOut; end
+		local tSeen = {};
+		for _, tOpt in ipairs(getClassOptions()) do
+			local sNewWords = getClassRuleWords(tOpt.text, tOpt.linkrecord);
+			local sKeyName = (tOpt.text or ""):lower();
+			if not classMatches(tOpt, tClass) and not tSeen[sKeyName] and tOpt.text ~= tClass.text
+					and getBaseClassKey(tOpt.text, tOpt.linkrecord) ~= getBaseClassKey(tClass.text, tClass.linkrecord)
+					and not (getBaseClassKey(tClass.text, tClass.linkrecord) and sNewWords:lower():find(getBaseClassKey(tClass.text, tClass.linkrecord), 1, true))
+					and primesAtLeast(sNewWords, 17) and isClassAllowedByAbilities(tOpt.text, tOpt.linkrecord)
+					and anyAlignmentFor(sWords .. " " .. sNewWords) then
+				tSeen[sKeyName] = true;
+				table.insert(tOut, { label = string.format(Interface.getString("charwizard2e_classtype_dual"), tOpt.text),
+					mode = "dual", classes = { tOpt } });
+			end
+		end
+		return tOut;
+	end
+	local sMine = getBaseClassKey(tClass.text, tClass.linkrecord);
+	if not sMine or not _tMultiCombos[sCat or ""] then return tOut; end
+	for _, tCombo in ipairs(_tMultiCombos[sCat]) do
+		local bHasMine = false;
+		for _, k in ipairs(tCombo) do
+			if k == sMine then bHasMine = true; end
+		end
+		if bHasMine then
+			local tRecs, tNames, sAll, bOk = {}, {}, "", true;
+			for _, k in ipairs(tCombo) do
+				local tRec = (k == sMine) and tClass or findBaseClassOption(k);
+				if not tRec or not isClassAllowedByAbilities(tRec.text, tRec.linkrecord) then
+					bOk = false;
+					break;
+				end
+				table.insert(tRecs, tRec);
+				table.insert(tNames, tRec.text);
+				sAll = sAll .. " " .. getClassRuleWords(tRec.text, tRec.linkrecord);
+			end
+			if bOk and anyAlignmentFor(sAll) then
+				table.insert(tOut, { label = string.format(Interface.getString("charwizard2e_classtype_multi"), table.concat(tNames, "/")),
+					mode = "multi", classes = tRecs });
+			end
+		end
+	end
+	return tOut;
+end
+
+function getClassTypeLabel()
+	local sMode = getClassMode();
+	if sMode == "single" then return Interface.getString("charwizard2e_classtype_single"); end
+	local tNames = {};
+	for _, t in ipairs(_tCharData.classlist or {}) do table.insert(tNames, t.text or ""); end
+	if sMode == "multi" then
+		return string.format(Interface.getString("charwizard2e_classtype_multi"), table.concat(tNames, "/"));
+	end
+	return string.format(Interface.getString("charwizard2e_classtype_dual"), tNames[1] or "");
+end
+
+-- Pick a Class type option by its label. A change of classes resets what depends
+-- on them: proficiencies and spells, the gold roll and purchases, and an
+-- alignment the new classes don't allow.
+function setClassTypeByLabel(sLabel)
+	local tPick;
+	for _, t in ipairs(getClassTypeOptions()) do
+		if t.label == sLabel then tPick = t; end
+	end
+	if not tPick or tPick.label == getClassTypeLabel() then return; end
+	if tPick.mode == "single" then
+		_tCharData.classmode = nil;
+		_tCharData.classlist = nil;
+	else
+		_tCharData.classmode = tPick.mode;
+		_tCharData.classlist = tPick.classes;
+		_tCharData.classmodefor = _tCharData.class.linkrecord;
+		_tCharData.classmoderace = _tCharData.race.linkrecord;
+		if tPick.mode == "dual" then _tCharData.duallevel = _tCharData.duallevel or 2; end
+	end
+	_tCharData.profs = nil;
+	_tCharData.equipment = nil;
+	_tCharData.spellcaster = nil;
+	local tAlign = _tCharData.alignment;
+	if tAlign and tAlign.text and not isAlignmentAllowedForClass(tAlign.text, getClassRuleName()) then
+		_tCharData.alignment = nil;
+	end
+	setTargetLevel(getTargetLevel());
+	notifyKitPage();
+	notifyAlignmentPage();
+	notifyEquipmentPage();
+	notifyProficienciesPage();
+	updateTabStatus();
+end
+
+-- "(max 15)" or, for a multi-class, each class's limit.
+function getLevelCapText()
+	if getClassMode() == "multi" then
+		local tParts = {};
+		for _, e in ipairs(getClassEntries()) do
+			table.insert(tParts, string.format("%s %d", e.t.text or "", getRaceClassMaxLevelFor(getClassRuleWords(e.t.text, e.t.linkrecord))));
+		end
+		return string.format(Interface.getString("charwizard2e_level_max_multi"), table.concat(tParts, ", "));
+	end
+	return string.format(Interface.getString("charwizard2e_level_max"), getRaceClassMaxLevel());
+end
+
+-- Spell-casting classes of the build: { key, words, level, label } for each
+-- class that casts (wizard / priest / bard / paladin / ranger), each at its own
+-- level. The Spells tab shows one at a time (_tCharData.spellcaster).
+function getCasterEntries()
+	local tOut, tSeen = {}, {};
+	for _, e in ipairs(getClassEntries()) do
+		if e.t then
+			local sWords = getClassRuleWords(e.t.text, e.t.linkrecord);
+			local sKey = getCasterKeyForWords(sWords);
+			if sKey and not tSeen[sKey] then
+				tSeen[sKey] = true;
+				table.insert(tOut, { key = sKey, words = sWords, level = e.level, label = e.t.text or "" });
+			end
+		end
+	end
+	return tOut;
+end
+
+function getActiveCaster()
+	local tAll = getCasterEntries();
+	return tAll[tonumber(_tCharData.spellcaster) or 1] or tAll[1];
+end
+
+function setActiveCasterByLabel(sLabel)
+	for i, t in ipairs(getCasterEntries()) do
+		if t.label == sLabel then _tCharData.spellcaster = i; end
+	end
+end
+
 -- PHB-style alignment restrictions by class name keyword.
+-- Every class named must allow it (a multi- or dual-class meets all of its
+-- classes' limits). PHB: paladins lawful good; druids true neutral; rangers always
+-- good; bards at least partially neutral; thieves any but lawful good.
 function isAlignmentAllowedForClass(sAlignment, sClassName)
 	local sClass = (sClassName or ""):lower();
 	local sAlign = sAlignment or "";
-
-	if sClass:find("paladin", 1, true) then
-		return sAlign == "Lawful Good";
+	if sClass:find("paladin", 1, true) and sAlign ~= "Lawful Good" then
+		return false;
 	end
-	if sClass:find("druid", 1, true) then
-		return sAlign == "True Neutral";
+	if sClass:find("druid", 1, true) and sAlign ~= "True Neutral" then
+		return false;
 	end
-	if sClass:find("monk", 1, true) then
-		return sAlign:find("Lawful", 1, true) == 1;
+	if sClass:find("monk", 1, true) and sAlign:find("Lawful", 1, true) ~= 1 then
+		return false;
+	end
+	if sClass:find("ranger", 1, true) and not sAlign:find("Good", 1, true) then
+		return false;
+	end
+	if sClass:find("bard", 1, true) and not sAlign:find("Neutral", 1, true) then
+		return false;
+	end
+	if sClass:find("thief", 1, true) and sAlign == "Lawful Good" then
+		return false;
 	end
 	return true;
 end
@@ -1874,16 +2232,13 @@ end
 
 function getAlignmentRestrictionHint()
 	local sClass = getClassRuleName();
-	if sClass:find("paladin", 1, true) then
-		return Interface.getString("charwizard2e_hint_paladin_alignment");
+	local tHints = {};
+	for _, k in ipairs({ "paladin", "druid", "monk", "ranger", "bard", "thief" }) do
+		if sClass:find(k, 1, true) then
+			table.insert(tHints, Interface.getString("charwizard2e_hint_" .. k .. "_alignment"));
+		end
 	end
-	if sClass:find("druid", 1, true) then
-		return Interface.getString("charwizard2e_hint_druid_alignment");
-	end
-	if sClass:find("monk", 1, true) then
-		return Interface.getString("charwizard2e_hint_monk_alignment");
-	end
-	return "";
+	return table.concat(tHints, " ");
 end
 
 --
@@ -2294,21 +2649,46 @@ local _tProfSlots = {
 	priest = { 2, 4, 4, 3 },
 	rogue = { 2, 4, 3, 4 },
 };
-local function getProfSlotRow()
-	local g = profClassGroup(getClassRuleName());
+local function getProfSlotRowFor(sWords)
+	local g = profClassGroup(sWords);
 	if g == "bard" then g = "rogue"; elseif g == "druid" then g = "priest"; end
 	return _tProfSlots[g] or _tProfSlots.priest;
 end
 
+-- Initial slots and the slots gained by level (iInit, iRate: 1, 2 weapon; 3, 4
+-- nonweapon). Multi-class (PHB): the largest initial number, then the fastest
+-- rate (by the highest class level). Dual-class: each class's own, as the sheet
+-- adds them (the first class's at its levels, the new class's at its own).
+local function getSlotParts(iInit, iRate)
+	local sMode = getClassMode();
+	if sMode == "single" then
+		local tRow = getProfSlotRowFor(getClassRuleName());
+		return tRow[iInit], math.floor(getTargetLevel() / tRow[iRate]);
+	end
+	local nInit, nRate, nLevel, nGrow = 0, 99, 1, 0;
+	for _, e in ipairs(getClassEntries()) do
+		local tRow = getProfSlotRowFor(getClassRuleWords(e.t.text, e.t.linkrecord));
+		if sMode == "dual" then
+			nInit = nInit + tRow[iInit];
+			nGrow = nGrow + math.floor(e.level / tRow[iRate]);
+		else
+			nInit = math.max(nInit, tRow[iInit]);
+			nRate = math.min(nRate, tRow[iRate]);
+			nLevel = math.max(nLevel, e.level);
+		end
+	end
+	if sMode == "multi" then nGrow = math.floor(nLevel / nRate); end
+	return nInit, nGrow;
+end
+
 function getWeaponSlots()
-	local tRow = getProfSlotRow();
-	local nLevel = getTargetLevel();
-	local n = tRow[1];
+	local nInit, nGrow = getSlotParts(1, 2);
+	local n = nInit;
 	local tRule = getKitWeaponRule() or {};
 	if tRule.slots then n = tRule.slots; end
 	-- A slot at every level evenly divisible by the group's number (Table 34),
 	-- unless the kit fixes the total for the whole career (Witch, Envoy).
-	if not tRule.fixed then n = n + math.floor(nLevel / tRow[2]); end
+	if not tRule.fixed then n = n + nGrow; end
 	local nExtra = tRule.extra;
 	if not nExtra then
 		local tKit = getKit();
@@ -2334,6 +2714,9 @@ function getAllowedWeaponKeywords()
 	local tRule = getKitWeaponRule() or {};
 	if tRule.any then return nil; end
 	if tRule.class then return _tWeaponAllow[tRule.class]; end
+	if getClassMode() ~= "single" and getActiveClassWords():lower():find("druid", 1, true) then
+		return _tWeaponAllow.druid;
+	end
 	local g = profClassGroup(getClassRuleName());
 	if g == "warrior" or g == "bard" then
 		return nil; -- any weapon
@@ -2464,7 +2847,7 @@ end
 
 -- Weapon specialization (single-class fighters only; not rangers/paladins).
 function canSpecialize()
-	return getClassRuleName():find("fighter", 1, true) ~= nil;
+	return getClassMode() ~= "multi" and getClassRuleName():find("fighter", 1, true) ~= nil;
 end
 
 function getSpecialization()
@@ -2580,8 +2963,8 @@ end
 -- Nonweapon proficiencies: PHB initial slots by class group. (Group/cost is not
 -- in FG's data, so these are picked from the full skill library, slot-limited.)
 function getNWPSlots()
-	local tRow = getProfSlotRow();
-	return tRow[3] + math.floor(getTargetLevel() / tRow[4]);
+	local nInit, nGrow = getSlotParts(3, 4);
+	return nInit + nGrow;
 end
 
 function getChosenNWPs()
@@ -2616,7 +2999,17 @@ end
 -- group). Falls back to the full list if nothing matches, so the picker is never
 -- empty (e.g. an unusual skill library whose names don't match the allow-list).
 function buildNWPCatalog()
-	local sGroup = profClassGroup(getClassRuleName());
+	local tGroups = {};
+	for _, e in ipairs(getClassEntries()) do
+		if e.t then table.insert(tGroups, profClassGroup(getClassRuleWords(e.t.text, e.t.linkrecord))); end
+	end
+	if #tGroups == 0 then tGroups = { profClassGroup(getClassRuleName()) }; end
+	local function isAllowed(sName)
+		for _, g in ipairs(tGroups) do
+			if CharWizard2EBio.isNWPAllowed(sName, g) then return true; end
+		end
+		return false;
+	end
 	local function gather(bFilter)
 		local tSeen = {};
 		local tOut = {};
@@ -2626,7 +3019,7 @@ function buildNWPCatalog()
 				local sName = StringManager.trim(DB.getValue(vNode, "name", ""));
 				local sLower = sName:lower();
 				if sName ~= "" and not tSeen[sLower]
-						and (not bFilter or CharWizard2EBio.isNWPAllowed(sName, sGroup)) then
+						and (not bFilter or isAllowed(sName)) then
 					tSeen[sLower] = true;
 					table.insert(tOut, { sName = sName, sPath = DB.getPath(vNode) });
 				end
@@ -2670,7 +3063,15 @@ end
 -- "bard" (wizard spells from 2nd level, PHB Table 32), "paladin" (priest spells
 -- from 9th, Table 17), "ranger" (priest spells from 8th, Table 18), or nil.
 function getSpellcasterClass()
-	local s = getClassRuleName():lower();
+	if _tCharData.class then
+		local c = getActiveCaster();
+		return c and c.key or nil;
+	end
+	return getCasterKeyForWords(getClassRuleName());
+end
+
+function getCasterKeyForWords(sWords)
+	local s = (sWords or ""):lower();
 	if s == "" then return nil; end
 	local function has(t)
 		for _, w in ipairs(t) do
@@ -2735,7 +3136,8 @@ local _tRangerSlots = {
 -- The spells-per-day row for the class at the target level (nil: none yet).
 function getSpellRow()
 	local sClass = getSpellcasterClass();
-	local nLevel = getTargetLevel();
+	local c = _tCharData.class and getActiveCaster() or nil;
+	local nLevel = c and c.level or getTargetLevel();
 	if sClass == "wizard" then return _tWizSlots[math.min(nLevel, 15)]; end
 	if sClass == "priest" then return _tPriestSlots[math.min(nLevel, 15)]; end
 	if sClass == "bard" then return _tBardSlots[math.min(nLevel, 20)]; end
@@ -2782,10 +3184,18 @@ function getSpellSlots(nSpellLevel)
 	return nBase;
 end
 
+-- A spell belongs to the caster it was picked for (sCaster; the first caster
+-- for a spell picked before a second caster existed).
+local function spellCasterKey(r)
+	local tAll = getCasterEntries();
+	return r.sCaster or (tAll[1] and tAll[1].key) or "";
+end
+
 function getSpellsUsedAtLevel(nSpellLevel)
 	local n = 0;
+	local c = getActiveCaster();
 	for _, r in ipairs(getChosenSpells()) do
-		if (r.nLevel or 1) == nSpellLevel then
+		if (r.nLevel or 1) == nSpellLevel and (not c or spellCasterKey(r) == c.key) then
 			n = n + 1;
 		end
 	end
@@ -2829,7 +3239,9 @@ local _tOpposed = {
 };
 
 function getSpecialistKey()
-	local s = getClassRuleName():lower();
+	local c = _tCharData.class and getActiveCaster() or nil;
+	if c and c.key ~= "wizard" then return nil; end
+	local s = (c and c.words or getClassRuleName()):lower();
 	for sKey in pairs(_tOpposed) do
 		if s:find(sKey, 1, true) then return sKey; end
 	end
@@ -2837,7 +3249,8 @@ function getSpecialistKey()
 end
 
 function isPriestSpellAllowed(sSphere, nLevel)
-	local sClass = getClassRuleName():lower();
+	local c = _tCharData.class and getActiveCaster() or nil;
+	local sClass = (c and c.words or getClassRuleName()):lower();
 	local sCaster = getSpellcasterClass();
 	local tAccess = (sCaster == "paladin" and _tSphereAccess.paladin) or (sCaster == "ranger" and _tSphereAccess.ranger)
 		or (sClass:find("cleric", 1, true) and _tSphereAccess.cleric)
@@ -2861,7 +3274,8 @@ end
 
 function isWizardSpellAllowed(sSchool)
 	local s = sSchool:lower();
-	if s:find("wild magic", 1, true) and not getClassRuleName():lower():find("wild", 1, true) then
+	local c = _tCharData.class and getActiveCaster() or nil;
+	if s:find("wild magic", 1, true) and not (c and c.words or getClassRuleName()):lower():find("wild", 1, true) then
 		return false;
 	end
 	local sKey = getSpecialistKey();
@@ -2938,8 +3352,9 @@ function getSpellGuidance()
 	for n = 1, nMax do
 		table.insert(tParts, string.format("%d of %s level", getSpellSlots(n), ordinal(n)));
 	end
-	local sName = getClassName();
-	local tLines = { string.format("%s, level %d: %s.", sName, getTargetLevel(), table.concat(tParts, ", ")) };
+	local c = getActiveCaster();
+	local sName = c and c.label or getClassName();
+	local tLines = { string.format("%s, level %d: %s.", sName, c and c.level or getTargetLevel(), table.concat(tParts, ", ")) };
 	if sClass == "wizard" then
 		local sKey = getSpecialistKey();
 		if sKey then
@@ -2954,7 +3369,7 @@ function getSpellGuidance()
 	elseif sClass == "ranger" then
 		table.insert(tLines, "Priest spells of the plant and animal spheres; no bonus spells for Wisdom.");
 	else
-		local s = getClassRuleName():lower();
+		local s = (c and c.words or getClassRuleName()):lower();
 		if s:find("cleric", 1, true) then
 			table.insert(tLines, "Every sphere but plant, animal and weather; elemental spells up to 3rd level.");
 		elseif s:find("druid", 1, true) then
@@ -2994,7 +3409,8 @@ function addSpell(sPath, sName, nLevel)
 			ordinal(nLevel), getSpellSlots(nLevel)));
 		return; -- that spell level is full
 	end
-	table.insert(getChosenSpells(), { sName = sName or "", sPath = sPath, nLevel = nLevel });
+	local c = getActiveCaster();
+	table.insert(getChosenSpells(), { sName = sName or "", sPath = sPath, nLevel = nLevel, sCaster = c and c.key or nil });
 	notifyProficienciesPage();
 end
 
@@ -3325,7 +3741,7 @@ function isShopWeaponAllowed(sName, vNode)
 	for _, tGroup in ipairs(tRule.required or {}) do
 		if matchesAny(sName, tGroup) then return true; end
 	end
-	if tRule.cleric or (not tRule.class and getClassRuleName():find("cleric", 1, true)) then
+	if tRule.cleric or (not tRule.class and getActiveClassWords():find("cleric", 1, true)) then
 		return isBludgeoningWeapon(vNode, sName);
 	end
 	local tAllow = getAllowedWeaponKeywords();
@@ -3563,7 +3979,11 @@ local PRIEST_KEEPS_GP = 3;
 local function applyEquipment(nodeChar, rBuild)
 	local tEq = rBuild.equipment or {};
 	local nGold = tEq.nGold;
-	if nGold and nGold > PRIEST_KEEPS_GP and getClassWealthGroup(getClassRuleName()) == "priest" then
+	local bAllPriest = getClassWealthGroup(getClassRuleName()) == "priest";
+	for _, e in ipairs(getClassEntries()) do
+		if e.t and getClassWealthGroup(getClassRuleWords(e.t.text, e.t.linkrecord)) ~= "priest" then bAllPriest = false; end
+	end
+	if nGold and nGold > PRIEST_KEEPS_GP and bAllPriest then
 		ChatManager.SystemMessage(string.format(Interface.getString("charwizard2e_msg_priest_returns"),
 			math.floor((nGold - PRIEST_KEEPS_GP) * 100 + 0.5) / 100, PRIEST_KEEPS_GP));
 		nGold = PRIEST_KEEPS_GP;
@@ -3772,11 +4192,17 @@ local function applySpells(nodeChar)
 	if not tSpells or #tSpells == 0 or not (PowerManager and PowerManager.addPower) then
 		return;
 	end
+	local tCasters = getCasterEntries();
+	local tLabel = {};
+	for _, c in ipairs(tCasters) do tLabel[c.key] = c.label; end
 	for _, rSpell in ipairs(tSpells) do
 		local nodeSource = DB.findNode(rSpell.sPath);
 		if nodeSource then
-			PowerManager.addPower("reference_spell", nodeSource, nodeChar,
-				string.format("Level %d", rSpell.nLevel or 1));
+			local sGroup = string.format("Level %d", rSpell.nLevel or 1);
+			if #tCasters > 1 then
+				sGroup = string.format("%s Level %d", tLabel[spellCasterKey(rSpell)] or "", rSpell.nLevel or 1);
+			end
+			PowerManager.addPower("reference_spell", nodeSource, nodeChar, sGroup);
 		end
 	end
 end
@@ -3888,6 +4314,51 @@ function createCharacter(rBuild, fnDone)
 	return nodeChar;
 end
 
+-- Multi-class: every class at 1st level first (the sheet then splits the hit
+-- points and takes the best proficiency slots), then each level in turn.
+-- Dual-class: the first class to its level, then marked inactive (classactive 0,
+-- as the sheet's own check box does), then the new class: the sheet adds no hit
+-- points until the new class passes the old one's level.
+function applyClassEntries(nodeChar, rBuild)
+	local tEntries = rBuild.classentries or {};
+	local function add(e)
+		CharManager.addClassRef(nodeChar, e.t.linkclass or "reference_class", e.t.linkrecord);
+	end
+	if rBuild.classmode == "multi" then
+		local nMax = 1;
+		for _, e in ipairs(tEntries) do
+			add(e);
+			nMax = math.max(nMax, e.level or 1);
+		end
+		for nLevel = 2, nMax do
+			for _, e in ipairs(tEntries) do
+				if (e.level or 1) >= nLevel then add(e); end
+			end
+		end
+		-- The sheet adds a slot whenever any class reaches a slot level; the PHB
+		-- gives a multi-class the largest initial number and then the fastest rate
+		-- only. Use the PHB count (the one the Profs tab filled).
+		if rBuild.weaponslots then
+			DB.setValue(nodeChar, "proficiencies.weapon.max", "number", rBuild.weaponslots);
+		end
+		if rBuild.nwpslots then
+			DB.setValue(nodeChar, "proficiencies.nonweapon.max", "number", rBuild.nwpslots);
+		end
+		return;
+	end
+	local eFirst, eNew = tEntries[1], tEntries[2];
+	if not eFirst or not eNew then return; end
+	for _ = 1, eFirst.level or 2 do add(eFirst); end
+	local nodeFirst = DB.findNode(eFirst.t.linkrecord);
+	local sFirst = StringManager.trim(nodeFirst and DB.getValue(nodeFirst, "name", "") or eFirst.t.text or ""):lower();
+	for _, nodeClass in ipairs(DB.getChildList(nodeChar, "classes")) do
+		if StringManager.trim(DB.getValue(nodeClass, "name", "")):lower() == sFirst then
+			DB.setValue(nodeClass, "classactive", "number", 0);
+		end
+	end
+	for _ = 1, eNew.level or 1 do add(eNew); end
+end
+
 -- Fill a new, empty character sheet from the build.
 function fillCharacter(nodeChar, rBuild)
 	-- Mirror the standard "new character" setup (identity, registration, base nodes).
@@ -3921,7 +4392,9 @@ function fillCharacter(nodeChar, rBuild)
 
 	-- Class. addClassRef advances one level per call (full advancement each time),
 	-- so reaching level N means calling it N times. Capped by the race/class limit.
-	if rBuild.classlink and rBuild.classlink.linkrecord then
+	if rBuild.classmode == "multi" or rBuild.classmode == "dual" then
+		applyClassEntries(nodeChar, rBuild);
+	elseif rBuild.classlink and rBuild.classlink.linkrecord then
 		local sClassLinkClass = rBuild.classlink.linkclass or "reference_class";
 		local nTarget = math.max(1, tonumber(rBuild.targetlevel) or 1);
 		for _ = 1, nTarget do
