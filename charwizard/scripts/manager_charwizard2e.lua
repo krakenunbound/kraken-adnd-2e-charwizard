@@ -1291,6 +1291,26 @@ function isKitAllowedForCharacter(nodeKit)
 	local sRaceName = getRaceCategoryName();
 	local sModule = DB.getModule(nodeKit) or "";
 
+	-- Complete Fighter's and Thief's Handbooks: their kits are for single-class
+	-- characters only ("only single-class warriors / thieves can take one").
+	-- Priest kits (Complete Priest's) and the race books' multi-class kits
+	-- (Complete Book of Elves: Fighter/Mage kits...) stay open; a character has
+	-- one kit in all.
+	if getClassMode() == "multi" then
+		local m = sModule:lower();
+		if m:find("complete fighter", 1, true) or m:find("complete thief", 1, true) then
+			return false;
+		end
+		-- Complete Barbarian's Handbook: the multi-class demi-barbarian is the dwarf
+		-- fighter/cleric.
+		if m:find("complete barbarian", 1, true) then
+			local sAll = getClassRuleName():lower();
+			if not (sRaceName:lower():find("dwar", 1, true) and sAll:find("fighter", 1, true) and sAll:find("cleric", 1, true)) then
+				return false;
+			end
+		end
+	end
+
 	if #tClasses > 0 and not restrictionsAllow(tClasses, sClassName) then
 		return false;
 	end
@@ -1950,6 +1970,44 @@ local function primesAtLeast(sWords, nMin)
 	return true;
 end
 
+-- Dual-class: may the first class leave? PHB 15+ in its prime requisites;
+-- Complete Paladin's Handbook: a paladin needs 15 in Strength, Constitution and
+-- Wisdom; Complete Barbarian's Handbook: a barbarian fighter needs Strength 15,
+-- a shaman Wisdom 15.
+local function dualFirstOk(sWords)
+	local s = sWords:lower();
+	local tAdj = currentRaceAdjustments();
+	local function atLeast(t, n)
+		for _, sAb in ipairs(t) do
+			if adjustedScore(sAb, tAdj) < n then return false; end
+		end
+		return true;
+	end
+	if s:find("paladin", 1, true) then return atLeast({ "strength", "constitution", "wisdom" }, 15); end
+	if s:find("barbarian", 1, true) and s:find("shaman", 1, true) then return atLeast({ "wisdom" }, 15); end
+	if s:find("barbarian", 1, true) then return atLeast({ "strength" }, 15); end
+	return primesAtLeast(sWords, 15);
+end
+
+-- May the character switch from sFirst to sNew? PHB 17+ in the new class's prime
+-- requisites. Complete Barbarian's Handbook: barbarians dual-class only between
+-- barbarian fighter and shaman (Dexterity, Constitution and the new class's own
+-- prime 17+), and no other class becomes a barbarian.
+local function dualNewOk(sFirst, sNew)
+	local f, n = sFirst:lower(), sNew:lower();
+	local bFirstBarb, bNewBarb = f:find("barbarian", 1, true) ~= nil, n:find("barbarian", 1, true) ~= nil;
+	if bFirstBarb ~= bNewBarb then return false; end
+	if bNewBarb then
+		local tAdj = currentRaceAdjustments();
+		local tNeed = { "dexterity", "constitution", n:find("shaman", 1, true) and "wisdom" or "strength" };
+		for _, sAb in ipairs(tNeed) do
+			if adjustedScore(sAb, tAdj) < 17 then return false; end
+		end
+		return true;
+	end
+	return primesAtLeast(sNew, 17);
+end
+
 local function anyAlignmentFor(sWords)
 	for _, sAlign in ipairs(aAlignments) do
 		if isAlignmentAllowedForClass(sAlign, sWords) then return true; end
@@ -2061,15 +2119,15 @@ function getClassTypeOptions()
 	local sCat = getRaceCategory(getRaceCategoryName());
 	local sWords = getClassRuleWords(tClass.text, tClass.linkrecord);
 	if sCat == "human" then
-		if not primesAtLeast(sWords, 15) then return tOut; end
+		if not dualFirstOk(sWords) then return tOut; end
 		local tSeen = {};
 		for _, tOpt in ipairs(getClassOptions()) do
 			local sNewWords = getClassRuleWords(tOpt.text, tOpt.linkrecord);
 			local sKeyName = (tOpt.text or ""):lower();
 			if not classMatches(tOpt, tClass) and not tSeen[sKeyName] and tOpt.text ~= tClass.text
-					and getBaseClassKey(tOpt.text, tOpt.linkrecord) ~= getBaseClassKey(tClass.text, tClass.linkrecord)
+					and (getBaseClassKey(tOpt.text, tOpt.linkrecord) == nil or getBaseClassKey(tOpt.text, tOpt.linkrecord) ~= getBaseClassKey(tClass.text, tClass.linkrecord))
 					and not (getBaseClassKey(tClass.text, tClass.linkrecord) and sNewWords:lower():find(getBaseClassKey(tClass.text, tClass.linkrecord), 1, true))
-					and primesAtLeast(sNewWords, 17) and isClassAllowedByAbilities(tOpt.text, tOpt.linkrecord)
+					and dualNewOk(sWords, sNewWords) and isClassAllowedByAbilities(tOpt.text, tOpt.linkrecord)
 					and anyAlignmentFor(sWords .. " " .. sNewWords) then
 				tSeen[sKeyName] = true;
 				table.insert(tOut, { label = string.format(Interface.getString("charwizard2e_classtype_dual"), tOpt.text),
@@ -4359,6 +4417,31 @@ function applyClassEntries(nodeChar, rBuild)
 	for _ = 1, eNew.level or 1 do add(eNew); end
 end
 
+-- Experience for each class: the minimum for its level (the class record's
+-- previous level lists it as "expneeded", the experience for the next level).
+-- The sheet's total is their sum and is marked granted, so the sheet does not
+-- hand it out again (CharManager.applyEXPToActiveClasses).
+function applyClassExperience(nodeChar)
+	local nTotal = 0;
+	for _, nodeClass in ipairs(DB.getChildList(nodeChar, "classes")) do
+		local nLevel = DB.getValue(nodeClass, "level", 1);
+		local _, sRecord = DB.getValue(nodeClass, "shortcut", "", "");
+		local nodeSource = (sRecord or "") ~= "" and DB.findNode(sRecord) or nil;
+		local nEXP = 0;
+		if nodeSource and nLevel > 1 then
+			for _, nodeAdv in ipairs(DB.getChildList(nodeSource, "advancement")) do
+				if DB.getValue(nodeAdv, "level", 0) == nLevel - 1 then
+					nEXP = DB.getValue(nodeAdv, "expneeded", 0);
+				end
+			end
+		end
+		DB.setValue(nodeClass, "exp", "number", nEXP);
+		nTotal = nTotal + nEXP;
+	end
+	DB.setValue(nodeChar, "exp", "number", nTotal);
+	DB.setValue(nodeChar, "xpgranted", "number", nTotal);
+end
+
 -- Fill a new, empty character sheet from the build.
 function fillCharacter(nodeChar, rBuild)
 	-- Mirror the standard "new character" setup (identity, registration, base nodes).
@@ -4401,6 +4484,8 @@ function fillCharacter(nodeChar, rBuild)
 			CharManager.addClassRef(nodeChar, sClassLinkClass, rBuild.classlink.linkrecord);
 		end
 	end
+
+	applyClassExperience(nodeChar);
 
 	-- Kit (2E "background" record on the main sheet).
 	if rBuild.kitlink and rBuild.kitlink.linkrecord then
